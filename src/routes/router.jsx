@@ -23,9 +23,13 @@ const router = createBrowserRouter([
         element: <Triaje/>
       },
       {
-        path: 'rayosx',
-        element: <h1>Rayos X</h1>
+        path: "tomografia",
+        element: <h1>Tomografía</h1>
       },
+      {
+        path: "rayosx",
+        element: <h1>Rayos X</h1>,
+      }, 
       {
         path: 'laboratorio',
         element: <h1>Laboratorio</h1>
