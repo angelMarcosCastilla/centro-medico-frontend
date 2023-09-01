@@ -1,55 +1,57 @@
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Link, useLocation } from "react-router-dom"
-import { ChevronFirst, ChevronLast, MoreVertical } from "lucide-react"
+import { Link, useLocation } from 'react-router-dom'
+import { ChevronFirst, ChevronLast, MoreVertical } from 'lucide-react'
+import { Button } from '@nextui-org/react'
 
 const SidebarContext = createContext()
 
 export default function Sidebar({ children }) {
   const [expanded, setExpanded] = useState(true)
 
-  return(
-    <aside className="h-screen">
-      <nav className="h-full flex flex-col bg-white border-r shadow-sm">
-        <div className="p-4 pb-5 flex justify-between items-center">
-          <img 
+  return (
+    <aside className='h-screen'>
+      <nav className='h-full flex flex-col bg-white border-r shadow-sm'>
+        <div className='p-4 pb-5 flex justify-between items-center'>
+          <img
             className={`overflow-hidden transition-all ${
-              expanded ? "w-56" : "w-0"
+              expanded ? 'w-56' : 'w-0'
             }`}
-            alt="Centro Médico Melchorita" 
-            src="https://i.imgur.com/jZHyOL1.jpg"
+            alt='Centro Médico Melchorita'
+            src='https://i.imgur.com/jZHyOL1.jpg'
           />
-          <button 
-            onClick={() => setExpanded(curr => !curr)} 
-            className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100"
+          <Button
+            variant='light'
+            isIconOnly
+            onClick={() => setExpanded((curr) => !curr)}
           >
             {expanded ? <ChevronFirst /> : <ChevronLast />}
-          </button>
+          </Button>
         </div>
 
         <SidebarContext.Provider value={{ expanded }}>
-          <ul className="flex-1 px-3">{children}</ul>
+          <ul className='flex-1 px-3'>{children}</ul>
         </SidebarContext.Provider>
 
-        <div className="border-t flex px-3 py-4">
-          <img 
-            src="https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true" 
-            alt="" 
-            className="w-10 h-10 rounded-md"
+        <div className='border-t flex px-3 py-4'>
+          <img
+            src='https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true'
+            alt=''
+            className='w-10 h-10 rounded-md'
           />
-          <div 
+          <div
             className={`
               flex justify-between items-center
-              overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0"}
+              overflow-hidden transition-all ${expanded ? 'w-52 ml-3' : 'w-0'}
             `}
           >
-            <div className="leading-4">
-              <h4 className="font-semibold">John Doe</h4>
-              <span className="text-xs text-gray-600">johndoe@gmail.com</span>
+            <div className='leading-4'>
+              <h4 className='font-semibold'>John Doe</h4>
+              <span className='text-xs text-gray-600'>johndoe@gmail.com</span>
             </div>
-            <button>
+            <Button isIconOnly variant='light'>
               <MoreVertical size={20} />
-            </button>
+            </Button>
           </div>
         </div>
       </nav>
@@ -60,32 +62,34 @@ export default function Sidebar({ children }) {
 export function SidebarItem({ icon, text, route }) {
   const { expanded } = useContext(SidebarContext)
   const location = useLocation()
-  
+
   const isActive = location.pathname.endsWith(route || 'dashboard')
 
-  return(
+  return (
     <Link to={route ? `./${route}` : ''}>
-      <li className={`
+      <li
+        className={`
         relative flex items-center py-2 px-3 my-1
         font-medium rounded-md cursor-pointer
         transition-colors group
         ${
           isActive
-            ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
-            : "hover:bg-indigo-50 text-gray-600"
+            ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800'
+            : 'hover:bg-indigo-50 text-gray-600'
         }
-      `}>
+      `}
+      >
         {icon}
         <span
           className={`overflow-hidden h-6 transition-all ${
-            expanded ? "w-52 ml-3" : "w-0"
+            expanded ? 'w-52 ml-3' : 'w-0'
           }`}
         >
           {text}
         </span>
 
         {!expanded && (
-          <div 
+          <div
             className={`
               absolute left-full rounded-md px-2 py-1 ml-6
             bg-indigo-100 text-indigo-800 text-sm
@@ -109,5 +113,5 @@ Sidebar.propTypes = {
 SidebarItem.propTypes = {
   icon: PropTypes.element.isRequired,
   text: PropTypes.string.isRequired,
-  route: PropTypes.string,
+  route: PropTypes.string
 }

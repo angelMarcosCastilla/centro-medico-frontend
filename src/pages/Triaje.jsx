@@ -108,6 +108,7 @@ export default function Triaje() {
                 if (factor.name === 'Otro') {
                   return (
                     <Input
+                      variant='bordered'
                       size='sm'
                       className='h-full'
                       onChange={handleChangeOtro}
@@ -167,7 +168,7 @@ export default function Triaje() {
           </div>
         </Tab>
       </Tabs>
-      <Button color='primary' className='my-3'>
+      <Button color='primary' className='my-5'>
         Registrar Triaje
       </Button>
     </section>

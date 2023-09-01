@@ -19,10 +19,8 @@ export default function Dashboard() {
         <SidebarItem icon={<Settings size={20} />} text="Configuración" />
         <SidebarItem icon={<HelpCircle size={20} />} text="Ayuda" />
       </Sidebar>
-      <div className="flex-1">
-        <h1>Dashboard</h1>
+      <div className="flex-1 px-10 py-5">
         <Outlet />
-        <p>This is the dashboard page</p>
       </div>
     </div>
   )
