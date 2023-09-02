@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 
 import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
-import Triaje from '../pages/Triaje.jsx'
+import Tomografia from '../pages/Tomografía.jsx'
 
 const router = createBrowserRouter([
   {
@@ -19,12 +19,12 @@ const router = createBrowserRouter([
         index: true
       },
       {
-        path: 'triaje',
-        element: <Triaje/>
+        path: "admision",
+        element: <h1>Admisión</h1>
       },
       {
         path: "tomografia",
-        element: <h1>Tomografía</h1>
+        element: <Tomografia/>
       },
       {
         path: "rayosx",
