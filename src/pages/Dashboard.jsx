@@ -1,21 +1,20 @@
-import { Outlet } from "react-router-dom"
+import { Outlet } from 'react-router-dom'
 import Sidebar, { SidebarItem } from '../components/Sidebar'
-import {
-  Brain,
-  Bone,
-  Home,
-} from 'lucide-react'
+import { Brain, Bone, FileText } from 'lucide-react'
 
 export default function Dashboard() {
   return (
-    <div className="flex">
+    <div className='flex h-screen'>
       <Sidebar>
-        <SidebarItem icon={<Home size={20} />} text="Inicio" />
-        <SidebarItem icon={<Bone size={20}/>} text="Admisión" />
-        <SidebarItem icon={<Brain size={20} />} text="Tomografía" route="tomografia" />
-        <SidebarItem icon={<Bone size={20} />} text="Rayos X" route="rayosx" />
+        <SidebarItem icon={<FileText size={20} />} text='Admisión' />
+        <SidebarItem
+          icon={<Brain size={20} />}
+          text='Tomografía'
+          route='tomografia'
+        />
+        <SidebarItem icon={<Bone size={20} />} text='Rayos X' route='rayosx' />
       </Sidebar>
-      <div className=" bg-slate-100 flex-1 px-10 py-5">
+      <div className= 'bg-slate-100 flex-1 px-10 py-5 overflow-y-auto'>
         <Outlet />
       </div>
     </div>
