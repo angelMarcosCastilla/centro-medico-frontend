@@ -47,12 +47,12 @@ function ModalServices({ isOpen, onOpenChange }) {
               </ModalHeader>
               <ModalBody>
                 <div className='flex flex-col gap-y-4'>
-                  <Select placeholder='Tipo de servicio'>
+                  <Select label='Tipo de servicio' size='lg'>
                     <SelectItem value='1'>Tomografía</SelectItem>
                     <SelectItem value='2'>Rayo x</SelectItem>
                     <SelectItem value='3'>Laboratorio</SelectItem>
                   </Select>
-                  <Select placeholder='Servicio'>
+                  <Select label='Tipo de servicio' size='lg'>
                     <SelectItem value='1'>Tomografía</SelectItem>
                     <SelectItem value='2'>Rayo x</SelectItem>
                     <SelectItem value='3'>Laboratorio</SelectItem>
@@ -87,57 +87,31 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
               </ModalHeader>
               <ModalBody>
                 <div className='flex flex-row gap-x-4'>
-                  <Select
-                    placeholder='Tipo de documento'
-                    labelPlacement='outside'
-                    label='Tipo Documento'
-                  >
+                  <Select size='lg' label='Tipo Documento'>
                     <SelectItem value='D'>DNI</SelectItem>
                     <SelectItem value='C'>Carnet de extranjeria</SelectItem>
                   </Select>
-                  <Input
-                    className='mb-2'
-                    label='Numero Docuemento'
-                    placeholder='numeroDocumento'
-                    labelPlacement='outside'
-                  />
+                  <Input className='mb-2' label='Numero Docuemento' size='lg' />
                 </div>
                 <div className='flex flex-row gap-x-4'>
-                  <Input
-                    className='mb-2'
-                    label='Nombres'
-                    placeholder='nombres'
-                    labelPlacement='outside'
-                  />
-                  <Input
-                    className='mb-2'
-                    label='Apellidos'
-                    placeholder='apellido'
-                    labelPlacement='outside'
-                  />
+                  <Input className='mb-2' label='Nombres' size='lg' />
+                  <Input className='mb-2' label='Apellidos' size='lg' />
                 </div>
                 <div className='flex flex-row gap-x-4'>
                   <Input
                     type='date'
                     className='mb-2'
                     label='Fecha Nacimiento'
-                    placeholder='DD/MM/YYYY'
-                    labelPlacement='outside'
+                    placeholder='fecha nacimiento'
+                    size='lg'
                   />
-                  <Input
-                    className='mb-2'
-                    label='Dirección'
-                    placeholder='direccion'
-                    labelPlacement='outside'
-                  />
+                  <Input className='mb-2' label='Dirección' size='lg' />
                 </div>
                 <div className='flex flex-row gap-x-4'>
                   <Input
-                    type='date'
                     className='mb-2'
                     label='Correo'
-                    placeholder='Correo'
-                    labelPlacement='outside'
+                    size='lg'
                   />
                   <Input
                     className='mb-2'
