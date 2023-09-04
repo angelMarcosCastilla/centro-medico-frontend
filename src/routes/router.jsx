@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Tomografia from '../pages/Tomografía.jsx'
+import Admision from '../pages/Admision.jsx'
 
 const router = createBrowserRouter([
   {
@@ -20,7 +21,7 @@ const router = createBrowserRouter([
       },
       {
         path: "admision",
-        element: <h1>Admisión</h1>
+        element: <Admision/>
       },
       {
         path: "tomografia",
