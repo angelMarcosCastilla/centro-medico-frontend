@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Link, useLocation } from 'react-router-dom'
 import { ChevronFirst, ChevronLast, MoreVertical } from 'lucide-react'
@@ -7,7 +7,12 @@ import { Button } from '@nextui-org/react'
 const SidebarContext = createContext()
 
 export default function Sidebar({ children }) {
-  const [expanded, setExpanded] = useState(true)
+  const storedExpanded = localStorage.getItem('sidebarExpanded')
+  const [expanded, setExpanded] = useState(storedExpanded === 'true')
+
+  useEffect(() => {
+    localStorage.setItem('sidebarExpanded', expanded.toString())
+  }, [expanded])
 
   return (
     <aside className='h-screen'>
@@ -33,7 +38,7 @@ export default function Sidebar({ children }) {
           <ul className='flex-1 px-3'>{children}</ul>
         </SidebarContext.Provider>
 
-        <div className='border-t flex px-3 py-4'>
+        <div className='border-t flex px-4 py-4'>
           <img
             src='https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true'
             alt=''
@@ -69,7 +74,7 @@ export function SidebarItem({ icon, text, route }) {
     <Link to={route ? `./${route}` : ''}>
       <li
         className={`
-        relative flex items-center py-2 px-3 my-1
+        relative flex items-center py-2 px-3.5 my-1
         font-medium rounded-md cursor-pointer
         transition-colors group
         ${
