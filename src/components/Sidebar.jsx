@@ -68,10 +68,10 @@ export function SidebarItem({ icon, text, route }) {
   const { expanded } = useContext(SidebarContext)
   const location = useLocation()
 
-  const isActive = location.pathname.endsWith(route || 'dashboard')
+  const isActive = location.pathname.endsWith(route)
 
   return (
-    <Link to={route ? `./${route}` : ''}>
+    <Link to={route}>
       <li
         className={`
         relative flex items-center py-2 px-3.5 my-1
