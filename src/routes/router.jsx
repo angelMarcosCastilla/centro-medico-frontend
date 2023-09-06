@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 
 import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
-import Tomografia from '../pages/Tomografía.jsx'
+import Tomografia from '../pages/Tomografia'
 import Admision from '../pages/Admision.jsx'
 
 const router = createBrowserRouter([
