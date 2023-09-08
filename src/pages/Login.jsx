@@ -8,10 +8,8 @@ export default function Login() {
   const [visible, toggleVisible] = useState(false)
 
   const login = () => {
-    /* if (username && password) alert('¡Bienvenido!')
-    else alert('Complete los datos por favor') */
     alert('Bienvenido')
-    location.href = '/dashboard'
+    location.href = '/admision'
   }
 
   return (
@@ -22,8 +20,6 @@ export default function Login() {
         <div className='md:block hidden w-1/2 relative'>
           <img
             className='rounded-2xl'
-            /* src='https://images.unsplash.com/photo-1616606103915-dea7be788566?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1887&q=80' */
-            /* src='https://i.imgur.com/jZHyOL1.jpg' */
             src='https://i.imgur.com/LucPa4a.jpg'
           />
           <p className='text-xl text-center text-white absolute bottom-8 left-1/2 transform -translate-x-1/2 p-2 w-4/5'>

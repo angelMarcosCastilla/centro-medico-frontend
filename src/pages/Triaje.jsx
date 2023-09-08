@@ -14,6 +14,7 @@ import {
   Tab,
   Tabs
 } from '@nextui-org/react'
+import DateTimeClock from '../components/DateTimeClock'
 
 const listRiskFactors = [
   {
@@ -102,14 +103,7 @@ export default function Triaje() {
     <Card shadow='none'>
       <CardHeader className='flex justify-between'>
         <h1 className='text-2xl'>Identificación del paciente en Triaje</h1>
-        <h2 className='text-lg'>
-          Fecha:{' '}
-          {new Date().toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-          })}
-        </h2>
+        <DateTimeClock />
       </CardHeader>
       <Divider />
       <CardBody>
