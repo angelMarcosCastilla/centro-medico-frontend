@@ -34,6 +34,7 @@ import {
   Search,
   Trash2
 } from 'lucide-react'
+import DateTimeClock from '../components/DateTimeClock'
 
 function ModalServices({ isOpen, onOpenChange }) {
   return (
@@ -212,17 +213,11 @@ export default function Admision() {
   }
 
   return (
-    <section className='flex flex-row h-full'>
-      <Card className='w-full'>
+    <div className='flex flex-row h-full'>
+      <Card className='w-full' shadow='none'>
         <CardHeader className='flex justify-between'>
           <span className='text-lg'>Adminsión</span>
-          <span className=''>
-            {new Date().toLocaleDateString('es', {
-              day: '2-digit',
-              year: 'numeric',
-              month: 'short'
-            })}
-          </span>
+          <DateTimeClock />
         </CardHeader>
         <CardBody>
           <div>
@@ -373,6 +368,6 @@ export default function Admision() {
         isOpen={isOpenCompany}
         onOpenChange={onOpenChangeCompany}
       />
-    </section>
+    </div>
   )
 }
