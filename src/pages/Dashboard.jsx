@@ -1,8 +1,14 @@
-import { Outlet } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import Sidebar, { SidebarItem } from '../components/Sidebar'
 import { Brain, Bone, FileText } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 export default function Dashboard() {
+  const {  isAuthenticated } = useAuth()
+
+  if (!isAuthenticated) return <Navigate to="/"/>
+  
+
   return (
     <div className='flex h-screen'>
       <Sidebar>

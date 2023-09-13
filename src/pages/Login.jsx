@@ -1,15 +1,32 @@
 import { Button, Input } from '@nextui-org/react'
 import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
+import { loginServices } from '../services/auth'
+import { Navigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [visible, toggleVisible] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const { setLoginData, isAuthenticated } = useAuth()
 
-  const login = () => {
-    alert('Bienvenido')
-    location.href = '/admision'
+  if (isAuthenticated) {
+    return <Navigate to='/admision' />
+  }
+  const login = async () => {
+    try {
+      setLoading(true)
+      const data = await loginServices(password, username)
+      if (data.isSuccess) {
+        setLoginData(data)
+      }
+    } catch (e) {
+      console.log('error')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -18,10 +35,7 @@ export default function Login() {
       <div className='bg-gray-100 flex rounded-2xl shadow-2xl max-w-4xl p-5 items-center'>
         {/* Image */}
         <div className='md:block hidden w-1/2 relative'>
-          <img
-            className='rounded-2xl'
-            src='https://i.imgur.com/LucPa4a.jpg'
-          />
+          <img className='rounded-2xl' src='https://i.imgur.com/LucPa4a.jpg' />
           <p className='text-xl text-center text-white absolute bottom-8 left-1/2 transform -translate-x-1/2 p-2 w-4/5'>
             <i>
               &#34;La calidad de nuestro servicio, nuestra mejor garantía&#34;
@@ -75,6 +89,7 @@ export default function Login() {
               <a href='#'>¿Olvidaste tu contraseña?</a>
             </div>
             <Button
+              isLoading={loading}
               color='primary'
               size='lg'
               onClick={login}
