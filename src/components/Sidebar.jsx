@@ -1,14 +1,31 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
 import { Link, useLocation } from 'react-router-dom'
-import { ChevronFirst, ChevronLast, MoreVertical } from 'lucide-react'
-import { Button } from '@nextui-org/react'
+import { ChevronFirst, ChevronLast } from 'lucide-react'
+import {
+  Button,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  User
+} from '@nextui-org/react'
+import { useAuth } from '../context/AuthContext'
 
 const SidebarContext = createContext()
 
 export default function Sidebar({ children }) {
-  const storedExpanded = localStorage.getItem('sidebarExpanded')
-  const [expanded, setExpanded] = useState(storedExpanded === 'true')
+  const [expanded, setExpanded] = useState(() => {
+    const storedExpanded = localStorage.getItem('sidebarExpanded')
+    if (storedExpanded) {
+      return storedExpanded === 'true'
+    }
+    return true
+  })
+
+  const {
+    logout,
+    userInfo: { data }
+  } = useAuth()
 
   useEffect(() => {
     localStorage.setItem('sidebarExpanded', expanded.toString())
@@ -39,25 +56,35 @@ export default function Sidebar({ children }) {
         </SidebarContext.Provider>
 
         <div className='border-t flex px-4 py-4'>
-          <img
-            src='https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true'
-            alt=''
-            className='w-10 h-10 rounded-md'
-          />
-          <div
-            className={`
-              flex justify-between items-center
-              overflow-hidden transition-all ${expanded ? 'w-52 ml-3' : 'w-0'}
-            `}
-          >
-            <div className='leading-4'>
-              <h4 className='font-semibold'>John Doe</h4>
-              <span className='text-xs text-gray-600'>johndoe@gmail.com</span>
-            </div>
-            <Button isIconOnly variant='light'>
-              <MoreVertical size={20} />
-            </Button>
-          </div>
+          <Dropdown placement='bottom-start'>
+            <DropdownTrigger>
+              <User
+                as='button'
+                avatarProps={{
+                  isBordered: true,
+                  src: `https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true&name=${data.nombre_usuario}`
+                }}
+                {...(expanded && {
+                  className: 'transition-transform',
+                  description: data.nivel_acceso,
+                  name: data.nombre_usuario
+                })}
+              />
+            </DropdownTrigger>
+            <DropdownMenu aria-label='User Actions' variant='flat'>
+              <DropdownItem key='profile'>Perfil</DropdownItem>
+              <DropdownItem
+                key='logout'
+                color='danger'
+                onClick={() => {
+                  localStorage.removeItem('sidebarExpanded')
+                  logout()
+                }}
+              >
+                Cerrar sesión
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
         </div>
       </nav>
     </aside>
@@ -110,14 +137,4 @@ export function SidebarItem({ icon, text, route }) {
       </li>
     </Link>
   )
-}
-
-Sidebar.propTypes = {
-  children: PropTypes.node.isRequired
-}
-
-SidebarItem.propTypes = {
-  icon: PropTypes.element.isRequired,
-  text: PropTypes.string.isRequired,
-  route: PropTypes.string
 }

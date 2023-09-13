@@ -30,13 +30,19 @@ export default function AuthProvider({ children }) {
     setUserInfo(userInfo)
   }, [])
 
+  const logout = useCallback(async () => {
+    localStorage.removeItem('userInfo')
+    setUserInfo(null)
+  }, [])
+
   const value = useMemo(() => {
     return {
       isAuthenticated:  userInfo !== null,
       userInfo, 
-      setLoginData
+      setLoginData,
+      logout
     }
-  }, [ userInfo, setLoginData])
+  }, [ userInfo, setLoginData, logout])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

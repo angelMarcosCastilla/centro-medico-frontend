@@ -216,7 +216,7 @@ export default function Admision() {
     <div className='flex flex-row h-full'>
       <Card className='w-full' shadow='none'>
         <CardHeader className='flex justify-between'>
-          <span className='text-lg'>Adminsión</span>
+          <span className='text-lg'>Admisión</span>
           <DateTimeClock />
         </CardHeader>
         <CardBody>
