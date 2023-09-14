@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 
 import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
-import Admision from '../pages/Admision.jsx'
+import Admision from '../pages/Admision'
 import Tomografia from '../pages/Tomografia'
 import Triaje from '../pages/Triaje.jsx'
 

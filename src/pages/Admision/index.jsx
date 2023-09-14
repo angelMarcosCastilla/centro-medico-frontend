@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import {
   Card,
   CardBody,
@@ -25,7 +25,7 @@ import {
   SelectItem,
   Tooltip
 } from '@nextui-org/react'
-import CustonRadio from '../components/CustonRadio'
+import CustonRadio from '../../components/CustonRadio'
 import {
   CircleDollarSign,
   Newspaper,
@@ -34,47 +34,9 @@ import {
   Search,
   Trash2
 } from 'lucide-react'
-import DateTimeClock from '../components/DateTimeClock'
-
-function ModalServices({ isOpen, onOpenChange }) {
-  return (
-    <>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='2xl'>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className='flex flex-col gap-1'>
-                Nuevo Servicio
-              </ModalHeader>
-              <ModalBody>
-                <div className='flex flex-col gap-y-4'>
-                  <Select label='Tipo de servicio' size='lg'>
-                    <SelectItem value='1'>Tomografía</SelectItem>
-                    <SelectItem value='2'>Rayo x</SelectItem>
-                    <SelectItem value='3'>Laboratorio</SelectItem>
-                  </Select>
-                  <Select label='Tipo de servicio' size='lg'>
-                    <SelectItem value='1'>Tomografía</SelectItem>
-                    <SelectItem value='2'>Rayo x</SelectItem>
-                    <SelectItem value='3'>Laboratorio</SelectItem>
-                  </Select>
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button color='danger' variant='light' onPress={onClose}>
-                  Close
-                </Button>
-                <Button color='primary' onPress={onClose}>
-                  Registrar
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </>
-  )
-}
+import DateTimeClock from '../../components/DateTimeClock'
+import { getAllServices } from '../../services/servicios'
+import { ModalServicios } from './components/ModalServicios'
 
 function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
   return (
@@ -109,11 +71,7 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
                   <Input className='mb-2' label='Dirección' size='lg' />
                 </div>
                 <div className='flex flex-row gap-x-4'>
-                  <Input
-                    className='mb-2'
-                    label='Correo'
-                    size='lg'
-                  />
+                  <Input className='mb-2' label='Correo' size='lg' />
                   <Input
                     className='mb-2'
                     label='Celular'
@@ -188,6 +146,7 @@ function ModalNewCompany({ isOpen, onOpenChange }) {
 }
 
 export default function Admision() {
+  const [services, setServices] = React.useState([])
   const [tipoBoleta, setTipoBoleta] = React.useState('B')
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const {
@@ -211,6 +170,10 @@ export default function Admision() {
       onOpenCompany()
     }
   }
+
+  useEffect(() => {
+    getAllServices().then(setServices)
+  }, [])
 
   return (
     <div className='flex flex-row h-full'>
@@ -353,10 +316,11 @@ export default function Admision() {
         </CardBody>
       </Card>
 
-      <ModalServices
+      <ModalServicios
+        data={services.data}
         isOpen={isOpen}
-        onOpen={onOpen}
         onOpenChange={onOpenChange}
+        onChange={console.log}
       />
 
       <ModalNewPerson
