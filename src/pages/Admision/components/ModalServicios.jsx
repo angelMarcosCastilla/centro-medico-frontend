@@ -1,5 +1,5 @@
 import {
-  Button,
+  Button,  
   Modal,
   ModalBody,
   ModalContent,
@@ -8,39 +8,41 @@ import {
   Select,
   SelectItem
 } from '@nextui-org/react'
+
 import React, { useMemo, useState } from 'react'
 
 export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
-  const [area, setArea] = useState('')
-  const [categoria, setCategoria] = useState('')
-  const [servicio, setServicio] = useState('')
+  const [area, setArea] = useState(new Set([]))
+  const [categoria, setCategoria] = useState(new Set([]))
+  const [servicio, setServicio] = useState(new Set([]))
 
   const optionsCategoria = useMemo(() => {
-    if (area === '') return []
-    const options = data.find(
-      (item) => item.idarea === Number(Array.from(area))
+    if (area.size === 0) return []
+    const options = data.find((item) =>
+      area.has(String(item.idarea))
     ).categorias
+
     return options
   }, [area])
 
   const optionSercicios = useMemo(() => {
-    if (categoria === '') return []
-    const options = optionsCategoria.find(
-      (item) => item.idcategoria === Number(Array.from(categoria))
+    if (categoria.size === 0) return []
+    const options = optionsCategoria.find((item) =>
+      categoria.has(String(item.idcategoria))
     ).servicios
     return options
   }, [categoria])
 
   const currentServicio = useMemo(() => {
-    if (servicio === '') return null
-    return optionSercicios.find((item) => item.idservicio === Number(servicio))
+    if (servicio.size === 0) return null
+    return optionSercicios.find((item) => servicio.has(String(item.idservicio)))
   }, [servicio])
 
   const handleAddServices = () => {
-    setArea('')
-    setCategoria('')
-    setServicio('')
-    onChange(currentServicio)
+    setArea(new Set([]))
+    setCategoria(new Set([]))
+    setServicio(new Set([]))
+    onChange({ ...currentServicio, descuento: 0 })
     onOpenChange(false)
   }
 
@@ -51,8 +53,8 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
           {(onClose) => (
             <>
               <ModalHeader className='flex flex-col gap-1'>
-                Servicio
-              </ModalHeader>
+                Agregar servicio                
+              </ModalHeader>                            
               <ModalBody>
                 {currentServicio && (
                   <div className='border mb-3 text-sm flex flex-col text-blue-900 border-blue-500 bg-blue-50 rounded px-4 py-2'>
@@ -66,15 +68,19 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                   <Select
                     label='Area'
                     size='lg'
-                    value={area}
+                    selectedKeys={area}
                     onChange={(e) => {
-                      setCategoria('')
-                      setServicio('')
-                      setArea(e.target.value)
+                      setCategoria(new Set([]))
+                      setServicio(new Set([]))
+                      if (e.target.value !== '') {
+                        setArea(new Set([e.target.value]))
+                      } else {
+                        setArea(new Set([]))
+                      }
                     }}
                   >
                     {data.map((area) => (
-                      <SelectItem key={area.idarea} selectedKeys={area.idarea}>
+                      <SelectItem key={area.idarea} value={area.idarea}>
                         {area.nombre}
                       </SelectItem>
                     ))}
@@ -82,10 +88,14 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                   <Select
                     label='Categoria'
                     size='lg'
-                    value={categoria}
+                    selectedKeys={categoria}
                     onChange={(e) => {
-                      setServicio('')
-                      setCategoria(e.target.value)
+                      setServicio(new Set([]))
+                      if (e.target.value !== '') {
+                        setCategoria(new Set([e.target.value]))
+                      } else {
+                        setCategoria(new Set([]))
+                      }
                     }}
                   >
                     {optionsCategoria.map((categoria) => (
@@ -101,8 +111,14 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                     key={categoria}
                     label='Servicios'
                     size='lg'
-                    value={servicio}
-                    onChange={(e) => setServicio(e.target.value)}
+                    selectedKeys={servicio}
+                    onChange={(e) => {
+                      if (e.target.value !== '') {
+                        setServicio(new Set([e.target.value]))
+                      } else {
+                        setServicio(new Set([]))
+                      }
+                    }}
                   >
                     {optionSercicios.map((servicio) => (
                       <SelectItem
@@ -117,10 +133,10 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
               </ModalBody>
               <ModalFooter>
                 <Button color='danger' variant='light' onPress={onClose}>
-                  Close
+                  Cerrar
                 </Button>
                 <Button color='primary' onPress={handleAddServices}>
-                  Registrar
+                  Agregar
                 </Button>
               </ModalFooter>
             </>

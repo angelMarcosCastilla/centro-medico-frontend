@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   Card,
   CardBody,
@@ -22,8 +22,7 @@ import {
   ModalFooter,
   ModalBody,
   Select,
-  SelectItem,
-  Tooltip
+  SelectItem
 } from '@nextui-org/react'
 import CustonRadio from '../../components/CustonRadio'
 import {
@@ -37,60 +36,117 @@ import {
 import DateTimeClock from '../../components/DateTimeClock'
 import { getAllServices } from '../../services/servicios'
 import { ModalServicios } from './components/ModalServicios'
+import { addPersonService } from '../../services/person'
 
 function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
+  const[loading,setLoading] = useState(false)
+  const handleAddPerson = async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    setLoading(true)    
+    await addPersonService(Object.fromEntries(formData))
+    setLoading(false)
+  }
   return (
     <>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='2xl'>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className='flex flex-col gap-1'>
-                Registrar {isPatient ? 'Paciente' : 'Cliente'}
-              </ModalHeader>
-              <ModalBody>
-                <div className='flex flex-row gap-x-4'>
-                  <Select size='lg' label='Tipo Documento'>
-                    <SelectItem value='D'>DNI</SelectItem>
-                    <SelectItem value='C'>Carnet de extranjeria</SelectItem>
-                  </Select>
-                  <Input className='mb-2' label='Numero Docuemento' size='lg' />
-                </div>
-                <div className='flex flex-row gap-x-4'>
-                  <Input className='mb-2' label='Nombres' size='lg' />
-                  <Input className='mb-2' label='Apellidos' size='lg' />
-                </div>
-                <div className='flex flex-row gap-x-4'>
-                  <Input
-                    type='date'
-                    className='mb-2'
-                    label='Fecha Nacimiento'
-                    placeholder='fecha nacimiento'
-                    size='lg'
-                  />
-                  <Input className='mb-2' label='Dirección' size='lg' />
-                </div>
-                <div className='flex flex-row gap-x-4'>
-                  <Input className='mb-2' label='Correo' size='lg' />
-                  <Input
-                    className='mb-2'
-                    label='Celular'
-                    placeholder='Celular'
-                    labelPlacement='outside'
-                  />
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button color='danger' variant='light' onPress={onClose}>
-                  Close
-                </Button>
-                <Button color='primary' onPress={onClose}>
-                  Registrar
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+        <form onSubmit={handleAddPerson} autoComplete='off'>
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className='flex flex-col gap-1'>
+                  Registrar {isPatient ? 'Paciente' : 'Cliente'}
+                </ModalHeader>
+                <ModalBody>
+                  <div className='flex flex-row gap-x-4'>
+                    <Select
+                      size='lg'
+                      label='Tipo Documento'
+                      defaultSelectedKeys={['D']}
+                      isRequired
+                      name='tipoDocumento'
+                    >
+                      <SelectItem value='D' key={'D'}>
+                        DNI
+                      </SelectItem>
+                      <SelectItem value='C' key={'C'}>
+                        Carnet de extranjeria
+                      </SelectItem>
+                    </Select>
+                    <Input
+                      className='mb-2'
+                      label='Numero Docuemento'
+                      size='lg'
+                      isRequired
+                      name='numDocumento'
+                    />
+                  </div>
+                  <div className='flex flex-row gap-x-4'>
+                    <Input
+                      className='mb-2'
+                      label='Nombres'
+                      size='lg'
+                      isRequired
+                      name='nombres'
+                    />
+                    <Input
+                      className='mb-2'
+                      label='Apellidos'
+                      size='lg'
+                      isRequired
+                      name='apellidos'
+                    />
+                  </div>
+                  <div className='flex flex-row gap-x-4'>
+                    <Input
+                      name='fechaNacimiento'
+                      type='date'
+                      className='mb-2'
+                      label='Fecha Nacimiento'
+                      placeholder='fecha nacimiento'
+                      size='lg'
+                      isRequired
+                    />
+                    <Input
+                      className='mb-2'
+                      label='Dirección'
+                      size='lg'
+                      name='direccion'
+                    />
+                  </div>
+                  <div className='flex flex-row gap-x-4'>
+                    <Input
+                      className='mb-2'
+                      label='Correo'
+                      size='lg'
+                      name='correo'
+                    />
+                     <Input
+                      name='celular'
+                      className='mb-2'
+                      label='Celular'
+                      placeholder='Celular'
+                      size='lg'
+                    /> 
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    color='danger'
+                    type='button'
+                    variant='light'
+                    onPress={onClose}
+                  >
+                    Close
+                  </Button>
+                  <Button color='primary' type='submit' isLoading={loading}>
+                    Registrar
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </form>
       </Modal>
     </>
   )
@@ -148,6 +204,7 @@ function ModalNewCompany({ isOpen, onOpenChange }) {
 export default function Admision() {
   const [services, setServices] = React.useState([])
   const [tipoBoleta, setTipoBoleta] = React.useState('B')
+  const [detService, setDetService] = React.useState([])
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const {
     isOpen: isOpenPerson,
@@ -169,6 +226,24 @@ export default function Admision() {
     } else {
       onOpenCompany()
     }
+  }
+
+  const handleAddServices = (data) => {
+    setDetService([...detService, data])
+  }
+
+  const montoTotal = () => {
+    let monto = 0
+    detService.forEach((item) => {
+      monto += parseFloat(item.precio)
+    })
+    return monto
+  }
+
+  const handleRemoveServices = (idservice) => {
+    setDetService((prevalue) =>
+      prevalue.filter((item) => item.idservicio !== idservice)
+    )
   }
 
   useEffect(() => {
@@ -282,24 +357,48 @@ export default function Admision() {
                   <TableColumn>Acción</TableColumn>
                 </TableHeader>
                 <TableBody>
-                  <TableRow key='1'>
-                    <TableCell>Tomografia </TableCell>
-                    <TableCell>Lorem ipsum dolor sit amet.</TableCell>
-                    <TableCell>20.00</TableCell>
-                    <TableCell>
-                      <Input />
-                    </TableCell>
-                    <TableCell>20.00</TableCell>
-                    <TableCell>
-                      <div className='relative flex items-center gap-2'>
-                        <Tooltip color='danger' content='Eliminar Fila'>
-                          <span className='text-lg text-danger cursor-pointer active:opacity-50'>
-                            <Trash2 className='w-5 h-5' />
-                          </span>
-                        </Tooltip>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  {detService.map((service) => (
+                    <TableRow key={service.idservicio}>
+                      <TableCell>{service.nombre} </TableCell>
+                      <TableCell>{service.observacion}</TableCell>
+                      <TableCell>{service.precio}</TableCell>
+                      <TableCell>
+                        <Input
+                          type='number'
+                          min={0}
+                          value={service.descuento}
+                          onChange={(e) => {
+                            const descuento = e.target.value
+                            setDetService((prevService) => {
+                              return prevService.map((prevService) => {
+                                return prevService.idservicio ===
+                                  service.idservicio
+                                  ? { ...service, descuento }
+                                  : prevService
+                              })
+                            })
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {service.precio - service.descuento}
+                      </TableCell>
+                      <TableCell>
+                        <div className='relative flex items-center gap-2'>
+                          <Button
+                            isIconOnly
+                            variant='light'
+                            color='danger'
+                            onClick={() =>
+                              handleRemoveServices(service.idservicio)
+                            }
+                          >
+                            <Trash2 size={20} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
               <div className='flex justify-between mt-4'>
@@ -308,7 +407,7 @@ export default function Admision() {
                 </Button>
                 <div className='bg-green-50 rounded text-green-950 py-5 w-[220px] flex flex-col items-center justify-center'>
                   <CircleDollarSign className='h-7 w-7' />
-                  <span className='text-xl mt-4'>s/. 500</span>
+                  <span className='text-xl mt-4'>{montoTotal()}</span>
                 </div>
               </div>
             </article>
@@ -320,7 +419,7 @@ export default function Admision() {
         data={services.data}
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        onChange={console.log}
+        onChange={handleAddServices}
       />
 
       <ModalNewPerson
