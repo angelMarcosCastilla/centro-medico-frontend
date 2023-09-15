@@ -87,7 +87,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                       ))}
                     </Select>
                     <Select
-                      label='Categoria'
+                      label='Categoría'
                       size='lg'
                       selectedKeys={categoria}
                       onChange={(e) => {
@@ -131,20 +131,37 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                       ))}
                     </Select>
                   </div>
-                    <div className='col-span-2 border text-base text-blue-900 border-blue-500 bg-blue-50 rounded-md p-4'>
-                      <div className='grid grid-rows-2 grid-flow-col gap-x-4 h-full'>
-                        <div className='flex flex-col self-center'>
-                          <div className='font-bold'>Precio:</div>
-                          <div>{currentServicio && (`S/. ${currentServicio.precio}`)}</div>
+                  <div className='col-span-2 border text-base text-blue-900 border-blue-500 bg-blue-50 rounded-md p-4'>
+                    <div className='grid grid-rows-2 grid-flow-col gap-x-4 h-full'>
+                      <div className='flex flex-col'>
+                        <div className='font-bold mb-2'>Precio:</div>
+                        <div className='flex items-center'>
+                          {currentServicio && (
+                            <span className='mr-1'>S/. </span>
+                          )}
+                          {currentServicio && (
+                            <span>{currentServicio.precio}</span>
+                          )}
                         </div>
-                        <div className='flex flex-col self-center'>
-                          <div className='font-bold'>Orden Médica:</div>
-                          <div>
-                            {currentServicio && (currentServicio.orden_medica ? '✅' : '❌')}
-                          </div>
+                      </div>
+                      <div className='flex flex-col'>
+                        <div className='font-bold mb-2'>Orden Médica:</div>
+                        <div className='flex items-center'>
+                          {currentServicio && (
+                            <span
+                              className={`text-xl ${
+                                currentServicio.orden_medica
+                                  ? 'text-green-500'
+                                  : 'text-red-500'
+                              }`}
+                            >
+                              {currentServicio.orden_medica ? '✅' : '❌'}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
+                  </div>
                 </div>
 
                 {/* <div className='flex flex-col gap-y-4'>

@@ -24,7 +24,8 @@ import {
   Select,
   SelectItem,
   ButtonGroup,
-  Checkbox
+  Checkbox,
+  CardFooter
 } from '@nextui-org/react'
 import CustomRadio from '../../components/CustomRadio'
 import {
@@ -204,7 +205,13 @@ function ModalNewCompany({ isOpen, onOpenChange }) {
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color='danger' type='button' variant='light' size='lg' onPress={onClose}>
+                <Button
+                  color='danger'
+                  type='button'
+                  variant='light'
+                  size='lg'
+                  onPress={onClose}
+                >
                   Cerrar
                 </Button>
                 <Button color='primary' size='lg' onPress={onClose}>
@@ -255,7 +262,7 @@ export default function Admision() {
     detService.forEach((item) => {
       monto += parseFloat(item.precio)
     })
-    return monto
+    return monto.toFixed(2)
   }
 
   const handleRemoveServices = (idservice) => {
@@ -417,16 +424,16 @@ export default function Admision() {
               >
                 Agregar nuevo
               </Button>
-              <Table aria-label='Example static collection table' removeWrapper>
+              <Table aria-label='Tabla de servicios elegidos' removeWrapper>
                 <TableHeader>
-                  <TableColumn>Servicio</TableColumn>
-                  <TableColumn>Descripción</TableColumn>
-                  <TableColumn>Precio</TableColumn>
-                  <TableColumn>Descuento</TableColumn>
-                  <TableColumn>Subtotal</TableColumn>
-                  <TableColumn>Acción</TableColumn>
+                  <TableColumn>SERVICIO</TableColumn>
+                  <TableColumn>DESCRIPCIÓN</TableColumn>
+                  <TableColumn>PRECIO</TableColumn>
+                  <TableColumn>DESCUENTO</TableColumn>
+                  <TableColumn>SUBTOTAL</TableColumn>
+                  <TableColumn>ACCIÓN</TableColumn>
                 </TableHeader>
-                <TableBody>
+                <TableBody emptyContent='Agrega algún servicio para visualizar'>
                   {detService.map((service) => (
                     <TableRow key={service.idservicio}>
                       <TableCell>{service.nombre} </TableCell>
@@ -451,7 +458,7 @@ export default function Admision() {
                         />
                       </TableCell>
                       <TableCell>
-                        {service.precio - service.descuento}
+                        {(service.precio - service.descuento).toFixed(2)}
                       </TableCell>
                       <TableCell>
                         <div className='relative flex items-center gap-2'>
@@ -471,18 +478,20 @@ export default function Admision() {
                   ))}
                 </TableBody>
               </Table>
-              <div className='flex justify-between mt-4'>
-                <Button color='primary' size='lg'>
-                  Registrar Servicios
-                </Button>
-                <div className='bg-green-50 rounded text-green-950 py-5 w-[220px] flex flex-col items-center justify-center'>
-                  <CircleDollarSign className='h-7 w-7' />
-                  <span className='text-xl mt-4'>{montoTotal()}</span>
+              <div className='flex justify-end mt-4'>
+                <div className='bg-green-200 rounded text-green-950 py-5 w-[220px] flex flex-col items-center justify-center'>
+                  <CircleDollarSign size={30} />
+                  <span className='text-xl mt-4'>S/. {montoTotal()}</span>
                 </div>
               </div>
             </div>
           </div>
         </CardBody>
+        <CardFooter className='flex justify-end'>
+          <Button color='primary' size='lg'>
+            Guardar
+          </Button>
+        </CardFooter>
       </Card>
 
       <ModalServicios

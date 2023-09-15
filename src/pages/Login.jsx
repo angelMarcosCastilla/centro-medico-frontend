@@ -18,6 +18,9 @@ export default function Login() {
   const login = async () => {
     try {
       setLoading(true)
+
+      if (!username || !password) return
+
       const data = await loginServices(password, username)
       if (data.isSuccess) {
         setLoginData(data)
