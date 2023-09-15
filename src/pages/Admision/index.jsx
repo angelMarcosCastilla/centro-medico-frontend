@@ -37,13 +37,14 @@ import DateTimeClock from '../../components/DateTimeClock'
 import { getAllServices } from '../../services/servicios'
 import { ModalServicios } from './components/ModalServicios'
 import { addPersonService } from '../../services/person'
+import { addCompanyService } from '../../services/company'
 
 function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
-  const[loading,setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
   const handleAddPerson = async (e) => {
     e.preventDefault()
     const formData = new FormData(e.target)
-    setLoading(true)    
+    setLoading(true)
     await addPersonService(Object.fromEntries(formData))
     setLoading(false)
   }
@@ -121,13 +122,13 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
                       size='lg'
                       name='correo'
                     />
-                     <Input
+                    <Input
                       name='celular'
                       className='mb-2'
                       label='Celular'
                       placeholder='Celular'
                       size='lg'
-                    /> 
+                    />
                   </div>
                 </ModalBody>
                 <ModalFooter>
@@ -153,49 +154,59 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
 }
 
 function ModalNewCompany({ isOpen, onOpenChange }) {
+  const handleAddCompany = async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    await addCompanyService(Object.fromEntries(formData))
+  }
   return (
     <>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='2xl'>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className='flex flex-col gap-1'>
-                Registrar Empresa
-              </ModalHeader>
-              <ModalBody>
-                <div className='flex flex-col gap-y-4'>
-                  <Input
-                    className='mb-2'
-                    label='Ruc'
-                    placeholder='ruc'
-                    labelPlacement='outside'
-                  />
-                  <Input
-                    className='mb-2'
-                    label='Razon Social'
-                    labelPlacement='outside'
-                    placeholder='Razon Social'
-                  />
+        <form onSubmit={handleAddCompany} autoComplete='off'>
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className='flex flex-col gap-1'>
+                  Registrar Empresa
+                </ModalHeader>
+                <ModalBody>
+                  <div className='flex flex-col gap-y-4'>
+                    <Input
+                      className='mb-2'
+                      label='Ruc'
+                      placeholder='ruc'
+                      labelPlacement='outside'
+                      name='ruc'
+                    />
+                    <Input
+                      className='mb-2'
+                      label='Razon Social'
+                      labelPlacement='outside'
+                      placeholder='Razon Social'
+                      name='razonSocial'
+                    />
 
-                  <Input
-                    className='mb-2'
-                    label='Dirección'
-                    placeholder='dirección'
-                    labelPlacement='outside'
-                  />
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button color='danger' variant='light' onPress={onClose}>
-                  Close
-                </Button>
-                <Button color='primary' onPress={onClose}>
-                  Registrar
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+                    <Input
+                      className='mb-2'
+                      label='Dirección'
+                      placeholder='dirección'
+                      labelPlacement='outside'
+                      name='direccion'
+                    />
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color='danger' variant='light' onPress={onClose}>
+                    Close
+                  </Button>
+                  <Button color='primary'type='submit'  onPress={onClose}>
+                    Registrar
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </form>
       </Modal>
     </>
   )
