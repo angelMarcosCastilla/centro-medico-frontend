@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Card,
   CardBody,
@@ -22,9 +22,11 @@ import {
   ModalFooter,
   ModalBody,
   Select,
-  SelectItem
+  SelectItem,
+  ButtonGroup,
+  Checkbox
 } from '@nextui-org/react'
-import CustonRadio from '../../components/CustonRadio'
+import CustomRadio from '../../components/CustomRadio'
 import {
   CircleDollarSign,
   Newspaper,
@@ -39,11 +41,14 @@ import { ModalServicios } from './components/ModalServicios'
 import { addPersonService } from '../../services/person'
 
 function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
-  const[loading,setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
+
   const handleAddPerson = async (e) => {
     e.preventDefault()
+
     const formData = new FormData(e.target)
-    setLoading(true)    
+
+    setLoading(true)
     await addPersonService(Object.fromEntries(formData))
     setLoading(false)
   }
@@ -55,16 +60,18 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
             {(onClose) => (
               <>
                 <ModalHeader className='flex flex-col gap-1'>
-                  Registrar {isPatient ? 'Paciente' : 'Cliente'}
+                  <h2 className='text-xl'>
+                    Registro de {isPatient ? 'paciente' : 'cliente'}
+                  </h2>
                 </ModalHeader>
                 <ModalBody>
                   <div className='flex flex-row gap-x-4'>
                     <Select
                       size='lg'
-                      label='Tipo Documento'
+                      label='Tipo documento'
                       defaultSelectedKeys={['D']}
-                      isRequired
                       name='tipoDocumento'
+                      isRequired
                     >
                       <SelectItem value='D' key={'D'}>
                         DNI
@@ -75,10 +82,11 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
                     </Select>
                     <Input
                       className='mb-2'
-                      label='Numero Docuemento'
+                      label='Número documento'
                       size='lg'
-                      isRequired
                       name='numDocumento'
+                      maxLength={20}
+                      isRequired
                     />
                   </div>
                   <div className='flex flex-row gap-x-4'>
@@ -86,15 +94,17 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
                       className='mb-2'
                       label='Nombres'
                       size='lg'
-                      isRequired
                       name='nombres'
+                      maxLength={50}
+                      isRequired
                     />
                     <Input
                       className='mb-2'
                       label='Apellidos'
                       size='lg'
-                      isRequired
                       name='apellidos'
+                      maxLength={50}
+                      isRequired
                     />
                   </div>
                   <div className='flex flex-row gap-x-4'>
@@ -102,7 +112,7 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
                       name='fechaNacimiento'
                       type='date'
                       className='mb-2'
-                      label='Fecha Nacimiento'
+                      label='Fecha nacimiento'
                       placeholder='fecha nacimiento'
                       size='lg'
                       isRequired
@@ -121,13 +131,12 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
                       size='lg'
                       name='correo'
                     />
-                     <Input
+                    <Input
                       name='celular'
                       className='mb-2'
                       label='Celular'
-                      placeholder='Celular'
                       size='lg'
-                    /> 
+                    />
                   </div>
                 </ModalBody>
                 <ModalFooter>
@@ -135,11 +144,17 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
                     color='danger'
                     type='button'
                     variant='light'
+                    size='lg'
                     onPress={onClose}
                   >
-                    Close
+                    Cerrar
                   </Button>
-                  <Button color='primary' type='submit' isLoading={loading}>
+                  <Button
+                    color='primary'
+                    type='submit'
+                    size='lg'
+                    isLoading={loading}
+                  >
                     Registrar
                   </Button>
                 </ModalFooter>
@@ -160,36 +175,39 @@ function ModalNewCompany({ isOpen, onOpenChange }) {
           {(onClose) => (
             <>
               <ModalHeader className='flex flex-col gap-1'>
-                Registrar Empresa
+                <h2 className='text-xl'>Registro de empresa</h2>
               </ModalHeader>
               <ModalBody>
                 <div className='flex flex-col gap-y-4'>
                   <Input
                     className='mb-2'
-                    label='Ruc'
-                    placeholder='ruc'
-                    labelPlacement='outside'
+                    label='RUC'
+                    size='lg'
+                    maxLength={11}
+                    isRequired
                   />
                   <Input
                     className='mb-2'
                     label='Razon Social'
-                    labelPlacement='outside'
-                    placeholder='Razon Social'
+                    size='lg'
+                    maxLength={50}
+                    isRequired
                   />
 
                   <Input
                     className='mb-2'
                     label='Dirección'
-                    placeholder='dirección'
-                    labelPlacement='outside'
+                    size='lg'
+                    maxLength={150}
+                    isRequired
                   />
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color='danger' variant='light' onPress={onClose}>
-                  Close
+                <Button color='danger' type='button' variant='light' size='lg' onPress={onClose}>
+                  Cerrar
                 </Button>
-                <Button color='primary' onPress={onClose}>
+                <Button color='primary' size='lg' onPress={onClose}>
                   Registrar
                 </Button>
               </ModalFooter>
@@ -202,9 +220,9 @@ function ModalNewCompany({ isOpen, onOpenChange }) {
 }
 
 export default function Admision() {
-  const [services, setServices] = React.useState([])
-  const [tipoBoleta, setTipoBoleta] = React.useState('B')
-  const [detService, setDetService] = React.useState([])
+  const [services, setServices] = useState([])
+  const [tipoBoleta, setTipoBoleta] = useState('B')
+  const [detService, setDetService] = useState([])
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const {
     isOpen: isOpenPerson,
@@ -254,98 +272,150 @@ export default function Admision() {
     <div className='flex flex-row h-full'>
       <Card className='w-full' shadow='none'>
         <CardHeader className='flex justify-between'>
-          <span className='text-lg'>Admisión</span>
+          <h2 className='text-2xl'>Recepción y admisión</h2>
           <DateTimeClock />
         </CardHeader>
+        <Divider />
         <CardBody>
-          <div>
-            <Tabs aria-label='Options' variant='underlined' color='primary'>
-              <Tab key='cliente' title='Datos Clientes'>
-                <div className='flex flex-col gap-y-4'>
+          <Tabs
+            aria-label='Options'
+            variant='underlined'
+            color='primary'
+            size='lg'
+          >
+            <Tab key='informacion-paciente' title='Información del paciente'>
+              <div className='grid grid-cols-7 gap-4 px-4'>
+                <div className='col-start-6 col-end-8 mb-7'>
+                  <ButtonGroup className='w-full items-end'>
+                    <Input
+                      label='Número documento'
+                      labelPlacement='outside'
+                      placeholder='Enter para buscar'
+                      size='lg'
+                      radius='none'
+                      variant='underlined'
+                      maxLength={8}
+                      startContent={<Search />}
+                    />
+                    <Button
+                      isIconOnly
+                      color='primary'
+                      size='lg'
+                      onPress={() => {
+                        isPatient.current = true
+                        onOpenPerson()
+                      }}
+                    >
+                      <Plus />
+                    </Button>
+                  </ButtonGroup>
+                </div>
+                <Input
+                  className='col-start-1 col-end-3'
+                  label='Apellidos y nombres'
+                  labelPlacement='outside'
+                  size='lg'
+                  readOnly
+                />
+                <Input
+                  className='col-start-3 col-end-5'
+                  label='Fecha nacimiento'
+                  labelPlacement='outside'
+                  size='lg'
+                  readOnly
+                />
+                <Input
+                  className='col-start-5 col-end-8'
+                  label='Dirección'
+                  labelPlacement='outside'
+                  size='lg'
+                  readOnly
+                />
+              </div>
+            </Tab>
+            <Tab key='metodo-pago' title='Método de pago'>
+              <div className='grid grid-cols-7 gap-4 px-4'>
+                <div className='col-start-1 col-end-3'>
                   <RadioGroup value={tipoBoleta} onValueChange={setTipoBoleta}>
                     <div className='flex gap-6'>
-                      <CustonRadio value='B'>
+                      <CustomRadio value='B'>
                         <ScrollText />
                         Boleta
-                      </CustonRadio>
-                      <CustonRadio value='F'>
+                      </CustomRadio>
+                      <CustomRadio value='F'>
                         <Newspaper />
                         Factura
-                      </CustonRadio>
+                      </CustomRadio>
                     </div>
                   </RadioGroup>
-                  <div className='flex flex-row gap-x-4'>
-                    <Input
-                      className='mb-2'
-                      label='Numero documento'
-                      labelPlacement='outside'
-                      startContent={<Search />}
-                      placeholder='Enter para buscar'
-                      endContent={
-                        <Button
-                          isIconOnly
-                          color='primary'
-                          size='sm'
-                          onClick={handleOpenModalNewClient}
-                        >
-                          <Plus />
-                        </Button>
-                      }
-                    />
-                    <Input
-                      className='mb-2'
-                      label='Cliente'
-                      placeholder='Cliente'
-                      labelPlacement='outside'
-                    />
-                  </div>
                 </div>
-              </Tab>
-              <Tab key='paciente' title='Datos Paciente'>
-                <div>
-                  <div className='flex flex-row gap-x-4'>
+                <div className='col-start-6 col-end-8 mb-7'>
+                  <ButtonGroup className='w-full items-end'>
                     <Input
-                      className='mb-2'
-                      label='Numero documento'
+                      label='Número documento'
                       labelPlacement='outside'
-                      startContent={<Search />}
                       placeholder='Enter para buscar'
-                      endContent={
-                        <Button
-                          isIconOnly
-                          color='primary'
-                          size='sm'
-                          onPress={() => {
-                            isPatient.current = true
-                            onOpenPerson()
-                          }}
-                        >
-                          <Plus />
-                        </Button>
-                      }
+                      size='lg'
+                      radius='none'
+                      variant='underlined'
+                      maxLength={8}
+                      startContent={<Search />}
                     />
-                    <Input
-                      className='mb-2'
-                      label='Nombre Paciente'
-                      placeholder='Nombre'
-                      labelPlacement='outside'
-                    />
-                  </div>
+                    <Button
+                      isIconOnly
+                      color='primary'
+                      size='lg'
+                      onClick={handleOpenModalNewClient}
+                    >
+                      <Plus />
+                    </Button>
+                  </ButtonGroup>
                 </div>
-              </Tab>
-            </Tabs>
-          </div>
+                <Input
+                  className='col-start-1 col-end-3'
+                  label={
+                    tipoBoleta === 'B' ? 'Apellidos y Nombres' : 'Razón social'
+                  }
+                  labelPlacement='outside'
+                  size='lg'
+                  readOnly
+                />
+                <Input
+                  className='col-start-3 col-end-5'
+                  label={tipoBoleta === 'B' ? 'Fecha nacimiento' : 'Convenio'}
+                  labelPlacement='outside'
+                  size='lg'
+                  readOnly
+                />
+                <Input
+                  className='col-start-5 col-end-8'
+                  label='Dirección'
+                  labelPlacement='outside'
+                  size='lg'
+                  readOnly
+                />
+                {tipoBoleta === 'B' && (
+                  <div className='grid col-start-5 col-end-8 justify-items-end'>
+                    <Checkbox defaultSelected>
+                      El paciente es el mismo cliente
+                    </Checkbox>
+                  </div>
+                )}
+              </div>
+            </Tab>
+          </Tabs>
           <Divider className='my-4' />
-          <section className='flex gap-4 justify-between'>
-            <article className='lg:flex-1'>
+          <div className='flex gap-4 justify-between'>
+            <div className='lg:flex-1'>
               <Button
                 variant='light'
                 startContent={<Plus />}
                 color='primary'
                 className='mb-4'
+                size='lg'
                 onPress={onOpen}
               >
-                Añadir Servicio
+                Agregar nuevo
               </Button>
               <Table aria-label='Example static collection table' removeWrapper>
                 <TableHeader>
@@ -402,7 +472,7 @@ export default function Admision() {
                 </TableBody>
               </Table>
               <div className='flex justify-between mt-4'>
-                <Button variant='shadow' color='primary'>
+                <Button color='primary' size='lg'>
                   Registrar Servicios
                 </Button>
                 <div className='bg-green-50 rounded text-green-950 py-5 w-[220px] flex flex-col items-center justify-center'>
@@ -410,8 +480,8 @@ export default function Admision() {
                   <span className='text-xl mt-4'>{montoTotal()}</span>
                 </div>
               </div>
-            </article>
-          </section>
+            </div>
+          </div>
         </CardBody>
       </Card>
 

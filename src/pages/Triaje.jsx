@@ -102,7 +102,7 @@ export default function Triaje() {
   return (
     <Card shadow='none'>
       <CardHeader className='flex justify-between'>
-        <h1 className='text-2xl'>Identificación del paciente en Triaje</h1>
+        <h2 className='text-2xl'>Identificación del paciente en Triaje</h2>
         <DateTimeClock />
       </CardHeader>
       <Divider />
@@ -270,35 +270,6 @@ export default function Triaje() {
             </CardBody>
           </Card>
         </div>
-        {/* <Card shadow='none'>
-          <CardHeader>Investigador (a)</CardHeader>
-          <CardBody>
-            <div className='grid grid-cols-3 gap-4'>
-              <Select
-                label='Seleccione un investigador (a)'
-                size='lg'
-                isRequired
-                onChange={handleSelectedInvestigator}
-              >
-                {listInvestigators.map(({ name }) => (
-                  <SelectItem key={name} value={name}>
-                    {name}
-                  </SelectItem>
-                ))}
-              </Select>
-                <Image
-                  width={150}
-                  alt='Firma del investigador'
-                  src={signature}
-                />
-                <Image
-                  width={200}
-                  alt='Sello'
-                  src='https://www.pngall.com/wp-content/uploads/2016/05/Certified-Stamp-Free-Download-PNG.png'
-                />
-            </div>
-          </CardBody>
-        </Card> */}
       </CardBody>
       <Divider />
       <CardFooter className='flex justify-end gap-5'>
