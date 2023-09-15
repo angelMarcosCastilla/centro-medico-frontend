@@ -292,7 +292,7 @@ export default function Admision() {
           >
             <Tab key='informacion-paciente' title='Información del paciente'>
               <div className='grid grid-cols-7 gap-4 px-4'>
-                <div className='col-start-6 col-end-8 mb-7'>
+                <div className='col-start-1 col-end-3 mb-7'>
                   <ButtonGroup className='w-full items-end'>
                     <Input
                       label='Número documento'
@@ -339,81 +339,7 @@ export default function Admision() {
                   readOnly
                 />
               </div>
-            </Tab>
-            <Tab key='metodo-pago' title='Método de pago'>
-              <div className='grid grid-cols-7 gap-4 px-4'>
-                <div className='col-start-1 col-end-3'>
-                  <RadioGroup value={tipoBoleta} onValueChange={setTipoBoleta}>
-                    <div className='flex gap-6'>
-                      <CustomRadio value='B'>
-                        <ScrollText />
-                        Boleta
-                      </CustomRadio>
-                      <CustomRadio value='F'>
-                        <Newspaper />
-                        Factura
-                      </CustomRadio>
-                    </div>
-                  </RadioGroup>
-                </div>
-                <div className='col-start-6 col-end-8 mb-7'>
-                  <ButtonGroup className='w-full items-end'>
-                    <Input
-                      label='Número documento'
-                      labelPlacement='outside'
-                      placeholder='Enter para buscar'
-                      size='lg'
-                      radius='none'
-                      variant='underlined'
-                      maxLength={8}
-                      startContent={<Search />}
-                    />
-                    <Button
-                      isIconOnly
-                      color='primary'
-                      size='lg'
-                      onClick={handleOpenModalNewClient}
-                    >
-                      <Plus />
-                    </Button>
-                  </ButtonGroup>
-                </div>
-                <Input
-                  className='col-start-1 col-end-3'
-                  label={
-                    tipoBoleta === 'B' ? 'Apellidos y Nombres' : 'Razón social'
-                  }
-                  labelPlacement='outside'
-                  size='lg'
-                  readOnly
-                />
-                <Input
-                  className='col-start-3 col-end-5'
-                  label={tipoBoleta === 'B' ? 'Fecha nacimiento' : 'Convenio'}
-                  labelPlacement='outside'
-                  size='lg'
-                  readOnly
-                />
-                <Input
-                  className='col-start-5 col-end-8'
-                  label='Dirección'
-                  labelPlacement='outside'
-                  size='lg'
-                  readOnly
-                />
-                {tipoBoleta === 'B' && (
-                  <div className='grid col-start-5 col-end-8 justify-items-end'>
-                    <Checkbox defaultSelected>
-                      El paciente es el mismo cliente
-                    </Checkbox>
-                  </div>
-                )}
-              </div>
-            </Tab>
-          </Tabs>
-          <Divider className='my-4' />
-          <div className='flex gap-4 justify-between'>
-            <div className='lg:flex-1'>
+              <Divider className='my-4' />
               <Button
                 variant='light'
                 startContent={<Plus />}
@@ -478,14 +404,92 @@ export default function Admision() {
                   ))}
                 </TableBody>
               </Table>
-              <div className='flex justify-end mt-4'>
-                <div className='bg-green-200 rounded text-green-950 py-5 w-[220px] flex flex-col items-center justify-center'>
-                  <CircleDollarSign size={30} />
-                  <span className='text-xl mt-4'>S/. {montoTotal()}</span>
+            </Tab>
+            <Tab key='metodo-pago' title='Método de pago'>
+              <div className='grid grid-cols-3 gap-6'>
+                <div className='col-span-2'>
+                  <div className='col-start-1 col-end-3 mb-7'>
+                    <ButtonGroup className='w-full items-end'>
+                      <Input
+                        label='Número documento'
+                        labelPlacement='outside'
+                        placeholder='Enter para buscar'
+                        size='lg'
+                        radius='none'
+                        variant='underlined'
+                        maxLength={8}
+                        startContent={<Search />}
+                      />
+                      <Button
+                        isIconOnly
+                        color='primary'
+                        size='lg'
+                        onClick={handleOpenModalNewClient}
+                      >
+                        <Plus />
+                      </Button>
+                    </ButtonGroup>
+                  </div>
+                  <div className='grid col-start-6 col-end-8 justify-items-end'>
+                    <RadioGroup
+                      value={tipoBoleta}
+                      onValueChange={setTipoBoleta}
+                    >
+                      <div className='flex gap-6'>
+                        <CustomRadio value='B'>
+                          <ScrollText />
+                          Boleta
+                        </CustomRadio>
+                        <CustomRadio value='F'>
+                          <Newspaper />
+                          Factura
+                        </CustomRadio>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  <Input
+                    className='col-start-1 col-end-4'
+                    label={
+                      tipoBoleta === 'B'
+                        ? 'Apellidos y Nombres'
+                        : 'Razón social'
+                    }
+                    labelPlacement='outside'
+                    size='lg'
+                    readOnly
+                  />
+                  <Input
+                    className='col-start-4 col-end-8'
+                    label='Dirección'
+                    labelPlacement='outside'
+                    size='lg'
+                    readOnly
+                  />
+                  {tipoBoleta === 'B' && (
+                    <div className='grid col-start-5 col-end-8 justify-items-end'>
+                      <Checkbox defaultSelected>
+                        El paciente es el mismo cliente
+                      </Checkbox>
+                    </div>
+                  )}
+                </div>
+                <div className='bg-slate-100'>
+                  <div className='flex gap-4 justify-between'>
+                    <div className='lg:flex-1'>
+                      <div className='flex justify-end mt-4'>
+                        <div className='bg-green-200 rounded text-green-950 py-5 w-[220px] flex flex-col items-center justify-center'>
+                          <CircleDollarSign size={30} />
+                          <span className='text-xl mt-4'>
+                            S/. {montoTotal()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </Tab>
+          </Tabs>
         </CardBody>
         <CardFooter className='flex justify-end'>
           <Button color='primary' size='lg'>
