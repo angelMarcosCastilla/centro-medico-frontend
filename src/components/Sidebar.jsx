@@ -24,7 +24,7 @@ export default function Sidebar({ children }) {
 
   const {
     logout,
-    userInfo: { data }
+    userInfo
   } = useAuth()
 
   useEffect(() => {
@@ -62,12 +62,12 @@ export default function Sidebar({ children }) {
                 as='button'
                 avatarProps={{
                   isBordered: true,
-                  src: `https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true&name=${data.nombre_usuario}`
+                  src: `https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true&name=${userInfo.nombres}`
                 }}
                 {...(expanded && {
                   className: 'transition-transform',
-                  description: data.nivel_acceso,
-                  name: data.nombre_usuario
+                  description: userInfo.nivel_acceso,
+                  name: `${userInfo.nombres} ${userInfo.apellidos}`
                 })}
               />
             </DropdownTrigger>

@@ -4,17 +4,19 @@ import { useState } from 'react'
 import { loginServices } from '../services/auth'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { redirectRoles } from '../constants/auth.constant'
 
 export default function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [visible, toggleVisible] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { setLoginData, isAuthenticated } = useAuth()
+  const { setLoginData, isAuthenticated, userInfo } = useAuth()
 
   if (isAuthenticated) {
-    return <Navigate to='/admision' />
+    return <Navigate to={redirectRoles[userInfo.nivel_acceso]} />
   }
+
   const login = async () => {
     try {
       setLoading(true)
@@ -23,7 +25,7 @@ export default function Login() {
 
       const data = await loginServices(password, username)
       if (data.isSuccess) {
-        setLoginData(data)
+        setLoginData(data.data)
       }
     } catch (e) {
       console.log('error')
