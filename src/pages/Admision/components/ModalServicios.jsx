@@ -1,5 +1,5 @@
 import {
-  Button,  
+  Button,
   Modal,
   ModalBody,
   ModalContent,
@@ -53,20 +53,120 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
           {(onClose) => (
             <>
               <ModalHeader className='flex flex-col gap-1'>
-                Agregar servicio                
-              </ModalHeader>                            
+                <h2 className='text-xl'>Selección de servicio</h2>
+              </ModalHeader>
               <ModalBody>
-                {currentServicio && (
+                {/* {currentServicio && (
                   <div className='border mb-3 text-sm flex flex-col text-blue-900 border-blue-500 bg-blue-50 rounded px-4 py-2'>
                     <span>Precio: {currentServicio.precio}</span>
                     <span>
                       Orden Medica: {currentServicio.orden_medica ? '✅' : '❌'}
                     </span>
                   </div>
-                )}
-                <div className='flex flex-col gap-y-4'>
+                )} */}
+                <div className='grid grid-cols-7 gap-4'>
+                  <div className='grid col-span-5 gap-4'>
+                    <Select
+                      label='Área'
+                      size='lg'
+                      selectedKeys={area}
+                      onChange={(e) => {
+                        setCategoria(new Set([]))
+                        setServicio(new Set([]))
+                        if (e.target.value !== '') {
+                          setArea(new Set([e.target.value]))
+                        } else {
+                          setArea(new Set([]))
+                        }
+                      }}
+                    >
+                      {data.map((area) => (
+                        <SelectItem key={area.idarea} value={area.idarea}>
+                          {area.nombre}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                    <Select
+                      label='Categoría'
+                      size='lg'
+                      selectedKeys={categoria}
+                      onChange={(e) => {
+                        setServicio(new Set([]))
+                        if (e.target.value !== '') {
+                          setCategoria(new Set([e.target.value]))
+                        } else {
+                          setCategoria(new Set([]))
+                        }
+                      }}
+                    >
+                      {optionsCategoria.map((categoria) => (
+                        <SelectItem
+                          key={categoria.idcategoria}
+                          value={categoria.idcategoria}
+                        >
+                          {categoria.nombre}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                    <Select
+                      key={categoria}
+                      label='Servicios'
+                      size='lg'
+                      selectedKeys={servicio}
+                      onChange={(e) => {
+                        if (e.target.value !== '') {
+                          setServicio(new Set([e.target.value]))
+                        } else {
+                          setServicio(new Set([]))
+                        }
+                      }}
+                    >
+                      {optionSercicios.map((servicio) => (
+                        <SelectItem
+                          key={servicio.idservicio}
+                          value={servicio.idservicio}
+                        >
+                          {servicio.nombre}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  </div>
+                  <div className='col-span-2 border text-base text-blue-900 border-blue-500 bg-blue-50 rounded-md p-4'>
+                    <div className='grid grid-rows-2 grid-flow-col gap-x-4 h-full'>
+                      <div className='flex flex-col'>
+                        <div className='font-bold mb-2'>Precio:</div>
+                        <div className='flex items-center'>
+                          {currentServicio && (
+                            <span className='mr-1'>S/. </span>
+                          )}
+                          {currentServicio && (
+                            <span>{currentServicio.precio}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className='flex flex-col'>
+                        <div className='font-bold mb-2'>Orden Médica:</div>
+                        <div className='flex items-center'>
+                          {currentServicio && (
+                            <span
+                              className={`text-xl ${
+                                currentServicio.orden_medica
+                                  ? 'text-green-500'
+                                  : 'text-red-500'
+                              }`}
+                            >
+                              {currentServicio.orden_medica ? '✅' : '❌'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* <div className='flex flex-col gap-y-4'>
                   <Select
-                    label='Area'
+                    label='Área'
                     size='lg'
                     selectedKeys={area}
                     onChange={(e) => {
@@ -129,13 +229,18 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                       </SelectItem>
                     ))}
                   </Select>
-                </div>
+                </div> */}
               </ModalBody>
               <ModalFooter>
-                <Button color='danger' variant='light' onPress={onClose}>
+                <Button
+                  color='danger'
+                  variant='light'
+                  size='lg'
+                  onPress={onClose}
+                >
                   Cerrar
                 </Button>
-                <Button color='primary' onPress={handleAddServices}>
+                <Button color='primary' size='lg' onPress={handleAddServices}>
                   Agregar
                 </Button>
               </ModalFooter>
