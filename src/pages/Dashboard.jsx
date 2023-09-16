@@ -4,6 +4,7 @@ import { Brain, Bone, Microscope, FileText } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import HasRole from '../components/HasRole'
 import { listRoles } from '../constants/auth.constant'
+import { DataProvider } from './Admision/components/DataContext'
 
 export default function Dashboard() {
   const { isAuthenticated, userInfo } = useAuth()
@@ -16,8 +17,8 @@ export default function Dashboard() {
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admisión}>
           <SidebarItem
             icon={<FileText size={20} />}
-            text='Admision'
-            route='Admision'
+            text='Admisión'
+            route='admision'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.tomografia}>
@@ -43,7 +44,9 @@ export default function Dashboard() {
         </HasRole>
       </Sidebar>
       <div className='bg-slate-100 flex-1 px-10 py-5 overflow-y-auto'>
-        <Outlet />
+        <DataProvider>
+          <Outlet />
+        </DataProvider>
       </div>
     </div>
   )

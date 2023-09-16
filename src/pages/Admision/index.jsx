@@ -39,18 +39,53 @@ import {
 import DateTimeClock from '../../components/DateTimeClock'
 import { getAllServices } from '../../services/servicios'
 import { ModalServicios } from './components/ModalServicios'
-import { addPersonService } from '../../services/person'
+import {
+  addPersonService,
+  searchById,
+  searchPersonByNumDoc
+} from '../../services/person'
 import { addCompanyService } from '../../services/company'
+import { useDataContext } from './components/DataContext'
 
 function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
   const [loading, setLoading] = useState(false)
+  const { setDataPaciente, dataToSend, setDataToSend } =
+    useDataContext()
 
   const handleAddPerson = async (e) => {
     e.preventDefault()
+
     const formData = new FormData(e.target)
     setLoading(true)
-    await addPersonService(Object.fromEntries(formData))
+    const result = await addPersonService(Object.fromEntries(formData))
+    // const result = { isSuccess: true, message: 'hola' }
     setLoading(false)
+
+    if (!result.isSuccess) {
+      alert(result.message)
+    } else {
+      const dataPersona = await searchById(result.data)
+
+      const {
+        idpersona: idpaciente,
+        apellidos,
+        nombres,
+        fecha_nacimiento: fechaNacimiento,
+        direccion
+      } = dataPersona.data
+
+      setDataPaciente({
+        nombres: apellidos + ' ' + nombres,
+        fechaNacimiento: new Date(fechaNacimiento).toLocaleDateString('es', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        }),
+        direccion
+      })
+      setDataToSend({ ...dataToSend, idpaciente })
+      alert(result.message)
+    }
   }
   return (
     <>
@@ -176,61 +211,65 @@ function ModalNewCompany({ isOpen, onOpenChange }) {
   return (
     <>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='2xl'>
+        <form onSubmit={handleAddCompany} autoComplete='off'>
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className='flex flex-col gap-1'>
+                  <h2 className='text-xl'>Registro de empresa</h2>
+                </ModalHeader>
+                <ModalBody>
+                  <div className='flex flex-col gap-y-4'>
+                    <Input
+                      className='mb-2'
+                      label='RUC'
+                      size='lg'
+                      maxLength={11}
+                      isRequired
+                      name='ruc'
+                    />
+                    <Input
+                      className='mb-2'
+                      label='Razon Social'
+                      size='lg'
+                      maxLength={50}
+                      isRequired
+                      name='razonSocial'
+                    />
 
-   <form onSubmit={handleAddCompany} autoComplete='off'>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className='flex flex-col gap-1'>
-                <h2 className='text-xl'>Registro de empresa</h2>
-              </ModalHeader>
-              <ModalBody>
-                <div className='flex flex-col gap-y-4'>
-                  <Input
-                    className='mb-2'
-                    label='RUC'
+                    <Input
+                      className='mb-2'
+                      label='Dirección'
+                      size='lg'
+                      maxLength={150}
+                      isRequired
+                      name='direccion'
+                    />
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    color='danger'
+                    type='button'
+                    variant='light'
                     size='lg'
-                    maxLength={11}
-                    isRequired
-                     name='ruc'
-                  />
-                  <Input
-                    className='mb-2'
-                    label='Razon Social'
+                    onPress={onClose}
+                  >
+                    Cerrar
+                  </Button>
+                  <Button
+                    color='primary'
+                    type='submit'
                     size='lg'
-                    maxLength={50}
-                    isRequired
-                    name='razonSocial'
-                  />
-
-                  <Input
-                    className='mb-2'
-                    label='Dirección'
-                    size='lg'
-                    maxLength={150}
-                    isRequired
-                    name='direccion'
-                  />
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  color='danger'
-                  type='button'
-                  variant='light'
-                  size='lg'
-                  onPress={onClose}
-                >
-                  Cerrar
-                </Button>
-                <Button color='primary' type="submit" size='lg' onPress={onClose}>
-                  Registrar
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-       </form>
+                    onPress={onClose}
+                  >
+                    Registrar
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </form>
       </Modal>
     </>
   )
@@ -253,6 +292,11 @@ export default function Admision() {
   } = useDisclosure()
 
   const isPatient = useRef(false)
+
+  /* const [dataPaciente, setDataPaciente] = useState({})
+  const [dataToSend, setDataToSend] = useState({}) */
+  const { dataPaciente, setDataPaciente, dataToSend, setDataToSend } =
+    useDataContext()
 
   const handleOpenModalNewClient = () => {
     if (tipoBoleta === 'B') {
@@ -279,6 +323,40 @@ export default function Admision() {
     setDetService((prevalue) =>
       prevalue.filter((item) => item.idservicio !== idservice)
     )
+  }
+
+  const handleSearchPerson = async (e) => {
+    if (e.key !== 'Enter') return
+
+    const numDocumento = e.target.value
+    if (!numDocumento || numDocumento.length < 8) return
+
+    const result = await searchPersonByNumDoc(numDocumento)
+
+    if (!result.data) {
+      alert('No he encontrado ningún resultado')
+      setDataPaciente({})
+      return
+    }
+
+    const {
+      idpersona: idpaciente,
+      apellidos,
+      nombres,
+      fecha_nacimiento: fechaNacimiento,
+      direccion
+    } = result.data
+
+    setDataPaciente({
+      nombres: apellidos + ' ' + nombres,
+      fechaNacimiento: new Date(fechaNacimiento).toLocaleDateString('es', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }),
+      direccion
+    })
+    setDataToSend({ ...dataToSend, idpaciente })
   }
 
   useEffect(() => {
@@ -311,7 +389,8 @@ export default function Admision() {
                       size='lg'
                       radius='none'
                       variant='underlined'
-                      maxLength={8}
+                      maxLength={20}
+                      onKeyDown={handleSearchPerson}
                       startContent={<Search />}
                     />
                     <Button
@@ -332,6 +411,7 @@ export default function Admision() {
                   label='Apellidos y nombres'
                   labelPlacement='outside'
                   size='lg'
+                  value={dataPaciente.nombres || ''}
                   readOnly
                 />
                 <Input
@@ -339,6 +419,7 @@ export default function Admision() {
                   label='Fecha nacimiento'
                   labelPlacement='outside'
                   size='lg'
+                  value={dataPaciente.fechaNacimiento || ''}
                   readOnly
                 />
                 <Input
@@ -346,6 +427,7 @@ export default function Admision() {
                   label='Dirección'
                   labelPlacement='outside'
                   size='lg'
+                  value={dataPaciente.direccion || ''}
                   readOnly
                 />
               </div>
