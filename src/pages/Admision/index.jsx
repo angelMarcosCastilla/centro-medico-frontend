@@ -40,15 +40,14 @@ import DateTimeClock from '../../components/DateTimeClock'
 import { getAllServices } from '../../services/servicios'
 import { ModalServicios } from './components/ModalServicios'
 import { addPersonService } from '../../services/person'
+import { addCompanyService } from '../../services/company'
 
 function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
   const [loading, setLoading] = useState(false)
 
   const handleAddPerson = async (e) => {
     e.preventDefault()
-
     const formData = new FormData(e.target)
-
     setLoading(true)
     await addPersonService(Object.fromEntries(formData))
     setLoading(false)
@@ -169,9 +168,16 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
 }
 
 function ModalNewCompany({ isOpen, onOpenChange }) {
+  const handleAddCompany = async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    await addCompanyService(Object.fromEntries(formData))
+  }
   return (
     <>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='2xl'>
+
+   <form onSubmit={handleAddCompany} autoComplete='off'>
         <ModalContent>
           {(onClose) => (
             <>
@@ -186,6 +192,7 @@ function ModalNewCompany({ isOpen, onOpenChange }) {
                     size='lg'
                     maxLength={11}
                     isRequired
+                     name='ruc'
                   />
                   <Input
                     className='mb-2'
@@ -193,6 +200,7 @@ function ModalNewCompany({ isOpen, onOpenChange }) {
                     size='lg'
                     maxLength={50}
                     isRequired
+                    name='razonSocial'
                   />
 
                   <Input
@@ -201,6 +209,7 @@ function ModalNewCompany({ isOpen, onOpenChange }) {
                     size='lg'
                     maxLength={150}
                     isRequired
+                    name='direccion'
                   />
                 </div>
               </ModalBody>
@@ -214,13 +223,14 @@ function ModalNewCompany({ isOpen, onOpenChange }) {
                 >
                   Cerrar
                 </Button>
-                <Button color='primary' size='lg' onPress={onClose}>
+                <Button color='primary' type="submit" size='lg' onPress={onClose}>
                   Registrar
                 </Button>
               </ModalFooter>
             </>
           )}
         </ModalContent>
+       </form>
       </Modal>
     </>
   )
