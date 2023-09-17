@@ -49,8 +49,7 @@ import { useDataContext } from './components/DataContext'
 
 function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
   const [loading, setLoading] = useState(false)
-  const { setDataPaciente, dataToSend, setDataToSend } =
-    useDataContext()
+  const { setDataPaciente, dataToSend, setDataToSend } = useDataContext()
 
   const handleAddPerson = async (e) => {
     e.preventDefault()
@@ -293,8 +292,6 @@ export default function Admision() {
 
   const isPatient = useRef(false)
 
-  /* const [dataPaciente, setDataPaciente] = useState({})
-  const [dataToSend, setDataToSend] = useState({}) */
   const { dataPaciente, setDataPaciente, dataToSend, setDataToSend } =
     useDataContext()
 
@@ -361,7 +358,40 @@ export default function Admision() {
 
   useEffect(() => {
     getAllServices().then(setServices)
+    setDataToSend({
+      ...dataToSend,
+      pagoData: {
+        idUsuario: JSON.parse(localStorage.getItem('userInfo')).idusuario
+      }
+    })
   }, [])
+
+  useEffect(() => {
+    if (!detService.length) return
+
+    const montoTotal = detService.reduce(
+      (acumulador, item) =>
+        acumulador + parseFloat(item.precio) - parseFloat(item.descuento),
+      0
+    )
+
+    const detalleAtencion = detService.map(
+      ({ idservicio, precio, descuento }) => ({
+        idServicio: idservicio,
+        precioPagado: precio - descuento,
+        descuento
+      })
+    )
+
+    setDataToSend({
+      ...dataToSend,
+      pagoData: {
+        ...dataToSend.pagoData,
+        montoTotal
+      },
+      detalleAtencion
+    })
+  }, [detService])
 
   return (
     <div className='flex flex-row h-full'>
