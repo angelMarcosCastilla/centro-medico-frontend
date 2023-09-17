@@ -41,15 +41,21 @@ import { getAllServices } from '../../services/servicios'
 import { ModalServicios } from './components/ModalServicios'
 import {
   addPersonService,
-  searchById,
+  searchPersonById,
   searchPersonByNumDoc
 } from '../../services/person'
-import { addCompanyService } from '../../services/company'
+import {
+  addCompanyService,
+  searchCompanyByRUC,
+  searchCompanyById
+} from '../../services/company'
 import { useDataContext } from './components/DataContext'
+import { getPaymentTypes } from '../../services/pay'
 
 function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
   const [loading, setLoading] = useState(false)
-  const { setDataPaciente, dataToSend, setDataToSend } = useDataContext()
+  const { setDataPaciente, setDataCliente, dataToSend, setDataToSend } =
+    useDataContext()
 
   const handleAddPerson = async (e) => {
     e.preventDefault()
@@ -57,32 +63,40 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
     const formData = new FormData(e.target)
     setLoading(true)
     const result = await addPersonService(Object.fromEntries(formData))
-    // const result = { isSuccess: true, message: 'hola' }
     setLoading(false)
 
     if (!result.isSuccess) {
       alert(result.message)
     } else {
-      const dataPersona = await searchById(result.data)
+      const dataPersona = await searchPersonById(result.data)
 
       const {
-        idpersona: idpaciente,
+        idpersona,
         apellidos,
         nombres,
         fecha_nacimiento: fechaNacimiento,
         direccion
       } = dataPersona.data
 
-      setDataPaciente({
-        nombres: apellidos + ' ' + nombres,
-        fechaNacimiento: new Date(fechaNacimiento).toLocaleDateString('es', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        }),
-        direccion
-      })
-      setDataToSend({ ...dataToSend, idpaciente })
+      if (isPatient) {
+        setDataPaciente({
+          nombres: apellidos + ' ' + nombres,
+          fechaNacimiento: new Date(fechaNacimiento).toLocaleDateString('es', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+          }),
+          direccion
+        })
+        setDataToSend({ ...dataToSend, idpaciente: idpersona })
+      } else {
+        setDataCliente({
+          nombres: apellidos + ' ' + nombres,
+          direccion
+        })
+        setDataToSend({ ...dataToSend, idcliente: [idpersona, 0] })
+      }
+
       alert(result.message)
     }
   }
@@ -202,10 +216,36 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
 }
 
 function ModalNewCompany({ isOpen, onOpenChange }) {
+  const [loading, setLoading] = useState(false)
+  const { setDataCliente, dataToSend, setDataToSend } = useDataContext()
+
   const handleAddCompany = async (e) => {
     e.preventDefault()
+
     const formData = new FormData(e.target)
-    await addCompanyService(Object.fromEntries(formData))
+    setLoading(true)
+    const result = await addCompanyService(Object.fromEntries(formData))
+    setLoading(false)
+
+    if (!result.isSuccess) {
+      alert(result.message)
+    } else {
+      const dataEmpresa = await searchCompanyById(result.data)
+
+      const {
+        idempresa,
+        razon_social: razonSocial,
+        direccion
+      } = dataEmpresa.data
+
+      setDataCliente({
+        nombres: razonSocial,
+        direccion
+      })
+      setDataToSend({ ...dataToSend, idcliente: [0, idempresa] })
+
+      alert(result.message)
+    }
   }
   return (
     <>
@@ -260,6 +300,7 @@ function ModalNewCompany({ isOpen, onOpenChange }) {
                     color='primary'
                     type='submit'
                     size='lg'
+                    isLoading={loading}
                     onPress={onClose}
                   >
                     Registrar
@@ -276,6 +317,7 @@ function ModalNewCompany({ isOpen, onOpenChange }) {
 
 export default function Admision() {
   const [services, setServices] = useState([])
+  const [tipoPagos, setTipoPagos] = useState([])
   const [tipoBoleta, setTipoBoleta] = useState('B')
   const [detService, setDetService] = useState([])
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
@@ -290,10 +332,17 @@ export default function Admision() {
     onOpenChange: onOpenChangeCompany
   } = useDisclosure()
 
+  const [isSamePatient, setIsSamePatient] = useState(false)
   const isPatient = useRef(false)
 
-  const { dataPaciente, setDataPaciente, dataToSend, setDataToSend } =
-    useDataContext()
+  const {
+    dataPaciente,
+    setDataPaciente,
+    dataCliente,
+    setDataCliente,
+    dataToSend,
+    setDataToSend
+  } = useDataContext()
 
   const handleOpenModalNewClient = () => {
     if (tipoBoleta === 'B') {
@@ -353,18 +402,60 @@ export default function Admision() {
       }),
       direccion
     })
-    setDataToSend({ ...dataToSend, idpaciente })
-  }
-
-  useEffect(() => {
-    getAllServices().then(setServices)
     setDataToSend({
       ...dataToSend,
-      pagoData: {
-        idUsuario: JSON.parse(localStorage.getItem('userInfo')).idusuario
-      }
+      idpaciente
     })
-  }, [])
+  }
+
+  const handleSearchClient = async (e) => {
+    if (e.key !== 'Enter') return
+
+    setIsSamePatient(false)
+    const numDocumentoOrRUC = e.target.value
+    if (!numDocumentoOrRUC || numDocumentoOrRUC.length < 8) return
+
+    if (tipoBoleta === 'B') {
+      const result = await searchPersonByNumDoc(numDocumentoOrRUC)
+
+      if (!result.data) {
+        alert('No he encontrado ningún resultado')
+        setDataPaciente({})
+        return
+      }
+
+      const { idpersona, apellidos, nombres, direccion } = result.data
+
+      setDataCliente({
+        nombres: apellidos + ' ' + nombres,
+        direccion
+      })
+      setDataToSend({
+        ...dataToSend,
+        idcliente: [idpersona, 0]
+      })
+    } else {
+      const result = await searchCompanyByRUC(numDocumentoOrRUC)
+
+      if (!result.data) {
+        alert('No he encontrado ningún resultado')
+        setDataPaciente({})
+        return
+      }
+
+      const { idempresa, razon_social: razonSocial, direccion } = result.data
+
+      setDataCliente({
+        nombres: razonSocial,
+        direccion
+      })
+
+      setDataToSend({
+        ...dataToSend,
+        idcliente: [0, idempresa]
+      })
+    }
+  }
 
   useEffect(() => {
     if (!detService.length) return
@@ -392,6 +483,37 @@ export default function Admision() {
       detalleAtencion
     })
   }, [detService])
+
+  useEffect(() => {
+    if (isSamePatient) {
+      const { nombres, direccion } = dataPaciente
+      const { idpaciente: idpersona } = dataToSend
+
+      setDataCliente({ nombres, direccion })
+      setDataToSend({
+        ...dataToSend,
+        idcliente: [idpersona, 0]
+      })
+    } else {
+      setDataCliente({})
+      setDataToSend({
+        ...dataToSend,
+        idcliente: []
+      })
+    }
+  }, [isSamePatient])
+
+  useEffect(() => {
+    getAllServices().then(setServices)
+    getPaymentTypes().then(setTipoPagos)
+    setDataToSend({
+      ...dataToSend,
+      pagoData: {
+        idUsuario: JSON.parse(localStorage.getItem('userInfo')).idusuario,
+        tipoComprobante: tipoBoleta
+      }
+    })
+  }, [])
 
   return (
     <div className='flex flex-row h-full'>
@@ -470,7 +592,7 @@ export default function Admision() {
                 size='lg'
                 onPress={onOpen}
               >
-                Agregar nuevo
+                Agregar servicio
               </Button>
               <Table aria-label='Tabla de servicios elegidos' removeWrapper>
                 <TableHeader>
@@ -528,86 +650,131 @@ export default function Admision() {
               </Table>
             </Tab>
             <Tab key='metodo-pago' title='Método de pago'>
-              <div className='grid grid-cols-3 gap-6'>
-                <div className='col-span-2'>
-                  <div className='col-start-1 col-end-3 mb-7'>
-                    <ButtonGroup className='w-full items-end'>
-                      <Input
-                        label='Número documento'
-                        labelPlacement='outside'
-                        placeholder='Enter para buscar'
-                        size='lg'
-                        radius='none'
-                        variant='underlined'
-                        maxLength={8}
-                        startContent={<Search />}
-                      />
-                      <Button
-                        isIconOnly
-                        color='primary'
-                        size='lg'
-                        onClick={handleOpenModalNewClient}
-                      >
-                        <Plus />
-                      </Button>
-                    </ButtonGroup>
-                  </div>
-                  <div className='grid col-start-6 col-end-8 justify-items-end'>
-                    <RadioGroup
-                      value={tipoBoleta}
-                      onValueChange={setTipoBoleta}
+              <div className='grid grid-cols-7 gap-4 px-4'>
+                <div className='col-start-1 col-end-3 mb-7'>
+                  <ButtonGroup className='w-full items-end'>
+                    <Input
+                      label={
+                        tipoBoleta === 'B' ? 'Número documento' : 'Número RUC'
+                      }
+                      labelPlacement='outside'
+                      placeholder='Enter para buscar'
+                      size='lg'
+                      radius='none'
+                      variant='underlined'
+                      maxLength={20}
+                      onKeyDown={handleSearchClient}
+                      startContent={<Search />}
+                    />
+                    <Button
+                      isIconOnly
+                      color='primary'
+                      size='lg'
+                      onClick={handleOpenModalNewClient}
                     >
-                      <div className='flex gap-6'>
-                        <CustomRadio value='B'>
-                          <ScrollText />
-                          Boleta
-                        </CustomRadio>
-                        <CustomRadio value='F'>
-                          <Newspaper />
-                          Factura
-                        </CustomRadio>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                  <Input
-                    className='col-start-1 col-end-4'
-                    label={
-                      tipoBoleta === 'B'
-                        ? 'Apellidos y Nombres'
-                        : 'Razón social'
-                    }
-                    labelPlacement='outside'
-                    size='lg'
-                    readOnly
-                  />
-                  <Input
-                    className='col-start-4 col-end-8'
-                    label='Dirección'
-                    labelPlacement='outside'
-                    size='lg'
-                    readOnly
-                  />
-                  {tipoBoleta === 'B' && (
-                    <div className='grid col-start-5 col-end-8 justify-items-end'>
-                      <Checkbox defaultSelected>
-                        El paciente es el mismo cliente
-                      </Checkbox>
-                    </div>
-                  )}
+                      <Plus />
+                    </Button>
+                  </ButtonGroup>
                 </div>
-                <div className='bg-slate-100'>
-                  <div className='flex gap-4 justify-between'>
-                    <div className='lg:flex-1'>
-                      <div className='flex justify-end mt-4'>
-                        <div className='bg-green-200 rounded text-green-950 py-5 w-[220px] flex flex-col items-center justify-center'>
-                          <CircleDollarSign size={30} />
-                          <span className='text-xl mt-4'>
-                            S/. {montoTotal()}
-                          </span>
+                <div className='grid col-start-4 col-end-6 justify-items-end'>
+                  <RadioGroup
+                    value={tipoBoleta}
+                    onValueChange={setTipoBoleta}
+                    onChange={(e) => {
+                      setDataToSend({
+                        ...dataToSend,
+                        pagoData: {
+                          ...dataToSend.pagoData,
+                          tipoComprobante: e.target.value
+                        }
+                      })
+                    }}
+                  >
+                    <div className='flex gap-6'>
+                      <CustomRadio value='B'>
+                        <ScrollText />
+                        Boleta
+                      </CustomRadio>
+                      <CustomRadio value='F'>
+                        <Newspaper />
+                        Factura
+                      </CustomRadio>
+                    </div>
+                  </RadioGroup>
+                </div>
+                <div className='col-start-6 col-end-8 row-span-4'>
+                  <div className='bg-slate-100 h-full'>
+                    <h2>RESUMEN</h2>
+                    <div className='flex gap-4 justify-between'>
+                      <div className='lg:flex-1'>
+                        <div className='flex justify-end mt-4'>
+                          <div className='bg-green-200 rounded text-green-950 py-5 w-[220px] flex flex-col items-center justify-center'>
+                            <CircleDollarSign size={30} />
+                            <span className='text-xl mt-4'>
+                              S/. {montoTotal()}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
+                </div>
+                <Input
+                  className='col-start-1 col-end-3'
+                  label={
+                    tipoBoleta === 'B' ? 'Apellidos y nombres' : 'Razón social'
+                  }
+                  labelPlacement='outside'
+                  size='lg'
+                  value={dataCliente.nombres || ''}
+                  readOnly
+                />
+                <Input
+                  className='col-start-3 col-end-6'
+                  label='Dirección'
+                  labelPlacement='outside'
+                  size='lg'
+                  value={dataCliente.direccion || ''}
+                  readOnly
+                />
+                {tipoBoleta === 'B' && (
+                  <div className='grid col-start-3 col-end-6 justify-items-end'>
+                    <Checkbox
+                      isSelected={isSamePatient}
+                      onValueChange={setIsSamePatient}
+                    >
+                      El paciente es el mismo cliente
+                    </Checkbox>
+                  </div>
+                )}
+                <Divider className='col-span-5 my-4' />
+                <Select
+                  label='Método de pago'
+                  className='col-span-2 mt-3'
+                  labelPlacement='outside'
+                  variant='flat'
+                  size='lg'
+                >
+                  {tipoPagos.data &&
+                    tipoPagos.data.map((tipoPago) => (
+                      <SelectItem
+                        key={tipoPago.idtipopago}
+                        value={tipoPago.idtipopago}
+                      >
+                        {tipoPago.tipo_pago}
+                      </SelectItem>
+                    ))}
+                </Select>
+                <div className='flex w-[200px] items-end'>
+                  <Button
+                    className=''
+                    color='primary'
+                    size='lg'
+                    variant='light'
+                    startContent={<Plus />}
+                  >
+                    Agregar pago
+                  </Button>
                 </div>
               </div>
             </Tab>

@@ -18,7 +18,7 @@ export const searchPersonByNumDoc = async (numDocumento) => {
   return result
 }
 
-export const searchById = async (idPersona) => {
+export const searchPersonById = async (idPersona) => {
   const response = await fetch(
     `http://localhost:3000/api/personas/${idPersona}`
   )
