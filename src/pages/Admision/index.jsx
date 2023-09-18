@@ -318,8 +318,10 @@ function ModalNewCompany({ isOpen, onOpenChange }) {
 export default function Admision() {
   const [services, setServices] = useState([])
   const [tipoPagos, setTipoPagos] = useState([])
+  const [selectedMetodoPago, setSelectedMetodoPago] = useState(new Set([]))
   const [tipoBoleta, setTipoBoleta] = useState('B')
   const [detService, setDetService] = useState([])
+  const [detPago, setDetPago] = useState([])
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const {
     isOpen: isOpenPerson,
@@ -457,6 +459,17 @@ export default function Admision() {
     }
   }
 
+  const handleAgregarPago = () => {
+    if (selectedMetodoPago) {
+      const metodoPagoSeleccionado = tipoPagos.data.find(
+        (pago) => pago.idtipopago === parseInt(selectedMetodoPago.currentKey)
+      )
+      setDetPago([...detPago, metodoPagoSeleccionado])
+    } else {
+      alert('Selecciona un método de pago y completa el campo del nuevo pago.')
+    }
+  }
+
   useEffect(() => {
     if (!detService.length) return
 
@@ -483,6 +496,19 @@ export default function Admision() {
       detalleAtencion
     })
   }, [detService])
+
+  useEffect(() => {
+    if (!detPago.length) return
+
+    const detallePago = detPago.map((pago) => ({
+      tipoPago: pago.idtipopago
+    }))
+
+    setDataToSend({
+      ...dataToSend,
+      detallePago
+    })
+  }, [detPago])
 
   useEffect(() => {
     if (isSamePatient) {
@@ -702,7 +728,7 @@ export default function Admision() {
                     </div>
                   </RadioGroup>
                 </div>
-                <div className='col-start-6 col-end-8 row-span-4'>
+                <div className='col-start-6 col-end-8 row-span-6'>
                   <div className='bg-slate-100 h-full'>
                     <h2>RESUMEN</h2>
                     <div className='flex gap-4 justify-between'>
@@ -754,6 +780,8 @@ export default function Admision() {
                   labelPlacement='outside'
                   variant='flat'
                   size='lg'
+                  selectedKeys={selectedMetodoPago}
+                  onSelectionChange={setSelectedMetodoPago}
                 >
                   {tipoPagos.data &&
                     tipoPagos.data.map((tipoPago) => (
@@ -772,9 +800,37 @@ export default function Admision() {
                     size='lg'
                     variant='light'
                     startContent={<Plus />}
+                    onClick={handleAgregarPago}
                   >
                     Agregar pago
                   </Button>
+                </div>
+                <div className='col-start-1 col-end-6'>
+                  <Table
+                    aria-label='Tabla de métodos de pagos elegidos'
+                    removeWrapper
+                  >
+                    <TableHeader>
+                      <TableColumn>#</TableColumn>
+                      <TableColumn>MÉTODO</TableColumn>
+                      <TableColumn>MONTO PAGADO</TableColumn>
+                      <TableColumn>ACCIÓN</TableColumn>
+                    </TableHeader>
+                    <TableBody emptyContent='Agrega algún método de pago para visualizar'>
+                      {detPago.map((pago, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell>{pago.tipo_pago}</TableCell>
+                          <TableCell>{montoTotal()}</TableCell>
+                          <TableCell>
+                            <Button color='danger' variant='light' size='sm'>
+                              Eliminar
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
             </Tab>
