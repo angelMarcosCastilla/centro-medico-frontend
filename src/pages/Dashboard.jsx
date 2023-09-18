@@ -1,10 +1,12 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import Sidebar, { SidebarItem } from '../components/Sidebar'
-import { Brain, Bone, Microscope, FileText } from 'lucide-react'
+import { Brain, Bone, Microscope, FileText, LayoutTemplate } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import HasRole from '../components/HasRole'
 import { listRoles } from '../constants/auth.constant'
 import { DataProvider } from './Admision/components/DataContext'
+import { Card } from '@nextui-org/react'
+
 
 export default function Dashboard() {
   const { isAuthenticated, userInfo } = useAuth()
@@ -42,10 +44,19 @@ export default function Dashboard() {
             route='laboratorio'
           />
         </HasRole>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.plantillas}>
+          <SidebarItem
+            icon={<LayoutTemplate size={20} />}
+            text='Plantillas'
+            route='plantillas'
+          />
+        </HasRole>
       </Sidebar>
       <div className='bg-slate-100 flex-1 px-10 py-5 overflow-y-auto'>
         <DataProvider>
-          <Outlet />
+        <Card className='h-full'>
+          <Outlet />    
+        </Card>
         </DataProvider>
       </div>
     </div>

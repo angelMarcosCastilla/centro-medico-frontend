@@ -5,6 +5,7 @@ import { loginServices } from '../services/auth'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { redirectRoles } from '../constants/auth.constant'
+import { toast } from 'sonner'
 
 export default function Login() {
   const [username, setUsername] = useState('')
@@ -26,9 +27,11 @@ export default function Login() {
       const data = await loginServices(password, username)
       if (data.isSuccess) {
         setLoginData(data.data)
+      } else {
+        throw new Error(data.message)
       }
     } catch (e) {
-      console.log('error')
+      toast.error('credenciales incorrectas')
     } finally {
       setLoading(false)
     }
