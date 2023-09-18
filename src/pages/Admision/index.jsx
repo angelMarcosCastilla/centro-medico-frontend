@@ -51,6 +51,8 @@ import {
 } from '../../services/company'
 import { useDataContext } from './components/DataContext'
 import { getPaymentTypes } from '../../services/pay'
+import { addAdmissionAndData } from '../../services/admission'
+import { DateTime } from 'luxon'
 
 function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
   const [loading, setLoading] = useState(false)
@@ -202,6 +204,7 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
                     type='submit'
                     size='lg'
                     isLoading={loading}
+                    onPress={onClose}
                   >
                     Registrar
                   </Button>
@@ -460,13 +463,55 @@ export default function Admision() {
   }
 
   const handleAgregarPago = () => {
-    if (selectedMetodoPago) {
+    if (selectedMetodoPago.currentKey) {
       const metodoPagoSeleccionado = tipoPagos.data.find(
         (pago) => pago.idtipopago === parseInt(selectedMetodoPago.currentKey)
       )
       setDetPago([...detPago, metodoPagoSeleccionado])
     } else {
-      alert('Selecciona un método de pago y completa el campo del nuevo pago.')
+      alert('Selecciona un método de pago.')
+    }
+  }
+
+  const handleRemovePay = (idtipopago) => {
+    setDetPago((prevalue) =>
+      prevalue.filter((item) => item.idtipopago !== idtipopago)
+    )
+  }
+
+  const handleAddAdmissionAndData = async () => {
+    // Pendiente hacer validaciones
+    /* setDataToSend({
+      ...dataToSend,
+      pagoData: {
+        ...dataToSend.pagoData,
+        fechaHoraPago: DateTime.now()
+          .setZone('America/Lima')
+          .toFormat('yyyy-MM-dd HH:mm:ss'),
+        saldo: 0
+      }
+    }) */
+    const updatedDataToSend = {
+      ...dataToSend,
+      pagoData: {
+        ...dataToSend.pagoData,
+        fechaHoraPago: DateTime.now()
+          .setZone('America/Lima')
+          .toFormat('yyyy-MM-dd HH:mm:ss'),
+        saldo: 0
+      }
+    };
+
+    const result = await addAdmissionAndData(updatedDataToSend)
+
+    if (result.isSuccess) {
+      alert(result.message)
+      setDataPaciente({})
+      setDataCliente({})
+      setDetService([])
+      setDetPago([])
+    } else {
+      alert(result.message)
     }
   }
 
@@ -501,7 +546,8 @@ export default function Admision() {
     if (!detPago.length) return
 
     const detallePago = detPago.map((pago) => ({
-      tipoPago: pago.idtipopago
+      tipoPago: pago.idtipopago,
+      montoPagado: montoTotal()
     }))
 
     setDataToSend({
@@ -823,9 +869,19 @@ export default function Admision() {
                           <TableCell>{pago.tipo_pago}</TableCell>
                           <TableCell>{montoTotal()}</TableCell>
                           <TableCell>
-                            <Button color='danger' variant='light' size='sm'>
-                              Eliminar
-                            </Button>
+                            <div className='relative flex items-center gap-2'>
+                              <Button
+                                isIconOnly
+                                color='danger'
+                                variant='light'
+                                size='md'
+                                onClick={() => {
+                                  handleRemovePay(pago.idtipopago)
+                                }}
+                              >
+                                <Trash2 size={20} />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -837,7 +893,7 @@ export default function Admision() {
           </Tabs>
         </CardBody>
         <CardFooter className='flex justify-end'>
-          <Button color='primary' size='lg'>
+          <Button color='primary' size='lg' onClick={handleAddAdmissionAndData}>
             Guardar
           </Button>
         </CardFooter>
