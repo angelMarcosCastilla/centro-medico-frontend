@@ -56,14 +56,6 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                 <h2 className='text-xl'>Selección de servicio</h2>
               </ModalHeader>
               <ModalBody>
-                {/* {currentServicio && (
-                  <div className='border mb-3 text-sm flex flex-col text-blue-900 border-blue-500 bg-blue-50 rounded px-4 py-2'>
-                    <span>Precio: {currentServicio.precio}</span>
-                    <span>
-                      Orden Medica: {currentServicio.orden_medica ? '✅' : '❌'}
-                    </span>
-                  </div>
-                )} */}
                 <div className='grid grid-cols-7 gap-4'>
                   <div className='grid col-span-5 gap-4'>
                     <Select
@@ -163,73 +155,6 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                     </div>
                   </div>
                 </div>
-
-                {/* <div className='flex flex-col gap-y-4'>
-                  <Select
-                    label='Área'
-                    size='lg'
-                    selectedKeys={area}
-                    onChange={(e) => {
-                      setCategoria(new Set([]))
-                      setServicio(new Set([]))
-                      if (e.target.value !== '') {
-                        setArea(new Set([e.target.value]))
-                      } else {
-                        setArea(new Set([]))
-                      }
-                    }}
-                  >
-                    {data.map((area) => (
-                      <SelectItem key={area.idarea} value={area.idarea}>
-                        {area.nombre}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                  <Select
-                    label='Categoria'
-                    size='lg'
-                    selectedKeys={categoria}
-                    onChange={(e) => {
-                      setServicio(new Set([]))
-                      if (e.target.value !== '') {
-                        setCategoria(new Set([e.target.value]))
-                      } else {
-                        setCategoria(new Set([]))
-                      }
-                    }}
-                  >
-                    {optionsCategoria.map((categoria) => (
-                      <SelectItem
-                        key={categoria.idcategoria}
-                        value={categoria.idcategoria}
-                      >
-                        {categoria.nombre}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                  <Select
-                    key={categoria}
-                    label='Servicios'
-                    size='lg'
-                    selectedKeys={servicio}
-                    onChange={(e) => {
-                      if (e.target.value !== '') {
-                        setServicio(new Set([e.target.value]))
-                      } else {
-                        setServicio(new Set([]))
-                      }
-                    }}
-                  >
-                    {optionSercicios.map((servicio) => (
-                      <SelectItem
-                        key={servicio.idservicio}
-                        value={servicio.idservicio}
-                      >
-                        {servicio.nombre}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div> */}
               </ModalBody>
               <ModalFooter>
                 <Button
