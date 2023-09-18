@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import {
   Table,
   TableHeader,
@@ -17,14 +17,16 @@ import {
   Card,
   CardBody
 } from '@nextui-org/react'
+
 import { ChevronDownIcon, SearchIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { getallDetails } from '../../services/detalleAtencion'
 
 const columns = [
-  { name: 'ID', uid: 'id', sortable: true },
-  { name: 'PACIENTE', uid: 'paciente', sortable: true },
-  { name: 'CATEGORIA', uid: 'categoria', sortable: true },
-  { name: 'TIPO DE SERIVICIO', uid: 'tiposervicio', sortable: true },
+  { name: 'ID', uid: 'idatencion', sortable: true },
+  { name: 'PACIENTE', uid: 'Paciente', sortable: true },
+  { name: 'CATEGORIA', uid: 'nombre_categoria', sortable: true },
+  { name: 'TIPO DE SERIVICIO', uid: 'nombre_servicio', sortable: true },
   { name: 'ESTADO', uid: 'estado', sortable: true },
   { name: 'ACCIONES', uid: 'acciones' }
 ]
@@ -35,78 +37,7 @@ const statusOptions = [
   { name: 'Pendiente', uid: 'pendiente' }
 ]
 
-const users = [
-  {
-    id: 1,
-    paciente: 'Tony Reichert',
-    categoria: 'Con contraste',
-    tiposervicio: 'Abdomen completo',
-    estado: 'pendiente'
-  },
-  {
-    id: 2,
-    paciente: 'Susan Cartagena',
-    categoria: 'Sin contraste',
-    tiposervicio: 'Cerebral',
-    estado: 'pendiente'
-  },
-  {
-    id: 3,
-    paciente: 'Carlos López',
-    categoria: 'Con contraste',
-    tiposervicio: 'Tórax',
-    estado: 'pendiente'
-  },
-  {
-    id: 4,
-    paciente: 'Maria González',
-    categoria: 'Sin contraste',
-    tiposervicio: 'Pelvis',
-    estado: 'pendiente'
-  },
-  {
-    id: 5,
-    paciente: 'Juan Rodríguez',
-    categoria: 'Con contraste',
-    tiposervicio: 'Extremidades',
-    estado: 'pendiente'
-  },
-  {
-    id: 6,
-    paciente: 'Laura Martínez',
-    categoria: 'Sin contraste',
-    tiposervicio: 'Columna vertebral',
-    estado: 'pendiente'
-  },
-  {
-    id: 7,
-    paciente: 'Miguel Sánchez',
-    categoria: 'Con contraste',
-    tiposervicio: 'Pélvico',
-    estado: 'pendiente'
-  },
-  {
-    id: 8,
-    paciente: 'Ana Ramírez',
-    categoria: 'Sin contraste',
-    tiposervicio: 'Mama',
-    estado: 'pendiente'
-  },
-  {
-    id: 9,
-    paciente: 'Pedro Fernández',
-    categoria: 'Con contraste',
-    tiposervicio: 'Articulaciones',
-    estado: 'pendiente'
-  },
-  {
-    id: 10,
-    paciente: 'Elena Castillo',
-    categoria: 'Sin contraste',
-    tiposervicio: 'Cabeza y cuello',
-    estado: 'pendiente'
-  }
-]
+
 
 export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -119,25 +50,40 @@ const statusColorMap = {
 }
 
 const INITIAL_VISIBLE_COLUMNS = [
-  'paciente',
-  'categoria',
-  'tiposervicio',
+  'Paciente',
+  'nombre_categoria',
+  'nombre_servicio',
   'estado',
   'acciones'
 ]
 
 export default function Tomografia() {
-  const [filterValue, setFilterValue] = React.useState('')
-  const [visibleColumns, setVisibleColumns] = React.useState(
+  const [filterValue, setFilterValue] = useState('')
+  const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   )
-  const [statusFilter, setStatusFilter] = React.useState('all')
-  const [rowsPerPage, setRowsPerPage] = React.useState(5)
-  const [sortDescriptor, setSortDescriptor] = React.useState({
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [rowsPerPage, setRowsPerPage] = useState(5)
+  const [sortDescriptor, setSortDescriptor] = useState({
     column: 'id',
     direction: 'ascending'
   })
-  const [page, setPage] = React.useState(1)
+  const [page, setPage] = useState(1)
+  const [data, setData] = useState([])
+  console.log(data);
+
+
+  useEffect(()=>{
+    async function fetchData(){
+      try{
+        const response = await getallDetails();
+        setData(response)
+      }catch(error){
+        console.error('Error', error)
+      }
+    }  
+    fetchData()
+  },[])
 
   const hasSearchFilter = Boolean(filterValue)
 
@@ -150,24 +96,24 @@ export default function Tomografia() {
   }, [visibleColumns])
 
   const filteredItems = React.useMemo(() => {
-    let filteredUsers = [...users]
+    let filteredUsers = [...data]
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((user) =>
-        user.paciente.toLowerCase().includes(filterValue.toLowerCase())
+      filteredUsers = filteredUsers.filter((detail) =>
+      detail.paciente.toLowerCase().includes(filterValue.toLowerCase())
       )
     }
     if (
       statusFilter !== 'all' &&
       Array.from(statusFilter).length !== statusOptions.length
     ) {
-      filteredUsers = filteredUsers.filter((user) =>
-        Array.from(statusFilter).includes(user.status)
+      filteredUsers = filteredUsers.filter((detail) =>
+        Array.from(statusFilter).includes(detail.status)
       )
     }
 
     return filteredUsers
-  }, [users, filterValue, statusFilter])
+  }, [data, filterValue, statusFilter])
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage)
 
@@ -188,15 +134,15 @@ export default function Tomografia() {
     })
   }, [sortDescriptor, items])
 
-  const renderCell = React.useCallback((user, columnKey) => {
-    const cellValue = user[columnKey]
+  const renderCell = React.useCallback((detail, columnKey) => {
+    const cellValue = detail[columnKey]
 
     switch (columnKey) {
       case 'estado':
         return (
           <Chip
             className='capitalize'
-            color={statusColorMap[user.estado]}
+            color={statusColorMap[detail.estado]}
             size='sm'
             variant='flat'
           >
@@ -326,7 +272,7 @@ export default function Tomografia() {
         </div>
         <div className='flex justify-between items-center'>
           <span className='text-default-400 text-small'>
-            Total: {users.length} pacientes
+            Total: {data.length} pacientes
           </span>
           <label className='flex items-center text-default-400 text-small'>
             Filas por página:
@@ -347,7 +293,7 @@ export default function Tomografia() {
     statusFilter,
     visibleColumns,
     onRowsPerPageChange,
-    users.length,
+    data.length,
     onSearchChange,
     hasSearchFilter
   ])
@@ -416,7 +362,7 @@ export default function Tomografia() {
           </TableHeader>
           <TableBody emptyContent={'No users found'} items={sortedItems}>
             {(item) => (
-              <TableRow key={item.id}>
+              <TableRow key={item.idatencion}>
                 {(columnKey) => (
                   <TableCell>{renderCell(item, columnKey)}</TableCell>
                 )}
