@@ -115,7 +115,7 @@ export default function Tomografia() {
     return filteredUsers
   }, [data, filterValue, statusFilter])
 
-  const pages = Math.ceil(filteredItems.length / rowsPerPage)
+  const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1
 
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage
@@ -207,6 +207,7 @@ export default function Tomografia() {
     setPage(1)
   }, [])
 
+  
   const topContent = React.useMemo(() => {
     return (
       <div className='flex flex-col gap-4'>
@@ -362,7 +363,7 @@ export default function Tomografia() {
           </TableHeader>
           <TableBody emptyContent={'No users found'} items={sortedItems}>
             {(item) => (
-              <TableRow key={item.idatencion}>
+              <TableRow key={crypto.randomUUID().toString()}>
                 {(columnKey) => (
                   <TableCell>{renderCell(item, columnKey)}</TableCell>
                 )}
