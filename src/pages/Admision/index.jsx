@@ -52,7 +52,7 @@ import {
 import { useDataContext } from './components/DataContext'
 import { getPaymentTypes } from '../../services/pay'
 import { addAdmissionAndData } from '../../services/admission'
-import { DateTime } from 'luxon'
+import { toast } from 'sonner'
 
 function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
   const [loading, setLoading] = useState(false)
@@ -68,7 +68,7 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
     setLoading(false)
 
     if (!result.isSuccess) {
-      alert(result.message)
+      toast.success(result.message)
     } else {
       const dataPersona = await searchPersonById(result.data)
 
@@ -99,7 +99,7 @@ function ModalNewPerson({ isOpen, onOpenChange, isPatient = false }) {
         setDataToSend({ ...dataToSend, idcliente: [idpersona, 0] })
       }
 
-      alert(result.message)
+      toast.success(result.message)
     }
   }
   return (
@@ -385,7 +385,7 @@ export default function Admision() {
     const result = await searchPersonByNumDoc(numDocumento)
 
     if (!result.data) {
-      alert('No he encontrado ningún resultado')
+      toast.error('No he encontrado ningún resultado')
       setDataPaciente({})
       return
     }
@@ -433,7 +433,8 @@ export default function Admision() {
 
       setDataCliente({
         nombres: apellidos + ' ' + nombres,
-        direccion
+        direccion,
+        estado: 0
       })
       setDataToSend({
         ...dataToSend,
@@ -448,11 +449,12 @@ export default function Admision() {
         return
       }
 
-      const { idempresa, razon_social: razonSocial, direccion } = result.data
+      const { idempresa, razon_social: razonSocial, direccion, estado } = result.data
 
       setDataCliente({
         nombres: razonSocial,
-        direccion
+        direccion,
+        estado: Number(!!estado)
       })
 
       setDataToSend({
@@ -481,24 +483,12 @@ export default function Admision() {
 
   const handleAddAdmissionAndData = async () => {
     // Pendiente hacer validaciones
-    /* setDataToSend({
-      ...dataToSend,
-      pagoData: {
-        ...dataToSend.pagoData,
-        fechaHoraPago: DateTime.now()
-          .setZone('America/Lima')
-          .toFormat('yyyy-MM-dd HH:mm:ss'),
-        saldo: 0
-      }
-    }) */
     const updatedDataToSend = {
       ...dataToSend,
       pagoData: {
         ...dataToSend.pagoData,
-        fechaHoraPago: DateTime.now()
-          .setZone('America/Lima')
-          .toFormat('yyyy-MM-dd HH:mm:ss'),
-        saldo: 0
+        saldo: 0,
+        convenio: dataCliente.estado
       }
     };
 
@@ -531,7 +521,6 @@ export default function Admision() {
         descuento
       })
     )
-
     setDataToSend({
       ...dataToSend,
       pagoData: {
