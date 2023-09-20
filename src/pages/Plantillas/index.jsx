@@ -14,6 +14,8 @@ import {
   Tooltip
 } from '@nextui-org/react'
 import { Plus, Trash2 } from 'lucide-react'
+import { addTemplate } from '../../services/template'
+import { toast } from 'sonner'
 
 export default function Plantillas() {
   const [template, setTemplate] = useState(tableBaseTemplate)
@@ -53,6 +55,19 @@ export default function Plantillas() {
     })
   }
 
+  const handleAddTemplate = async () => {
+    // Testing
+    const example = {
+      idServicio: 96,
+      numVersion: 1,
+      formato: template
+    }
+    const result = await addTemplate(example)
+
+    if (result.isSuccess) toast.success(result.message)
+    else toast.error(result.message)
+  }
+
   return (
     <>
       <CardBody>
@@ -65,52 +80,31 @@ export default function Plantillas() {
           <TableBody>
             {template.rows.map((row, index) => (
               <TableRow key={index}>
-                <TableCell>
-                  <Input
-                    type='text'
-                    maxLength={100}
-                    value={row.analisis}
-                    onChange={(e) => handleInputChange(e, index, 'analisis')}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Input
-                    type='text'
-                    maxLength={100}
-                    value={row.resultado}
-                    onChange={(e) => handleInputChange(e, index, 'resultado')}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Input
-                    type='text'
-                    maxLength={100}
-                    value={row.unidad}
-                    onChange={(e) => handleInputChange(e, index, 'unidad')}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Input
-                    type='text'
-                    maxLength={100}
-                    value={row.rangoReferencial}
-                    onChange={(e) =>
-                      handleInputChange(e, index, 'rangoReferencial')
-                    }
-                  />
-                </TableCell>
-                <TableCell>
-                  <div className='flex justify-center gap-2'>
-                    <Tooltip content='Eliminar fila' color='danger'>
-                      <span
-                        className='text-danger cursor-pointer active:opacity-50'
-                        onClick={() => handleRemoveRow(index)}
-                      >
-                        <Trash2 size={20} />
-                      </span>
-                    </Tooltip>
-                  </div>
-                </TableCell>
+                {template.columns.map((column) => (
+                  <TableCell key={column.uid + '_' + index}>
+                    {column.uid !== 'acciones' ? (
+                      <Input
+                        type='text'
+                        maxLength={100}
+                        value={row[column.uid]}
+                        onChange={(e) =>
+                          handleInputChange(e, index, column.uid)
+                        }
+                      />
+                    ) : (
+                      <div className='flex justify-center gap-2'>
+                        <Tooltip content='Eliminar fila' color='danger'>
+                          <span
+                            className='text-danger cursor-pointer active:opacity-50'
+                            onClick={() => handleRemoveRow(index)}
+                          >
+                            <Trash2 size={20} />
+                          </span>
+                        </Tooltip>
+                      </div>
+                    )}
+                  </TableCell>
+                ))}
               </TableRow>
             ))}
           </TableBody>
@@ -133,7 +127,7 @@ export default function Plantillas() {
         <Button color='danger' size='lg' variant='light'>
           Cancelar
         </Button>
-        <Button color='primary' size='lg'>
+        <Button color='primary' size='lg' onClick={handleAddTemplate}>
           Guardar
         </Button>
       </CardFooter>

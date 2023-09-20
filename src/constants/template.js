@@ -24,3 +24,7 @@ export const tableBaseTemplate = {
   ],
   rows: []
 }
+
+export const template2 = {
+  typeTemplate: 'tableWithoutHeader'
+}
