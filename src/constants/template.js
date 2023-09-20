@@ -1,26 +1,26 @@
-export  const tableBaseTemplate = {
+export const tableBaseTemplate = {
   typeTemplate: 'table',
   columns: [
     {
       uid: 'analisis',
-      title: 'ANALISIS',
-      isReadOnly: true,
+      title: 'ANÁLISIS'
     },
     {
-      title: 'RESULTADO',
-      isReadOnly: false,
       uid: 'resultado',
+      title: 'RESULTADO'
     },
     {
-      title: 'UNIDAD',
-      isReadOnly: true,
       uid: 'unidad',
-    },{
-      title: 'RANGO REFERENCIAL',
-      isReadOnly: true,
+      title: 'UNIDAD'
+    },
+    {
       uid: 'rangoReferencial',
+      title: 'RANGO REFERENCIAL'
+    },
+    {
+      uid: 'acciones',
+      title: 'ACCIONES'
     }
-
   ],
-  row: {},
+  rows: []
 }
