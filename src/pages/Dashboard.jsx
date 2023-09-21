@@ -7,7 +7,6 @@ import { listRoles } from '../constants/auth.constant'
 import { DataProvider } from './Admision/components/DataContext'
 import { Card } from '@nextui-org/react'
 
-
 export default function Dashboard() {
   const { isAuthenticated, userInfo } = useAuth()
 
@@ -54,9 +53,9 @@ export default function Dashboard() {
       </Sidebar>
       <div className='bg-slate-100 flex-1 px-10 py-5 overflow-y-auto'>
         <DataProvider>
-        <Card className='h-full'>
-          <Outlet />    
-        </Card>
+          <Card className='h-full' shadow='none'>
+            <Outlet />
+          </Card>
         </DataProvider>
       </div>
     </div>
