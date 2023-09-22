@@ -45,7 +45,6 @@ import { validateFieldsFormAdmision } from './utils'
 export default function Admision() {
   const [services, setServices] = useState([])
   const [tipoPagos, setTipoPagos] = useState([])
-  const [tipoBoleta, setTipoBoleta] = useState('B')
   const [detService, setDetService] = useState([])
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const [selected, setSelected] = useState('informacion-paciente')
@@ -76,7 +75,7 @@ export default function Admision() {
   } = useDataContext()
 
   const handleOpenModalNewClient = () => {
-    if (tipoBoleta === 'B') {
+    if (dataToSend.pagoData.tipoComprobante === 'B') {
       isPatient.current = false
       onOpenPerson()
     } else {
@@ -146,7 +145,7 @@ export default function Admision() {
     const numDocumentoOrRUC = e.target.value
     if (!numDocumentoOrRUC || numDocumentoOrRUC.length < 8) return
 
-    if (tipoBoleta === 'B') {
+    if (dataToSend.pagoData.tipoComprobante === 'B') {
       const result = await searchPersonByNumDoc(numDocumentoOrRUC)
 
       if (!result.data) {
@@ -179,13 +178,13 @@ export default function Admision() {
         idempresa,
         razon_social: razonSocial,
         direccion,
-        estado
+        convenio
       } = result.data
 
       setDataCliente({
         nombres: razonSocial,
         direccion,
-        estado: Number(!!estado)
+        convenio: Number(!!convenio)
       })
 
       setDataToSend({
@@ -201,7 +200,7 @@ export default function Admision() {
       pagoData: {
         ...dataToSend.pagoData,
         saldo: 0,
-        convenio: dataCliente.estado
+        convenio: dataCliente.convenio
       }
     }
 
@@ -251,7 +250,6 @@ export default function Admision() {
     })
   }
 
-
   useEffect(() => {
     if (isSamePatient) {
       const { nombres, direccion } = dataPaciente
@@ -280,9 +278,31 @@ export default function Admision() {
     // Cada ves que se cambie de boleta a factura o viceversa se debe limpiar los datos del cliente
     setDataCliente({})
     setIsSamePatient(false)
-  }, [tipoBoleta])
+  }, [dataToSend.pagoData.tipoComprobante])
 
-  const isDisableButton = validateFieldsFormAdmision(dataToSend, false)
+  // si cambia de pestaña el pago se resetea
+  useEffect(() => {
+    if(selected === 'informacion-paciente') {
+      setDataToSend({
+        ...dataToSend,
+        detallePago: []
+      })
+    }
+  }, [selected])
+
+
+  const isDisableButton = validateFieldsFormAdmision(
+    dataToSend,
+    dataCliente.convenio
+  )
+
+  const isPaymentValid = dataToSend.detallePago?.reduce(
+    (acc, curr) => acc + curr.montoPagado,
+    0
+  )  === parseFloat(montoTotal())
+  
+
+
   return (
     <div className='flex flex-row h-full'>
       <Card className='w-full' shadow='none'>
@@ -424,7 +444,9 @@ export default function Admision() {
                     <div className='flex items-end gap-x-2'>
                       <Input
                         label={
-                          tipoBoleta === 'B' ? 'Número documento' : 'Número RUC'
+                          dataToSend.pagoData.tipoComprobante === 'B'
+                            ? 'Número documento'
+                            : 'Número RUC'
                         }
                         labelPlacement='outside'
                         placeholder='Enter para buscar'
@@ -446,14 +468,13 @@ export default function Admision() {
                     </div>
 
                     <RadioGroup
-                      value={tipoBoleta}
-                      onValueChange={setTipoBoleta}
-                      onChange={(e) => {
+                      value={dataToSend.pagoData.tipoComprobante}
+                      onValueChange={(e) => {
                         setDataToSend({
                           ...dataToSend,
                           pagoData: {
                             ...dataToSend.pagoData,
-                            tipoComprobante: e.target.value
+                            tipoComprobante: e
                           }
                         })
                       }}
@@ -474,7 +495,7 @@ export default function Admision() {
                     <Input
                       className='col-start-1 col-end-3'
                       label={
-                        tipoBoleta === 'B'
+                        dataToSend.pagoData.tipoComprobante === 'B'
                           ? 'Apellidos y nombres'
                           : 'Razón social'
                       }
@@ -490,7 +511,7 @@ export default function Admision() {
                       readOnly
                     />
                   </div>
-                  {tipoBoleta === 'B' && (
+                  {dataToSend.pagoData.tipoComprobante === 'B' && (
                     <div className='justify-items-start'>
                       <Checkbox
                         isSelected={isSamePatient}
@@ -520,7 +541,9 @@ export default function Admision() {
                       className='mb-2 px-5 text-sm grid grid-cols-2 gap-x-5 border-b py-2'
                     >
                       <span>{service.nombre}</span>
-                      <span className='text-right'>s/. {service.precio - service.descuento}</span>
+                      <span className='text-right'>
+                        s/. {service.precio - service.descuento}
+                      </span>
                     </div>
                   ))}
 
@@ -538,7 +561,7 @@ export default function Admision() {
             color='primary'
             size='lg'
             onClick={handleAddAdmissionAndData}
-            isDisabled={!isDisableButton}
+            isDisabled={!isDisableButton || !isPaymentValid}
           >
             Guardar
           </Button>

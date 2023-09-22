@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useDataContext } from "./DataContext"
 import { addCompanyService, searchCompanyById } from "../../../services/company"
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@nextui-org/react"
+import { toast } from "sonner"
 
 export default function ModalNewCompany({ isOpen, onOpenChange }) {
   const [loading, setLoading] = useState(false)
@@ -16,7 +17,7 @@ export default function ModalNewCompany({ isOpen, onOpenChange }) {
     setLoading(false)
 
     if (!result.isSuccess) {
-      alert(result.message)
+      toast.success(result.message)
     } else {
       const dataEmpresa = await searchCompanyById(result.data)
 

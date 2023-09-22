@@ -10,11 +10,15 @@ import {
 } from '@nextui-org/react'
 
 import React, { useMemo, useState } from 'react'
+import { useDataContext } from './DataContext'
+import { toast } from 'sonner'
 
 export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
   const [area, setArea] = useState(new Set([]))
   const [categoria, setCategoria] = useState(new Set([]))
   const [servicio, setServicio] = useState(new Set([]))
+
+  const { dataToSend } = useDataContext()
 
   const optionsCategoria = useMemo(() => {
     if (area.size === 0) return []
@@ -39,11 +43,19 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
   }, [servicio])
 
   const handleAddServices = () => {
-    setArea(new Set([]))
-    setCategoria(new Set([]))
-    setServicio(new Set([]))
-    onChange({ ...currentServicio, descuento: 0 })
-    onOpenChange(false)
+    // ver que no estea el servicio ya agregado
+    const isExist = dataToSend.detalleAtencion?.some(
+      (item) => item.idServicio === currentServicio?.idservicio
+    )
+    if (!isExist) {
+      onChange({ ...currentServicio, descuento: 0 })
+      onOpenChange(false)
+      setArea(new Set([]))
+      setCategoria(new Set([]))
+      setServicio(new Set([]))
+    } else {
+      toast.error('El servicio ya fue agregado')
+    }
   }
 
   return (

@@ -23,160 +23,171 @@ export default function ModalNewPerson({
   const { setDataPaciente, setDataCliente, dataToSend, setDataToSend } =
     useDataContext()
 
-  const handleAddPerson = async (e) => {
+  const handleAddPerson = async (e, onClose) => {
     e.preventDefault()
 
-    const formData = new FormData(e.target)
-    setLoading(true)
-    const result = await addPersonService(Object.fromEntries(formData))
-    setLoading(false)
+    try {
+      const formData = new FormData(e.target)
+      setLoading(true)
 
-    if (!result.isSuccess) {
-      toast.success(result.message)
-    } else {
-      const dataPersona = await searchPersonById(result.data)
+      const result = await addPersonService(Object.fromEntries(formData))
 
-      const {
-        idpersona,
-        apellidos,
-        nombres,
-        fecha_nacimiento: fechaNacimiento,
-        direccion
-      } = dataPersona.data
+      setLoading(false)
 
-      if (isPatient) {
-        setDataPaciente({
-          nombres: apellidos + ' ' + nombres,
-          fechaNacimiento: new Date(fechaNacimiento).toLocaleDateString('es', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-          }),
-          direccion
-        })
-        setDataToSend({ ...dataToSend, idpaciente: idpersona })
+      if (!result.isSuccess) {
+        toast.error('Error al al momento de registrar')
       } else {
-        setDataCliente({
-          nombres: apellidos + ' ' + nombres,
-          direccion
-        })
-        setDataToSend({ ...dataToSend, idcliente: [idpersona, 0] })
-      }
+        const dataPersona = await searchPersonById(result.data)
 
-      toast.success(result.message)
+        const {
+          idpersona,
+          apellidos,
+          nombres,
+          fecha_nacimiento: fechaNacimiento,
+          direccion
+        } = dataPersona.data
+
+        if (isPatient) {
+          setDataPaciente({
+            nombres: apellidos + ' ' + nombres,
+            fechaNacimiento: new Date(fechaNacimiento).toLocaleDateString(
+              'es',
+              {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+              }
+            ),
+            direccion
+          })
+          setDataToSend({ ...dataToSend, idpaciente: idpersona })
+        } else {
+          setDataCliente({
+            nombres: apellidos + ' ' + nombres,
+            direccion
+          })
+          setDataToSend({ ...dataToSend, idcliente: [idpersona, 0] })
+        }
+
+        toast.success(result.message)
+        onClose()
+      }
+    } catch (error) {
+      setLoading(false)
+      toast.error('Error al al momento de registrar')
     }
   }
   return (
     <>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='2xl'>
-        <form onSubmit={handleAddPerson} autoComplete='off'>
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalHeader className='flex flex-col gap-1'>
-                  <h2 className='text-xl'>
-                    Registro de {isPatient ? 'paciente' : 'cliente'}
-                  </h2>
-                </ModalHeader>
-                <ModalBody>
-                  <div className='flex flex-row gap-x-4'>
-                    <Select
-                      size='lg'
-                      label='Tipo documento'
-                      defaultSelectedKeys={['D']}
-                      name='tipoDocumento'
-                      isRequired
-                    >
-                      <SelectItem value='D' key={'D'}>
-                        DNI
-                      </SelectItem>
-                      <SelectItem value='C' key={'C'}>
-                        Carnet de extranjeria
-                      </SelectItem>
-                    </Select>
-                    <Input
-                      className='mb-2'
-                      label='Número documento'
-                      size='lg'
-                      name='numDocumento'
-                      maxLength={20}
-                      isRequired
-                    />
-                  </div>
-                  <div className='flex flex-row gap-x-4'>
-                    <Input
-                      className='mb-2'
-                      label='Nombres'
-                      size='lg'
-                      name='nombres'
-                      maxLength={50}
-                      isRequired
-                    />
-                    <Input
-                      className='mb-2'
-                      label='Apellidos'
-                      size='lg'
-                      name='apellidos'
-                      maxLength={50}
-                      isRequired
-                    />
-                  </div>
-                  <div className='flex flex-row gap-x-4'>
-                    <Input
-                      name='fechaNacimiento'
-                      type='date'
-                      className='mb-2'
-                      label='Fecha nacimiento'
-                      placeholder='fecha nacimiento'
-                      size='lg'
-                      isRequired
-                    />
-                    <Input
-                      className='mb-2'
-                      label='Dirección'
-                      size='lg'
-                      name='direccion'
-                    />
-                  </div>
-                  <div className='flex flex-row gap-x-4'>
-                    <Input
-                      className='mb-2'
-                      label='Correo'
-                      size='lg'
-                      name='correo'
-                    />
-                    <Input
-                      name='celular'
-                      className='mb-2'
-                      label='Celular'
-                      size='lg'
-                    />
-                  </div>
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    color='danger'
-                    type='button'
-                    variant='light'
+        <ModalContent>
+          {(onClose) => (
+            <form
+              onSubmit={(e) => handleAddPerson(e, onClose)}
+              autoComplete='off'
+            >
+              <ModalHeader className='flex flex-col gap-1'>
+                <h2 className='text-xl'>
+                  Registro de {isPatient ? 'paciente' : 'cliente'}
+                </h2>
+              </ModalHeader>
+              <ModalBody>
+                <div className='flex flex-row gap-x-4'>
+                  <Select
                     size='lg'
-                    onPress={onClose}
+                    label='Tipo documento'
+                    defaultSelectedKeys={['D']}
+                    name='tipoDocumento'
+                    isRequired
                   >
-                    Cerrar
-                  </Button>
-                  <Button
-                    color='primary'
-                    type='submit'
+                    <SelectItem value='D' key={'D'}>
+                      DNI
+                    </SelectItem>
+                    <SelectItem value='C' key={'C'}>
+                      Carnet de extranjeria
+                    </SelectItem>
+                  </Select>
+                  <Input
+                    className='mb-2'
+                    label='Número documento'
                     size='lg'
-                    isLoading={loading}
-                    onPress={onClose}
-                  >
-                    Registrar
-                  </Button>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
-        </form>
+                    name='numDocumento'
+                    maxLength={20}
+                    isRequired
+                  />
+                </div>
+                <div className='flex flex-row gap-x-4'>
+                  <Input
+                    className='mb-2'
+                    label='Nombres'
+                    size='lg'
+                    name='nombres'
+                    maxLength={50}
+                    isRequired
+                  />
+                  <Input
+                    className='mb-2'
+                    label='Apellidos'
+                    size='lg'
+                    name='apellidos'
+                    maxLength={50}
+                    isRequired
+                  />
+                </div>
+                <div className='flex flex-row gap-x-4'>
+                  <Input
+                    name='fechaNacimiento'
+                    type='date'
+                    className='mb-2'
+                    label='Fecha nacimiento'
+                    placeholder='fecha nacimiento'
+                    size='lg'
+                    isRequired
+                  />
+                  <Input
+                    className='mb-2'
+                    label='Dirección'
+                    size='lg'
+                    name='direccion'
+                  />
+                </div>
+                <div className='flex flex-row gap-x-4'>
+                  <Input
+                    className='mb-2'
+                    label='Correo'
+                    size='lg'
+                    name='correo'
+                  />
+                  <Input
+                    name='celular'
+                    className='mb-2'
+                    label='Celular'
+                    size='lg'
+                  />
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  color='danger'
+                  type='button'
+                  variant='light'
+                  size='lg'
+                  onPress={onClose}
+                >
+                  Cerrar
+                </Button>
+                <Button
+                  color='primary'
+                  type='submit'
+                  size='lg'
+                  isLoading={loading}
+                >
+                  Registrar
+                </Button>
+              </ModalFooter>
+            </form>
+          )}
+        </ModalContent>
       </Modal>
     </>
   )

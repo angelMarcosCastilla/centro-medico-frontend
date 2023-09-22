@@ -51,7 +51,7 @@ export default function Dashboard() {
           />
         </HasRole>
       </Sidebar>
-      <div className='bg-slate-100 flex-1 px-10 py-5 overflow-y-auto'>
+      <div className='bg-slate-100 flex-1 px-5 py-3 overflow-y-auto'>
         <DataProvider>
           <Card className='h-full' shadow='none'>
             <Outlet />
