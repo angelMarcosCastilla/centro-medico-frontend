@@ -10,6 +10,7 @@ import {
   User
 } from '@nextui-org/react'
 import { useAuth } from '../context/AuthContext'
+import { mapRoles } from '../constants/auth.constant'
 
 const SidebarContext = createContext()
 
@@ -66,7 +67,7 @@ export default function Sidebar({ children }) {
                 }}
                 {...(expanded && {
                   className: 'transition-transform',
-                  description: userInfo.nivel_acceso,
+                  description: mapRoles[userInfo.nivel_acceso],
                   name: `${userInfo.nombres} ${userInfo.apellidos}`
                 })}
               />

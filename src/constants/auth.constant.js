@@ -13,3 +13,9 @@ export const redirectRoles = {
   A: '/admision',
   L: '/laboratorio'
 }
+
+export const mapRoles = {
+  T: 'Tomografia',
+  A: 'Admisión',
+  L: 'Laboratorio'
+}
