@@ -21,7 +21,7 @@ import {
 import { ChevronDownIcon, SearchIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getallDetails } from '../../services/detalleAtencion'
-import { listState } from '../../constants/state'
+import { listState, statusColorMap } from '../../constants/state'
 
 const columns = [
   { name: 'ID', uid: 'idatencion', sortable: true },
@@ -38,16 +38,8 @@ const statusOptions = [
   { name: 'Pendiente', uid: 'pendiente' }
 ]
 
-
-
 export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
-}
-
-const statusColorMap = {
-  activo: 'success',
-  cancelado: 'danger',
-  pendiente: 'warning'
 }
 
 const INITIAL_VISIBLE_COLUMNS = [
@@ -71,21 +63,18 @@ export default function Tomografia() {
   })
   const [page, setPage] = useState(1)
   const [data, setData] = useState([])
-  
 
-  const statusService = 
-
-  useEffect(()=>{
-    async function fetchData(){
-      try{
-        const response = await getallDetails();
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await getallDetails()
         setData(response)
-      }catch(error){
+      } catch (error) {
         console.error('Error', error)
       }
     }
     fetchData()
-  },[])
+  }, [])
 
   const hasSearchFilter = Boolean(filterValue)
 
@@ -139,39 +128,21 @@ export default function Tomografia() {
   const renderCell = React.useCallback((detail, columnKey) => {
     const cellValue = detail[columnKey]
 
+    const estadoTexto = listState[cellValue]
+    const classChip = statusColorMap[cellValue]
     switch (columnKey) {
       case 'estado':
-        const estadoTexto = listState[cellValue];
         return (
-          <Chip
-            className='capitalize'
-            color={statusColorMap[cellValue]}
-            size='sm'
-            variant='flat'
-          >
+          <Chip className={`capitalize ${classChip}`} size='sm' variant='flat'>
             {capitalize(estadoTexto)}
           </Chip>
         )
       case 'acciones':
         return (
           <div className=''>
-            <Button color='primary'  >
-              <Link to='/triaje'>Cambiar estado</Link>
+            <Button color='primary' size='sm'>
+              <Link to='/triaje'>Atender</Link>
             </Button>
-            {/* <Dropdown>
-              <DropdownTrigger>
-                <Button isIconOnly size='sm' variant='light'>
-                  <MoreVertical />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu>
-                <DropdownItem>
-                  <Link to='/triaje'>Hacer triaje</Link>
-                </DropdownItem>
-                <DropdownItem>Edit</DropdownItem>
-                <DropdownItem>Delete</DropdownItem>
-              </DropdownMenu>
-            </Dropdown> */}
           </div>
         )
       default:
@@ -209,7 +180,6 @@ export default function Tomografia() {
     setFilterValue('')
     setPage(1)
   }, [])
-
 
   const topContent = React.useMemo(() => {
     return (

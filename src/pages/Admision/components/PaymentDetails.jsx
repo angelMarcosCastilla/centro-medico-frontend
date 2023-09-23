@@ -11,7 +11,7 @@ import {
   Input
 } from '@nextui-org/react'
 import { Plus, Trash2 } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { useDataContext } from './DataContext'
 
@@ -25,12 +25,12 @@ export default function PaymentDetails({
   const [countPartialPayment, setCountPartialPayment] = useState(
     Number(totalPayment)
   )
-  const { dataCliente } = useDataContext()
+  const { dataCliente, dataToSend } = useDataContext()
 
   const handleAgregarPago = () => {
     // vemos que el pago no sea mayor al total
     const cantTotal = detPago.reduce((acc, curr) => acc + curr.cantidad, 0)
-    
+
     if (cantTotal + countPartialPayment > Number(totalPayment)) {
       toast.error('El pago no puede ser mayor al total.')
       return
@@ -38,7 +38,6 @@ export default function PaymentDetails({
 
     // agregamos el pago
     if (selectedMetodoPago.size > 0) {
-
       const metodoPagoSeleccionado = tipoPagos.data.find(
         (pago) =>
           pago.idtipopago === parseInt(Array.from(selectedMetodoPago)[0])
@@ -47,7 +46,7 @@ export default function PaymentDetails({
         ...detPago,
         { ...metodoPagoSeleccionado, cantidad: Math.abs(countPartialPayment) }
       ]
-      
+
       // Agrupar por el tipo de pago
       const grouped = paymentDetails.reduce((acc, curr) => {
         const found = acc.find((item) => item.idtipopago === curr.idtipopago)
@@ -59,14 +58,10 @@ export default function PaymentDetails({
         return acc
       }, [])
 
-      
       setDetPago(grouped)
       onChange(grouped)
 
-      const cantTotal = grouped.reduce(
-        (acc, curr) => acc + curr.cantidad,
-        0
-      )
+      const cantTotal = grouped.reduce((acc, curr) => acc + curr.cantidad, 0)
       setCountPartialPayment(Number(totalPayment) - cantTotal)
     } else {
       toast.error('Selecciona un método de pago.')
@@ -78,7 +73,7 @@ export default function PaymentDetails({
 
     // cada vez que agregamos un detalle de pago asignamos lo que resta al input de cantidad
     const cantTotal = newPayment.reduce((acc, curr) => acc + curr.cantidad, 0)
-    
+
     setCountPartialPayment(Number(totalPayment) - cantTotal)
 
     setDetPago(newPayment)
@@ -87,9 +82,14 @@ export default function PaymentDetails({
 
   const disableButton =
     detPago.reduce((acc, curr) => acc + curr.cantidad, 0) ===
-      Number(totalPayment)   
+    Number(totalPayment)
 
-  
+    console.log(dataToSend)
+  useEffect(() => {
+    setDetPago([])
+    onChange([])
+  }, [dataToSend.pagoData.tipoComprobante])
+
   return (
     <>
       <div className='flex items-center gap-x-5 w-full mt-2'>

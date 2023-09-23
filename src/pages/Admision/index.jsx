@@ -218,6 +218,7 @@ export default function Admision() {
     }
   }
 
+
   const handleAddAdmissionAndData = async () => {
     const updatedDataToSend = {
       ...dataToSend,
@@ -227,7 +228,6 @@ export default function Admision() {
         convenio: dataCliente.convenio
       }
     }
-
     const result = await addAdmissionAndData(updatedDataToSend)
 
     if (result.isSuccess) {
@@ -245,11 +245,14 @@ export default function Admision() {
   }
 
   useEffect(() => {
+    const hasTriaje = detService.some(el => Boolean(el.triaje))
+
     const detalleAtencion = detService.map(
       ({ idservicio, precio, descuento }) => ({
         idServicio: idservicio,
         precioPagado: precio - descuento,
-        descuento
+        descuento,
+        estado: hasTriaje ? "PT": "P"       
       })
     )
     setDataToSend({

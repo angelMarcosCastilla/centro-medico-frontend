@@ -136,7 +136,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                     </Select>
                   </div>
                   <div className='col-span-2 border text-base text-blue-900 border-blue-500 bg-blue-50 rounded-md p-4'>
-                    <div className='grid grid-rows-2 grid-flow-col gap-x-4 h-full'>
+                    <div className='grid grid-rows-3 grid-flow-col gap-x-4 h-full'>
                       <div className='flex flex-col'>
                         <div className='font-bold mb-2'>Precio:</div>
                         <div className='flex items-center'>
@@ -160,6 +160,22 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                               }`}
                             >
                               {currentServicio.orden_medica ? '✅' : '❌'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className='flex flex-col'>
+                        <div className='font-bold mb-2'>Triaje:</div>
+                        <div className='flex items-center'>
+                          {currentServicio && (
+                            <span
+                              className={`text-xl ${
+                                currentServicio.triaje
+                                  ? 'text-green-500'
+                                  : 'text-red-500'
+                              }`}
+                            >
+                              {currentServicio.triaje ? '✅' : '❌'}
                             </span>
                           )}
                         </div>
