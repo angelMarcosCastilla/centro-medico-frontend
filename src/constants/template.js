@@ -3,23 +3,28 @@ export const tableBaseTemplate = {
   columns: [
     {
       uid: 'analisis',
-      title: 'ANÁLISIS'
+      title: 'ANÁLISIS',
+      readOnly: true
     },
     {
       uid: 'resultado',
-      title: 'RESULTADO'
+      title: 'RESULTADO',
+      readOnly: false
     },
     {
       uid: 'unidad',
-      title: 'UNIDAD'
+      title: 'UNIDAD',
+      readOnly: true
     },
     {
       uid: 'rangoReferencial',
-      title: 'RANGO REFERENCIAL'
+      title: 'RANGO REFERENCIAL',
+      readOnly: true
     },
     {
       uid: 'acciones',
-      title: 'ACCIONES'
+      title: 'ACCIONES',
+      readOnly: true
     }
   ],
   rows: []

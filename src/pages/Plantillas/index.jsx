@@ -11,14 +11,18 @@ import {
   Input,
   CardBody,
   CardFooter,
-  Tooltip
+  Tooltip,
+  Select,
+  SelectItem
 } from '@nextui-org/react'
-import { Plus, Trash2 } from 'lucide-react'
+import { ListPlus, ListX, Plus, Trash2 } from 'lucide-react'
 import { addTemplate } from '../../services/template'
 import { toast } from 'sonner'
 
 export default function Plantillas() {
+  const [services, setServices] = useState([])
   const [template, setTemplate] = useState(tableBaseTemplate)
+  const [sections, setSections] = useState([])
 
   const handleInputChange = (e, rowIndex, field) => {
     const updatedRows = [...template.rows]
@@ -71,6 +75,40 @@ export default function Plantillas() {
   return (
     <>
       <CardBody>
+        <div className='grid grid-cols-4 px-4 mb-4 gap-4 items-end'>
+          <Input
+            label='Nombre de la plantilla'
+            color='primary'
+            size='lg'
+            variant='underlined'
+            className='col-span-2'
+          />
+          <Select
+            label='Servicio'
+            color='primary'
+            variant='underlined'
+            className='col-span-1'
+          >
+            {services.map((service) => (
+              <SelectItem key={service.idservicio}>
+                {service.nombre_servicio}
+              </SelectItem>
+            ))}
+          </Select>
+          <Select
+            label='Formato'
+            color='primary'
+            variant='underlined'
+            className='col-span-1'
+            defaultSelectedKeys={['twh']}
+          >
+            <SelectItem key='twh'>Tabla con encabezado</SelectItem>
+            <SelectItem key='twoh'>Tabla sin encabezado</SelectItem>
+          </Select>
+        </div>
+        <div className='grid grid-cols-4 px-4 gap-4'>
+          <Input label='Nombre de la sección' color='primary' variant='underlined' />
+        </div>
         <Table aria-label='Example table with custom cells' shadow='none'>
           <TableHeader columns={template.columns}>
             {(column) => (
@@ -109,25 +147,43 @@ export default function Plantillas() {
             ))}
           </TableBody>
         </Table>
-        <div className='flex justify-center px-3'>
+        <div className='flex justify-center px-4 mb-4'>
           <Button
             className='w-full'
             color='primary'
             radius='full'
-            size='lg'
             variant='light'
-            startContent={<Plus />}
+            startContent={<Plus size={20} />}
             onPress={handleAddRow}
           >
             Agregar nueva fila
           </Button>
         </div>
+        <div className='flex px-4'>
+          <Button
+            color='primary'
+            variant='light'
+            radius='full'
+            startContent={<ListPlus size={20} />}
+          >
+            Añadir sección
+          </Button>
+          <Button
+            color='danger'
+            variant='light'
+            radius='full'
+            startContent={<ListX size={20} />}
+          >
+            Eliminar sección
+          </Button>
+        </div>
+        {}
       </CardBody>
       <CardFooter className='flex justify-end gap-4'>
-        <Button color='danger' size='lg' variant='light'>
+        <Button color='danger' variant='light'>
           Cancelar
         </Button>
-        <Button color='primary' size='lg' onClick={handleAddTemplate}>
+        <Button color='primary' onClick={handleAddTemplate}>
           Guardar
         </Button>
       </CardFooter>
