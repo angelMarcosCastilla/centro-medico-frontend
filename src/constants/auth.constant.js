@@ -2,7 +2,7 @@ export const listRoles = {
   "tomografia": ["T", "DT"],
   "radiologia": ["R", "DR"],
   "laboratorio": ["L", "DL"],
-  "plantillas": ["L", "T", "R"],
+  "plantillas": ["L"],
   "admisión": ["A"],
   "pagos":["A"],
   "triaje": ["T"],

@@ -41,6 +41,7 @@ import ModalNewPerson from './components/ModaNewPerson'
 import ModalNewCompany from './components/ModalNewCompany'
 import PaymentDetails from './components/PaymentDetails'
 import { validateFieldsFormAdmision } from './utils'
+import { calculateAgePerson } from '../../utils/date'
 
 export default function Admision() {
   const [services, setServices] = useState([])
@@ -90,7 +91,8 @@ export default function Admision() {
   const montoTotal = () => {
     let monto = 0
     detService.forEach((item) => {
-      monto += parseFloat(item.precio) - parseFloat(item.descuento)
+      console.log(item.descuento)
+      monto += parseFloat(item.precio) - parseFloat(item.descuento || 0)
     })
     return monto.toFixed(2)
   }
@@ -138,6 +140,24 @@ export default function Admision() {
     })
   }
 
+  const handleCalculateSubTotal = (e, service) => {
+    const getValue = () => {
+      if (e.target.value === '') return ''
+
+      const descuento = parseFloat(e.target.value)
+      if (descuento < service.precio && descuento > 0) return descuento
+      return ''
+    }
+
+    setDetService((prevService) => {
+      return prevService.map((prevService) => {
+        return prevService.idservicio === service.idservicio
+          ? { ...service, descuento: getValue() }
+          : prevService
+      })
+    })
+  }
+
   const handleSearchClient = async (e) => {
     if (e.key !== 'Enter') return
 
@@ -153,18 +173,24 @@ export default function Admision() {
         setDataPaciente({})
         return
       }
-      
-      const { idpersona, apellidos, nombres, direccion } = result.data
 
-      setDataCliente({
-        nombres: apellidos + ' ' + nombres,
-        direccion,
-        estado: 0
-      })
-      setDataToSend({
-        ...dataToSend,
-        idcliente: [idpersona, 0]
-      })
+      const { idpersona, apellidos, nombres, fecha_nacimiento: fechaNacimiento, direccion } = result.data
+      const fechaFormateada = fechaNacimiento.split('T')[0]
+
+      if (calculateAgePerson(fechaFormateada)) {
+        setDataCliente({
+          nombres: apellidos + ' ' + nombres,
+          direccion,
+          estado: 0
+        })
+        setDataToSend({
+          ...dataToSend,
+          idcliente: [idpersona, 0]
+        })
+      } else {
+        toast.error('El cliente debe ser mayor de edad.')
+      }
+
     } else {
       const result = await searchCompanyByRUC(numDocumentoOrRUC)
       if (!result.data) {
@@ -191,6 +217,7 @@ export default function Admision() {
       })
     }
   }
+
   const handleAddAdmissionAndData = async () => {
     const updatedDataToSend = {
       ...dataToSend,
@@ -279,7 +306,7 @@ export default function Admision() {
 
   // si cambia de pestaña el pago se resetea
   useEffect(() => {
-    if(selected === 'informacion-paciente') {
+    if (selected === 'informacion-paciente') {
       setDataToSend({
         ...dataToSend,
         detallePago: []
@@ -287,17 +314,14 @@ export default function Admision() {
     }
   }, [selected])
 
-  
   const isDisableButton = validateFieldsFormAdmision(
     dataToSend,
     dataCliente.convenio
   )
 
-  const isPaymentValid = dataToSend.detallePago?.reduce(
-    (acc, curr) => acc + curr.montoPagado,
-    0
-  )  === parseFloat(montoTotal()) || Boolean(dataCliente.convenio)
-  
+  const isPaymentValid =
+    dataToSend.detallePago?.reduce((acc, curr) => acc + curr.montoPagado, 0) ===
+      parseFloat(montoTotal()) || Boolean(dataCliente.convenio)
 
   return (
     <div className='flex flex-row h-full'>
@@ -396,19 +420,9 @@ export default function Admision() {
                       <TableCell>
                         <Input
                           type='number'
-                          min={0}
+                          placeholder='0'
                           value={service.descuento}
-                          onChange={(e) => {
-                            const descuento = e.target.value
-                            setDetService((prevService) => {
-                              return prevService.map((prevService) => {
-                                return prevService.idservicio ===
-                                  service.idservicio
-                                  ? { ...service, descuento }
-                                  : prevService
-                              })
-                            })
-                          }}
+                          onChange={(e) => handleCalculateSubTotal(e, service)}
                         />
                       </TableCell>
                       <TableCell>
@@ -507,16 +521,17 @@ export default function Admision() {
                       readOnly
                     />
                   </div>
-                  {dataToSend.pagoData.tipoComprobante === 'B' && (
-                    <div className='justify-items-start'>
-                      <Checkbox
-                        isSelected={isSamePatient}
-                        onValueChange={setIsSamePatient}
-                      >
-                        El paciente es el mismo cliente
-                      </Checkbox>
-                    </div>
-                  )}
+                  {dataToSend.pagoData.tipoComprobante === 'B' &&
+                    calculateAgePerson(dataPaciente.fechaNacimiento) && (
+                      <div className='justify-items-start'>
+                        <Checkbox
+                          isSelected={isSamePatient}
+                          onValueChange={setIsSamePatient}
+                        >
+                          El paciente es el mismo cliente
+                        </Checkbox>
+                      </div>
+                    )}
                   <Divider className='col-span-5 my-4' />
                   <PaymentDetails
                     key={resetTable}

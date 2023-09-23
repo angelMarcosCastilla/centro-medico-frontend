@@ -23,6 +23,16 @@ export default function ModalNewPerson({
   const { setDataPaciente, setDataCliente, dataToSend, setDataToSend } =
     useDataContext()
 
+  const currentDate = new Date()
+    .toLocaleDateString('es', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+    .split('/')
+    .reverse()
+    .join('-')
+
   const handleAddPerson = async (e, onClose) => {
     e.preventDefault()
 
@@ -77,6 +87,7 @@ export default function ModalNewPerson({
       toast.error('Error al al momento de registrar')
     }
   }
+  
   return (
     <>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='2xl'>
@@ -138,6 +149,7 @@ export default function ModalNewPerson({
                   <Input
                     name='fechaNacimiento'
                     type='date'
+                    max={currentDate}
                     className='mb-2'
                     label='Fecha nacimiento'
                     placeholder='fecha nacimiento'
