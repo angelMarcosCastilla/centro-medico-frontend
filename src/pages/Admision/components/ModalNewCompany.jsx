@@ -1,47 +1,51 @@
-import { useState } from "react"
-import { useDataContext } from "./DataContext"
-import { addCompanyService, searchCompanyById } from "../../../services/company"
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@nextui-org/react"
-import { toast } from "sonner"
+import { useState } from 'react'
+import { useDataContext } from './DataContext'
+import { addCompanyService } from '../../../services/company'
+import {
+  Button,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader
+} from '@nextui-org/react'
+import { toast } from 'sonner'
 
 export default function ModalNewCompany({ isOpen, onOpenChange }) {
   const [loading, setLoading] = useState(false)
   const { setDataCliente, dataToSend, setDataToSend } = useDataContext()
 
-  const handleAddCompany = async (e) => {
+  const handleAddCompany = async (e, onclose) => {
     e.preventDefault()
-
-    const formData = new FormData(e.target)
-    setLoading(true)
-    const result = await addCompanyService(Object.fromEntries(formData))
-    setLoading(false)
-
-    if (!result.isSuccess) {
-      toast.success(result.message)
-    } else {
-      const dataEmpresa = await searchCompanyById(result.data)
-
-      const {
-        idempresa,
-        razon_social: razonSocial,
-        direccion
-      } = dataEmpresa.data
+    try {
+      setLoading(true)
+      const formData = new FormData(e.target)
+      const result = await addCompanyService(Object.fromEntries(formData))
+      if (!result.isSuccess) {
+        toast.error('No se pudo registrar la empresa')
+        return
+      }
 
       setDataCliente({
-        nombres: razonSocial,
-        direccion
+        nombres: formData.get('razonSocial'),
+        direccion: formData.get('direccion'),
+        convenio: 0
       })
-      setDataToSend({ ...dataToSend, idcliente: [0, idempresa] })
-
-      alert(result.message)
+      setDataToSend({ ...dataToSend, idcliente: [0, result.data] })
+      onclose()
+      setLoading(false)
+    } catch (error) {
+      toast.error('Error al registrar la empresa')
+      setLoading(false)
     }
   }
   return (
     <>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='2xl'>
-        <form onSubmit={handleAddCompany} autoComplete='off'>
-          <ModalContent>
-            {(onClose) => (
+        <ModalContent>
+          {(onClose) => (
+            <form onSubmit={(e)=>handleAddCompany(e, onClose)} autoComplete='off'>
               <>
                 <ModalHeader className='flex flex-col gap-1'>
                   <h2 className='text-xl'>Registro de empresa</h2>
@@ -96,9 +100,9 @@ export default function ModalNewCompany({ isOpen, onOpenChange }) {
                   </Button>
                 </ModalFooter>
               </>
-            )}
-          </ModalContent>
-        </form>
+            </form>
+          )}
+        </ModalContent>
       </Modal>
     </>
   )

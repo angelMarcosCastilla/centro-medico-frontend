@@ -153,7 +153,7 @@ export default function Admision() {
         setDataPaciente({})
         return
       }
-
+      
       const { idpersona, apellidos, nombres, direccion } = result.data
 
       setDataCliente({
@@ -167,7 +167,6 @@ export default function Admision() {
       })
     } else {
       const result = await searchCompanyByRUC(numDocumentoOrRUC)
-
       if (!result.data) {
         toast.error('No he encontrado ningún resultado')
         setDataPaciente({})
@@ -180,7 +179,6 @@ export default function Admision() {
         direccion,
         convenio
       } = result.data
-
       setDataCliente({
         nombres: razonSocial,
         direccion,
@@ -193,7 +191,6 @@ export default function Admision() {
       })
     }
   }
-
   const handleAddAdmissionAndData = async () => {
     const updatedDataToSend = {
       ...dataToSend,
@@ -290,7 +287,7 @@ export default function Admision() {
     }
   }, [selected])
 
-
+  
   const isDisableButton = validateFieldsFormAdmision(
     dataToSend,
     dataCliente.convenio
@@ -299,9 +296,8 @@ export default function Admision() {
   const isPaymentValid = dataToSend.detallePago?.reduce(
     (acc, curr) => acc + curr.montoPagado,
     0
-  )  === parseFloat(montoTotal())
+  )  === parseFloat(montoTotal()) || Boolean(dataCliente.convenio)
   
-
 
   return (
     <div className='flex flex-row h-full'>
