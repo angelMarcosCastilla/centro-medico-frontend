@@ -21,6 +21,7 @@ import {
 import { ChevronDownIcon, SearchIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getallDetails } from '../../services/detalleAtencion'
+import { listState } from '../../constants/state'
 
 const columns = [
   { name: 'ID', uid: 'idatencion', sortable: true },
@@ -70,8 +71,9 @@ export default function Tomografia() {
   })
   const [page, setPage] = useState(1)
   const [data, setData] = useState([])
-  console.log(data);
+  
 
+  const statusService = 
 
   useEffect(()=>{
     async function fetchData(){
@@ -81,7 +83,7 @@ export default function Tomografia() {
       }catch(error){
         console.error('Error', error)
       }
-    }  
+    }
     fetchData()
   },[])
 
@@ -100,7 +102,7 @@ export default function Tomografia() {
 
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter((detail) =>
-      detail.paciente.toLowerCase().includes(filterValue.toLowerCase())
+        detail.paciente.toLowerCase().includes(filterValue.toLowerCase())
       )
     }
     if (
@@ -139,21 +141,22 @@ export default function Tomografia() {
 
     switch (columnKey) {
       case 'estado':
+        const estadoTexto = listState[cellValue];
         return (
           <Chip
             className='capitalize'
-            color={statusColorMap[detail.estado]}
+            color={statusColorMap[cellValue]}
             size='sm'
             variant='flat'
           >
-            {cellValue}
+            {capitalize(estadoTexto)}
           </Chip>
         )
       case 'acciones':
         return (
           <div className=''>
-            <Button color='primary'>
-              <Link to='/triaje'>Hacer triaje</Link>
+            <Button color='primary'  >
+              <Link to='/triaje'>Cambiar estado</Link>
             </Button>
             {/* <Dropdown>
               <DropdownTrigger>
@@ -207,7 +210,7 @@ export default function Tomografia() {
     setPage(1)
   }, [])
 
-  
+
   const topContent = React.useMemo(() => {
     return (
       <div className='flex flex-col gap-4'>
