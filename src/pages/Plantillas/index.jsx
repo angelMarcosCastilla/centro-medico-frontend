@@ -1,40 +1,64 @@
 import { useState } from 'react'
-import { tableBaseTemplate } from '../../constants/template'
+import { columnTemplate } from '../../constants/template'
 import {
-  TableBody,
-  Table,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
   Button,
   Input,
   CardBody,
   CardFooter,
-  Tooltip,
   Select,
   SelectItem
 } from '@nextui-org/react'
-import { ListPlus, ListX, Plus, Trash2 } from 'lucide-react'
-import { addTemplate } from '../../services/template'
-import { toast } from 'sonner'
+import { ListPlus } from 'lucide-react'
+import ColumnTemplate from './components/ColumnTemplate'
+// import { addTemplate } from '../../services/template'
+// import { toast } from 'sonner'
 
 export default function Plantillas() {
-  const [services, setServices] = useState([])
-  const [template, setTemplate] = useState(tableBaseTemplate)
-  const [sections, setSections] = useState([])
+  const [template, setTemplate] = useState(columnTemplate)
+  const [sections, setSections] = useState(template.sections)
 
-  const handleInputChange = (e, rowIndex, field) => {
-    const updatedRows = [...template.rows]
-    updatedRows[rowIndex][field] = e.target.value
+  const handleInputChange = (sectionUid, rowIndex, field, newValue) => {
+    setSections((prevSections) =>
+      prevSections.map((section) => {
+        if (section.uid === sectionUid) {
+          const updatedRows = section.rows.map((row, index) => {
+            if (index === rowIndex) {
+              return {
+                ...row,
+                [field]: newValue
+              }
+            } else {
+              return row
+            }
+          })
 
-    setTemplate({
-      ...template,
-      rows: updatedRows
-    })
+          return {
+            ...section,
+            rows: updatedRows
+          }
+        } else {
+          return section
+        }
+      })
+    )
   }
 
-  const handleAddRow = () => {
+  const handleSectionChange = (sectionUid, newName) => {
+    setSections((prevSections) =>
+      prevSections.map((section) => {
+        if (section.uid === sectionUid) {
+          return {
+            ...section,
+            title: newName
+          }
+        } else {
+          return section
+        }
+      })
+    )
+  }
+
+  const handleAddRow = (sectionUid) => {
     const newRow = {
       analisis: 'Hola Mundo',
       resultado: 'Aqui estoy',
@@ -42,26 +66,86 @@ export default function Plantillas() {
       rangoReferencial: 'Esto'
     }
 
-    setTemplate({
-      ...template,
-      rows: [...template.rows, newRow]
+    const updatedSections = sections.map((section) => {
+      if (section.uid === sectionUid) {
+        return {
+          ...section,
+          rows: [...section.rows, newRow]
+        }
+      } else {
+        return section
+      }
     })
+
+    setSections(updatedSections)
   }
 
-  const handleRemoveRow = (indexToRemove) => {
-    const updatedRows = template.rows.filter(
-      (_, index) => index !== indexToRemove
+  const handleRemoveRow = (sectionUid, indexToRemove) => {
+    const updatedSections = sections.map((section) => {
+      if (section.uid === sectionUid) {
+        const updatedRows = section.rows.filter(
+          (_, index) => index !== indexToRemove
+        )
+        return {
+          ...section,
+          rows: updatedRows
+        }
+      } else {
+        return section
+      }
+    })
+
+    setSections(updatedSections)
+  }
+
+  const handleAddSection = () => {
+    const newSection = {
+      uid: Date.now().toString(),
+      title: 'Nombre de la sección',
+      columns: [
+        {
+          uid: 'analisis',
+          title: 'ANÁLISIS',
+          editable: false
+        },
+        {
+          uid: 'resultado',
+          title: 'RESULTADO',
+          editable: true
+        },
+        {
+          uid: 'unidad',
+          title: 'UNIDAD',
+          editable: false
+        },
+        {
+          uid: 'rangoReferencial',
+          title: 'RANGO REFERENCIAL',
+          editable: false
+        },
+        {
+          uid: 'acciones',
+          title: 'ACCIONES',
+          editable: false
+        }
+      ],
+      rows: []
+    }
+
+    setSections([...sections, newSection])
+  }
+
+  const handleRemoveSection = (sectionUid) => {
+    const updatedSections = sections.filter(
+      (section) => section.uid !== sectionUid
     )
 
-    setTemplate({
-      ...template,
-      rows: updatedRows
-    })
+    setSections(updatedSections)
   }
 
   const handleAddTemplate = async () => {
     // Testing
-    const example = {
+    /* const example = {
       idServicio: 96,
       numVersion: 1,
       formato: template
@@ -69,7 +153,8 @@ export default function Plantillas() {
     const result = await addTemplate(example)
 
     if (result.isSuccess) toast.success(result.message)
-    else toast.error(result.message)
+    else toast.error(result.message) */
+    console.log(template)
   }
 
   return (
@@ -82,6 +167,10 @@ export default function Plantillas() {
             size='lg'
             variant='underlined'
             className='col-span-2'
+            value={template.templateName}
+            onChange={(e) =>
+              setTemplate({ ...template, templateName: e.target.value })
+            }
           />
           <Select
             label='Servicio'
@@ -89,11 +178,11 @@ export default function Plantillas() {
             variant='underlined'
             className='col-span-1'
           >
-            {services.map((service) => (
-              <SelectItem key={service.idservicio}>
-                {service.nombre_servicio}
-              </SelectItem>
-            ))}
+            <SelectItem>Servicio 1</SelectItem>
+            <SelectItem>Servicio 2</SelectItem>
+            <SelectItem>Servicio 3</SelectItem>
+            <SelectItem>Servicio 4</SelectItem>
+            <SelectItem>Servicio 5</SelectItem>
           </Select>
           <Select
             label='Formato'
@@ -102,82 +191,32 @@ export default function Plantillas() {
             className='col-span-1'
             defaultSelectedKeys={['twh']}
           >
-            <SelectItem key='twh'>Tabla con encabezado</SelectItem>
-            <SelectItem key='twoh'>Tabla sin encabezado</SelectItem>
+            <SelectItem key='twh'>Columnas</SelectItem>
+            <SelectItem key='twoh'>Clave y valor</SelectItem>
           </Select>
         </div>
-        <div className='grid grid-cols-4 px-4 gap-4'>
-          <Input label='Nombre de la sección' color='primary' variant='underlined' />
-        </div>
-        <Table aria-label='Example table with custom cells' shadow='none'>
-          <TableHeader columns={template.columns}>
-            {(column) => (
-              <TableColumn key={column.uid}>{column.title}</TableColumn>
-            )}
-          </TableHeader>
-          <TableBody>
-            {template.rows.map((row, index) => (
-              <TableRow key={index}>
-                {template.columns.map((column) => (
-                  <TableCell key={column.uid + '_' + index}>
-                    {column.uid !== 'acciones' ? (
-                      <Input
-                        type='text'
-                        maxLength={100}
-                        value={row[column.uid]}
-                        onChange={(e) =>
-                          handleInputChange(e, index, column.uid)
-                        }
-                      />
-                    ) : (
-                      <div className='flex justify-center gap-2'>
-                        <Tooltip content='Eliminar fila' color='danger'>
-                          <span
-                            className='text-danger cursor-pointer active:opacity-50'
-                            onClick={() => handleRemoveRow(index)}
-                          >
-                            <Trash2 size={20} />
-                          </span>
-                        </Tooltip>
-                      </div>
-                    )}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <div className='flex justify-center px-4 mb-4'>
-          <Button
-            className='w-full'
-            color='primary'
-            radius='full'
-            variant='light'
-            startContent={<Plus size={20} />}
-            onPress={handleAddRow}
-          >
-            Agregar nueva fila
-          </Button>
-        </div>
+        {sections.map((section) => (
+          <ColumnTemplate
+            key={section.uid}
+            section={section}
+            onInputChange={handleInputChange}
+            onSectionChange={handleSectionChange}
+            onAddRow={handleAddRow}
+            onRemoveRow={handleRemoveRow}
+            onRemoveSection={handleRemoveSection}
+          />
+        ))}
         <div className='flex px-4'>
           <Button
             color='primary'
             variant='light'
             radius='full'
             startContent={<ListPlus size={20} />}
+            onPress={handleAddSection}
           >
-            Añadir sección
-          </Button>
-          <Button
-            color='danger'
-            variant='light'
-            radius='full'
-            startContent={<ListX size={20} />}
-          >
-            Eliminar sección
+            Nueva sección
           </Button>
         </div>
-        {}
       </CardBody>
       <CardFooter className='flex justify-end gap-4'>
         <Button color='danger' variant='light'>

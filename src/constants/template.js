@@ -1,35 +1,3 @@
-export const tableBaseTemplate = {
-  typeTemplate: 'table',
-  columns: [
-    {
-      uid: 'analisis',
-      title: 'ANÁLISIS',
-      readOnly: true
-    },
-    {
-      uid: 'resultado',
-      title: 'RESULTADO',
-      readOnly: false
-    },
-    {
-      uid: 'unidad',
-      title: 'UNIDAD',
-      readOnly: true
-    },
-    {
-      uid: 'rangoReferencial',
-      title: 'RANGO REFERENCIAL',
-      readOnly: true
-    },
-    {
-      uid: 'acciones',
-      title: 'ACCIONES',
-      readOnly: true
-    }
-  ],
-  rows: []
-}
-
 export const columnTemplate = {
   templateName: 'My Column Template',
   type: 'fourColumns',
@@ -38,10 +6,31 @@ export const columnTemplate = {
       uid: 'section1',
       title: 'Section 1',
       columns: [
-        { uid: 'column1', title: 'Column 1', editable: false },
-        { uid: 'column2', title: 'Column 2', editable: true },
-        { uid: 'column3', title: 'Column 3', editable: false },
-        { uid: 'column4', title: 'Column 4', editable: false }
+        {
+          uid: 'analisis',
+          title: 'ANÁLISIS',
+          editable: false
+        },
+        {
+          uid: 'resultado',
+          title: 'RESULTADO',
+          editable: true
+        },
+        {
+          uid: 'unidad',
+          title: 'UNIDAD',
+          editable: false
+        },
+        {
+          uid: 'rangoReferencial',
+          title: 'RANGO REFERENCIAL',
+          editable: false
+        },
+        {
+          uid: 'acciones',
+          title: 'ACCIONES',
+          editable: false
+        }
       ],
       rows: [] // Array of arrays
     }
@@ -57,12 +46,12 @@ export const keyValueTemplate = {
       title: 'Section 1',
       items: [
         {
-          key: { text: 'Key 1', editable: false },
-          value: { text: 'Value 1', editable: true }
+          key: 'key 1',
+          value: 'value 1'
         },
         {
-          key: { text: 'Key 2', editable: false },
-          value: { text: 'Value 2', editable: true }
+          key: 'key 2',
+          value: 'value 2'
         }
       ]
     }
