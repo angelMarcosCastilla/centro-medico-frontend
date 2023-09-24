@@ -29,15 +29,21 @@ export default function ColumnTemplate({
           value={section.title}
           onChange={(e) => onSectionChange(section.uid, e.target.value)}
         />
-        <Button
+        <Tooltip
+          content='Eliminar sección'
           color='danger'
-          variant='light'
-          radius='full'
-          startContent={<ListX size={20} />}
-          onPress={() => onRemoveSection(section.uid)}
+          placement='right'
+          closeDelay={0}
         >
-          Eliminar sección
-        </Button>
+          <Button
+            isIconOnly
+            color='danger'
+            variant='light'
+            onPress={() => onRemoveSection(section.uid)}
+          >
+            <ListX size={20} />
+          </Button>
+        </Tooltip>
       </div>
       <Table aria-label='Example table with custom cells' shadow='none'>
         <TableHeader columns={section.columns}>
@@ -49,7 +55,7 @@ export default function ColumnTemplate({
           {section.rows.map((row, index) => (
             <TableRow key={index}>
               {section.columns.map((column) => (
-                <TableCell key={column.uid + '_' + index}>
+                <TableCell key={section.uid + '_' + column.uid + '_' + index}>
                   {column.uid !== 'acciones' ? (
                     <Input
                       type='text'
@@ -66,7 +72,11 @@ export default function ColumnTemplate({
                     />
                   ) : (
                     <div className='flex justify-center gap-2'>
-                      <Tooltip content='Eliminar fila' color='danger'>
+                      <Tooltip
+                        content='Eliminar fila'
+                        color='danger'
+                        closeDelay={0}
+                      >
                         <span
                           className='text-danger cursor-pointer active:opacity-50'
                           onClick={() => onRemoveRow(section.uid, index)}

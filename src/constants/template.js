@@ -32,14 +32,21 @@ export const columnTemplate = {
           editable: false
         }
       ],
-      rows: [] // Array of arrays
+      rows: [
+        {
+          analisis: 'Hola Mundo',
+          resultado: 'Aqui estoy',
+          unidad: 'Probando',
+          rangoReferencial: 'Esto'
+        }
+      ]
     }
   ]
 }
 
 export const keyValueTemplate = {
   templateName: 'My KeyValue Template',
-  type: 'keyValues',
+  type: 'keysValues',
   sections: [
     {
       uid: 'section1',
@@ -48,12 +55,13 @@ export const keyValueTemplate = {
         {
           key: 'key 1',
           value: 'value 1'
-        },
-        {
-          key: 'key 2',
-          value: 'value 2'
         }
       ]
     }
   ]
 }
+
+export const templateFormats = [
+  { label: 'Columnas', value: 'fourColumns' },
+  { label: 'Claves y valores', value: 'keysValues' }
+]
