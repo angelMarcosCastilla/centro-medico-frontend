@@ -39,6 +39,7 @@ export default function Plantillas() {
     setSections(selectedTemplate.sections)
   }
 
+
   const handleInputChange = (sectionUid, rowIndex, field, newValue) => {
     setSections((prevSections) =>
       prevSections.map((section) => {
@@ -64,7 +65,7 @@ export default function Plantillas() {
       })
     )
   }
-
+  console.log("render")
   const handleInputChangeKeyValue = (
     sectionUid,
     itemIndex,

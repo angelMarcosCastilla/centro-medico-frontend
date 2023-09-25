@@ -1,15 +1,39 @@
-import {
-  Button,
-  Input,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-  Tooltip
-} from '@nextui-org/react'
+import { Button, Input, Tooltip } from '@nextui-org/react'
 import { ListX, Plus, Trash2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+
+const useDebaunce = (value, delay = 500) => {
+  const [debouncedValue, setDebouncedValue] = useState(value)
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value)
+    }, delay)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [value, delay])
+
+  return debouncedValue
+}
+
+function InputTable({ value, onChange }) {
+  const [newValue, setNewValue] = useState(value)
+  const debouncedValue = useDebaunce(newValue)
+
+  useEffect(() => {
+    onChange(debouncedValue)
+  }, [debouncedValue])
+
+  return (
+    <Input
+      type='text'
+      value={newValue}
+      onChange={(e) => setNewValue(e.target.value)}
+    />
+  )
+}
 
 export default function ColumnTemplate({
   section,
@@ -45,53 +69,58 @@ export default function ColumnTemplate({
           </Button>
         </Tooltip>
       </div>
-      <Table aria-label='Example table with custom cells' shadow='none'>
-        <TableHeader columns={section.columns}>
-          {(column) => (
-            <TableColumn key={column.uid}>{column.title}</TableColumn>
-          )}
-        </TableHeader>
-        <TableBody>
-          {section.rows.map((row, index) => (
-            <TableRow key={index}>
-              {section.columns.map((column) => (
-                <TableCell key={section.uid + '_' + column.uid + '_' + index}>
-                  {column.uid !== 'acciones' ? (
-                    <Input
-                      type='text'
-                      maxLength={100}
-                      value={row[column.uid]}
-                      onChange={(e) =>
-                        onInputChange(
-                          section.uid,
-                          index,
-                          column.uid,
-                          e.target.value
-                        )
-                      }
-                    />
-                  ) : (
-                    <div className='flex justify-center gap-2'>
-                      <Tooltip
-                        content='Eliminar fila'
-                        color='danger'
-                        closeDelay={0}
-                      >
-                        <span
-                          className='text-danger cursor-pointer active:opacity-50'
-                          onClick={() => onRemoveRow(section.uid, index)}
+
+      <div className='relative '>
+        <table className='w-full text-sm text-left text-gray-500 dark:text-gray-400'>
+          <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+            {section.columns.map((col, index) => (
+              <th key={index} className='px-3'>
+                {col.title}
+              </th>
+            ))}
+          </thead>
+          <tbody>
+            {section.rows.map((row, index) => (
+              <tr
+                key={index}
+                className='bg-white border-b dark:bg-gray-800 dark:border-gray-700'
+              >
+                {section.columns.map((column) => (
+                  <td
+                    key={section.uid + '_' + column.uid + '_' + index}
+                    className='px-3 py-4'
+                  >
+                    {column.uid !== 'acciones' ? (
+                      <InputTable
+                        value={row[column.uid]}
+                        onChange={(value) =>
+                          onInputChange(section.uid, index, column.uid, value)
+                        }
+                      />
+                    ) : (
+                      <div className='flex justify-center gap-2'>
+                        <Tooltip
+                          content='Eliminar fila'
+                          color='danger'
+                          closeDelay={0}
                         >
-                          <Trash2 size={20} />
-                        </span>
-                      </Tooltip>
-                    </div>
-                  )}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                          <span
+                            className='text-danger cursor-pointer active:opacity-50'
+                            onClick={() => onRemoveRow(section.uid, index)}
+                          >
+                            <Trash2 size={20} />
+                          </span>
+                        </Tooltip>
+                      </div>
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       <div className='flex justify-center px-4 mb-4'>
         <Button
           className='w-full'
