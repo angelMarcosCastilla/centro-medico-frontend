@@ -4,8 +4,8 @@ export const getallDetails = async ()=>{
     return data;
 }
 
- export const changeStatus = async (idAtencion, nuevoEstado) => {    
-    const response = await fetch(`http://localhost:3000/api/detalleAtencion/${idAtencion}`, {
+ export const changeStatus = async (iddetatencion, nuevoEstado) => {    
+    const response = await fetch(`http://localhost:3000/api/detalleAtencion/${iddetatencion}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
