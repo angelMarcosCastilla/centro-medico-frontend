@@ -342,7 +342,7 @@ export default function Plantillas() {
             onRemoveSection={handleRemoveSection}
           />
         }
-        {template && (
+        {template.sections && (
           <div className='flex px-4'>
             <Button
               color='primary'

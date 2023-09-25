@@ -22,10 +22,7 @@ export default function Sidebar({ children }) {
     return true
   })
 
-  const {
-    logout,
-    userInfo
-  } = useAuth()
+  const { logout, userInfo } = useAuth()
 
   useEffect(() => {
     localStorage.setItem('sidebarExpanded', expanded.toString())
@@ -34,15 +31,16 @@ export default function Sidebar({ children }) {
   return (
     <aside className='h-screen'>
       <nav className='h-full flex flex-col bg-white border-r shadow-sm'>
-        <div className='p-4 pb-5 flex justify-between items-center'>
+        <div className='flex justify-around items-center p-4 pb-5'>
           <img
             className={`overflow-hidden transition-all ${
-              expanded ? 'w-56' : 'w-0'
+              expanded ? 'w-[200px]' : 'w-0'
             }`}
             alt='Centro Médico Melchorita'
             src='https://i.imgur.com/jZHyOL1.jpg'
           />
           <Button
+            className='text-gray-600'
             variant='light'
             isIconOnly
             onClick={() => setExpanded((curr) => !curr)}
@@ -55,7 +53,7 @@ export default function Sidebar({ children }) {
           <ul className='flex-1 px-3'>{children}</ul>
         </SidebarContext.Provider>
 
-        <div className='border-t flex px-4 py-4'>
+        <div className='border-t flex p-3'>
           <Dropdown placement='bottom-start'>
             <DropdownTrigger>
               <User
@@ -101,7 +99,7 @@ export function SidebarItem({ icon, text, route }) {
     <Link to={route}>
       <li
         className={`
-        relative flex items-center py-2 px-3.5 my-1
+        relative flex items-center py-2.5 px-3.5 my-1
         font-medium rounded-md cursor-pointer
         transition-colors group
         ${
@@ -113,7 +111,7 @@ export function SidebarItem({ icon, text, route }) {
       >
         {icon}
         <span
-          className={`overflow-hidden h-6 transition-all ${
+          className={`overflow-hidden h-5 text-[15px] transition-all ${
             expanded ? 'w-52 ml-3' : 'w-0'
           }`}
         >
@@ -123,7 +121,7 @@ export function SidebarItem({ icon, text, route }) {
         {!expanded && (
           <div
             className={`
-              absolute left-full rounded-md px-2 py-1 ml-6
+              absolute left-full rounded-md px-2 py-1 ml-6 text-[15px]  
               bg-indigo-100 text-indigo-800
               invisible opacity-20 -translate-x-3 transition-all
               whitespace-nowrap
