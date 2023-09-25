@@ -19,8 +19,7 @@ import {
 } from '@nextui-org/react'
 
 import { ChevronDownIcon, SearchIcon } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { getallDetails } from '../../services/detalleAtencion'
+import { getallDetails, changeStatus } from '../../services/detalleAtencion'
 import { listState, statusColorMap } from '../../constants/state'
 
 const columns = [
@@ -140,8 +139,8 @@ export default function Tomografia() {
       case 'acciones':
         return (
           <div className=''>
-            <Button color='primary' size='sm'>
-              <Link to='/triaje'>Atender</Link>
+            <Button color='primary' size='sm' onClick={() => handleAtender(detail.iddetatencion)}>
+              Atender
             </Button>
           </div>
         )
@@ -149,6 +148,18 @@ export default function Tomografia() {
         return cellValue
     }
   }, [])
+  const handleAtender = async (iddetatencion) => {
+    const nuevoEstado = 'PI'; // Reemplaza con el nuevo estado deseado
+    const result = await changeStatus(iddetatencion, nuevoEstado);
+
+    if (result) {
+      console.log('Estado cambiado con éxito');
+      // Realiza cualquier otra lógica necesaria después de cambiar el estado
+    } else {
+      console.error('Error al cambiar el estado');
+      // Maneja el error de acuerdo a tus necesidades
+    }
+  };
 
   const onNextPage = React.useCallback(() => {
     if (page < pages) {
