@@ -13,7 +13,6 @@ import {
   SelectItem
 } from '@nextui-org/react'
 import { ListPlus } from 'lucide-react'
-// import ColumnTemplate from './components/ColumnTemplate'
 import { addTemplate } from '../../services/template'
 import { toast } from 'sonner'
 import TypeTemplate from './components/TypeTemplate'
@@ -22,6 +21,7 @@ export default function Plantillas() {
   const [typesTemplate, setTypesTemplate] = useState(new Set([]))
   const [template, setTemplate] = useState({ templateName: '' })
   const [sections, setSections] = useState([])
+  const [loading, setLoading] = useState(false)
 
   const handleFormatChange = (selectedFormat) => {
     let selectedTemplate
@@ -270,11 +270,13 @@ export default function Plantillas() {
     }
 
     const data = {
-      idServicio: 96,
-      numVersion: 1,
-      formato: updatedTemplate
+      idServicio: 96, // Cambiar por ID del servicio
+      formato: JSON.stringify(updatedTemplate)
     }
+
+    setLoading(true)
     const result = await addTemplate(data)
+    setLoading(false)
 
     if (result.isSuccess) toast.success(result.message)
     else toast.error(result.message)
@@ -358,7 +360,7 @@ export default function Plantillas() {
         <Button color='danger' variant='light'>
           Cancelar
         </Button>
-        <Button color='primary' onClick={handleAddTemplate}>
+        <Button color='primary' onClick={handleAddTemplate} isLoading={loading}>
           Guardar
         </Button>
       </CardFooter>
