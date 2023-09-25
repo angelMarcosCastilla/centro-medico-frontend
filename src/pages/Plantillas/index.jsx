@@ -1,36 +1,117 @@
 import { useState } from 'react'
-import { tableBaseTemplate } from '../../constants/template'
 import {
-  TableBody,
-  Table,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
+  columnTemplate,
+  keyValueTemplate,
+  templateFormats
+} from '../../constants/template'
+import {
   Button,
   Input,
   CardBody,
   CardFooter,
-  Tooltip
+  Select,
+  SelectItem
 } from '@nextui-org/react'
-import { Plus, Trash2 } from 'lucide-react'
+import { ListPlus } from 'lucide-react'
 import { addTemplate } from '../../services/template'
 import { toast } from 'sonner'
+import TypeTemplate from './components/TypeTemplate'
 
 export default function Plantillas() {
-  const [template, setTemplate] = useState(tableBaseTemplate)
+  const [typesTemplate, setTypesTemplate] = useState(new Set([]))
+  const [template, setTemplate] = useState({ templateName: '' })
+  const [sections, setSections] = useState([])
+  const [loading, setLoading] = useState(false)
 
-  const handleInputChange = (e, rowIndex, field) => {
-    const updatedRows = [...template.rows]
-    updatedRows[rowIndex][field] = e.target.value
+  const handleFormatChange = (selectedFormat) => {
+    let selectedTemplate
 
-    setTemplate({
-      ...template,
-      rows: updatedRows
-    })
+    switch (selectedFormat) {
+      case 'fourColumns':
+        selectedTemplate = columnTemplate
+        break
+      case 'keysValues':
+        selectedTemplate = keyValueTemplate
+        break
+    }
+
+    setTemplate(selectedTemplate)
+    setSections(selectedTemplate.sections)
   }
 
-  const handleAddRow = () => {
+  const handleInputChange = (sectionUid, rowIndex, field, newValue) => {
+    setSections((prevSections) =>
+      prevSections.map((section) => {
+        if (section.uid === sectionUid) {
+          const updatedRows = section.rows.map((row, index) => {
+            if (index === rowIndex) {
+              return {
+                ...row,
+                [field]: newValue
+              }
+            } else {
+              return row
+            }
+          })
+
+          return {
+            ...section,
+            rows: updatedRows
+          }
+        } else {
+          return section
+        }
+      })
+    )
+  }
+
+  const handleInputChangeKeyValue = (
+    sectionUid,
+    itemIndex,
+    field,
+    newValue
+  ) => {
+    setSections((prevSections) =>
+      prevSections.map((section) => {
+        if (section.uid === sectionUid) {
+          const updatedItems = section.items.map((item, index) => {
+            if (index === itemIndex) {
+              return {
+                ...item,
+                [field]: newValue
+              }
+            } else {
+              return item
+            }
+          })
+
+          return {
+            ...section,
+            items: updatedItems
+          }
+        } else {
+          return section
+        }
+      })
+    )
+  }
+
+  const handleSectionChange = (sectionUid, newName) => {
+    setSections((prevSections) =>
+      prevSections.map((section) => {
+        if (section.uid === sectionUid) {
+          return {
+            ...section,
+            title: newName
+          }
+        } else {
+          return section
+        }
+      })
+    )
+  }
+
+  const handleAddRow = (sectionUid) => {
     const newRow = {
       analisis: 'Hola Mundo',
       resultado: 'Aqui estoy',
@@ -38,31 +119,164 @@ export default function Plantillas() {
       rangoReferencial: 'Esto'
     }
 
-    setTemplate({
-      ...template,
-      rows: [...template.rows, newRow]
+    const updatedSections = sections.map((section) => {
+      if (section.uid === sectionUid) {
+        return {
+          ...section,
+          rows: [...section.rows, newRow]
+        }
+      } else {
+        return section
+      }
     })
+
+    setSections(updatedSections)
   }
 
-  const handleRemoveRow = (indexToRemove) => {
-    const updatedRows = template.rows.filter(
-      (_, index) => index !== indexToRemove
+  const handleRemoveRow = (sectionUid, indexToRemove) => {
+    const updatedSections = sections.map((section) => {
+      if (section.uid === sectionUid && section.rows.length > 1) {
+        const updatedRows = section.rows.filter(
+          (_, index) => index !== indexToRemove
+        )
+        return {
+          ...section,
+          rows: updatedRows
+        }
+      } else {
+        return section
+      }
+    })
+
+    setSections(updatedSections)
+  }
+
+  const handleAddItem = (sectionUid) => {
+    const newItem = {
+      key: 'key 1',
+      value: 'value 1'
+    }
+
+    const updatedSections = sections.map((section) => {
+      if (section.uid === sectionUid) {
+        return {
+          ...section,
+          items: [...section.items, newItem]
+        }
+      } else {
+        return section
+      }
+    })
+
+    setSections(updatedSections)
+  }
+
+  const handleRemoveItem = (sectionUid, indexToRemove) => {
+    const updatedSections = sections.map((section) => {
+      if (section.uid === sectionUid && section.items.length > 1) {
+        const updatedItems = section.items.filter(
+          (_, index) => index !== indexToRemove
+        )
+
+        return {
+          ...section,
+          items: updatedItems
+        }
+      } else {
+        return section
+      }
+    })
+    setSections(updatedSections)
+  }
+
+  const handleAddSection = () => {
+    let newSection = {
+      uid: Date.now().toString(),
+      title: 'Nombre de la sección'
+    }
+
+    switch (typesTemplate.currentKey) {
+      case 'fourColumns':
+        newSection = {
+          ...newSection,
+          columns: [
+            {
+              uid: 'analisis',
+              title: 'ANÁLISIS',
+              editable: false
+            },
+            {
+              uid: 'resultado',
+              title: 'RESULTADO',
+              editable: true
+            },
+            {
+              uid: 'unidad',
+              title: 'UNIDAD',
+              editable: false
+            },
+            {
+              uid: 'rangoReferencial',
+              title: 'RANGO REFERENCIAL',
+              editable: false
+            },
+            {
+              uid: 'acciones',
+              title: 'ACCIONES',
+              editable: false
+            }
+          ],
+          rows: [
+            {
+              analisis: 'Hola Mundo',
+              resultado: 'Aqui estoy',
+              unidad: 'Probando',
+              rangoReferencial: 'Esto'
+            }
+          ]
+        }
+        break
+      case 'keysValues':
+        newSection = {
+          ...newSection,
+          items: [
+            {
+              key: 'key 1',
+              value: 'value 1'
+            }
+          ]
+        }
+        break
+    }
+
+    setSections([...sections, newSection])
+  }
+
+  const handleRemoveSection = (sectionUid) => {
+    if (sections.length === 1) return
+
+    const updatedSections = sections.filter(
+      (section) => section.uid !== sectionUid
     )
 
-    setTemplate({
-      ...template,
-      rows: updatedRows
-    })
+    setSections(updatedSections)
   }
 
   const handleAddTemplate = async () => {
     // Testing
-    const example = {
-      idServicio: 96,
-      numVersion: 1,
-      formato: template
+    const updatedTemplate = {
+      ...template,
+      sections
     }
-    const result = await addTemplate(example)
+
+    const data = {
+      idServicio: 96, // Cambiar por ID del servicio
+      formato: JSON.stringify(updatedTemplate)
+    }
+
+    setLoading(true)
+    const result = await addTemplate(data)
+    setLoading(false)
 
     if (result.isSuccess) toast.success(result.message)
     else toast.error(result.message)
@@ -71,63 +285,82 @@ export default function Plantillas() {
   return (
     <>
       <CardBody>
-        <Table aria-label='Example table with custom cells' shadow='none'>
-          <TableHeader columns={template.columns}>
-            {(column) => (
-              <TableColumn key={column.uid}>{column.title}</TableColumn>
-            )}
-          </TableHeader>
-          <TableBody>
-            {template.rows.map((row, index) => (
-              <TableRow key={index}>
-                {template.columns.map((column) => (
-                  <TableCell key={column.uid + '_' + index}>
-                    {column.uid !== 'acciones' ? (
-                      <Input
-                        type='text'
-                        maxLength={100}
-                        value={row[column.uid]}
-                        onChange={(e) =>
-                          handleInputChange(e, index, column.uid)
-                        }
-                      />
-                    ) : (
-                      <div className='flex justify-center gap-2'>
-                        <Tooltip content='Eliminar fila' color='danger'>
-                          <span
-                            className='text-danger cursor-pointer active:opacity-50'
-                            onClick={() => handleRemoveRow(index)}
-                          >
-                            <Trash2 size={20} />
-                          </span>
-                        </Tooltip>
-                      </div>
-                    )}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <div className='flex justify-center px-3'>
-          <Button
-            className='w-full'
+        <div className='grid grid-cols-4 px-4 mb-4 gap-4 items-end'>
+          <Input
+            label='Nombre de la plantilla'
             color='primary'
-            radius='full'
             size='lg'
-            variant='light'
-            startContent={<Plus />}
-            onPress={handleAddRow}
+            variant='underlined'
+            className='col-span-2'
+            value={template.templateName}
+            onChange={(e) =>
+              setTemplate({ ...template, templateName: e.target.value })
+            }
+          />
+          <Select
+            label='Servicio'
+            color='primary'
+            variant='underlined'
+            className='col-span-1'
           >
-            Agregar nueva fila
-          </Button>
+            <SelectItem>Servicio 1</SelectItem>
+            <SelectItem>Servicio 2</SelectItem>
+            <SelectItem>Servicio 3</SelectItem>
+            <SelectItem>Servicio 4</SelectItem>
+            <SelectItem>Servicio 5</SelectItem>
+          </Select>
+          <Select
+            label='Formato'
+            color='primary'
+            variant='underlined'
+            disallowEmptySelection={true}
+            selectedKeys={typesTemplate}
+            className='col-span-1'
+            onSelectionChange={(selectedKeys) => {
+              setTypesTemplate(selectedKeys)
+              handleFormatChange(selectedKeys.currentKey)
+            }}
+          >
+            {templateFormats.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
+              </SelectItem>
+            ))}
+          </Select>
         </div>
+        {
+          <TypeTemplate
+            typeTemplate={typesTemplate.currentKey}
+            sections={sections}
+            onInputChange={handleInputChange}
+            onInputChangeKeyValue={handleInputChangeKeyValue}
+            onSectionChange={handleSectionChange}
+            onAddRow={handleAddRow}
+            onRemoveRow={handleRemoveRow}
+            onAddItem={handleAddItem}
+            onRemoveItem={handleRemoveItem}
+            onRemoveSection={handleRemoveSection}
+          />
+        }
+        {template.sections && (
+          <div className='flex px-4'>
+            <Button
+              color='primary'
+              variant='light'
+              radius='full'
+              startContent={<ListPlus size={20} />}
+              onPress={handleAddSection}
+            >
+              Nueva sección
+            </Button>
+          </div>
+        )}
       </CardBody>
       <CardFooter className='flex justify-end gap-4'>
-        <Button color='danger' size='lg' variant='light'>
+        <Button color='danger' variant='light'>
           Cancelar
         </Button>
-        <Button color='primary' size='lg' onClick={handleAddTemplate}>
+        <Button color='primary' onClick={handleAddTemplate} isLoading={loading}>
           Guardar
         </Button>
       </CardFooter>

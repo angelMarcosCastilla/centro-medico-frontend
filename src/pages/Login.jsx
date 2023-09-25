@@ -1,6 +1,6 @@
 import { Button, Input } from '@nextui-org/react'
 import { Eye, EyeOff } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { loginServices } from '../services/auth'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -10,6 +10,8 @@ import { toast } from 'sonner'
 export default function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const usernameRef = useRef(null)
+  const passwordRef = useRef(null)
   const [visible, toggleVisible] = useState(false)
   const [loading, setLoading] = useState(false)
   const { setLoginData, isAuthenticated, userInfo } = useAuth()
@@ -22,7 +24,8 @@ export default function Login() {
     try {
       setLoading(true)
 
-      if (!username || !password) return
+      if (!username || !password)
+        return toast.error('Por favor, complete los datos.')
 
       const data = await loginServices(password, username)
       if (data.isSuccess) {
@@ -31,7 +34,7 @@ export default function Login() {
         throw new Error(data.message)
       }
     } catch (e) {
-      toast.error('credenciales incorrectas')
+      toast.error('Credenciales incorrectas.')
     } finally {
       setLoading(false)
     }
@@ -40,11 +43,11 @@ export default function Login() {
   return (
     <div className='bg-gray-50 min-h-screen flex items-center justify-center'>
       {/* Login container */}
-      <div className='bg-gray-100 flex rounded-2xl shadow-2xl max-w-4xl p-5 items-center'>
+      <div className='bg-gray-100 flex rounded-2xl shadow-2xl max-w-3xl p-5 items-center'>
         {/* Image */}
         <div className='md:block hidden w-1/2 relative'>
           <img className='rounded-2xl' src='https://i.imgur.com/LucPa4a.jpg' />
-          <p className='text-xl text-center text-white absolute bottom-8 left-1/2 transform -translate-x-1/2 p-2 w-4/5'>
+          <p className='text-base text-center text-white absolute bottom-8 left-1/2 transform -translate-x-1/2 p-2 w-4/5'>
             <i>
               &#34;La calidad de nuestro servicio, nuestra mejor garantía&#34;
             </i>
@@ -52,9 +55,9 @@ export default function Login() {
         </div>
 
         {/* Form */}
-        <div className='md:w-1/2 px-8 md:px-14'>
-          <h2 className='font-bold text-4xl'>¡Bienvenido!</h2>
-          <p className='text-base mt-4 mb-10'>
+        <div className='md:w-1/2 px-8 py-8 md:px-10'>
+          <h2 className='font-bold text-3xl'>¡Bienvenido!</h2>
+          <p className='text-sm mt-4 mb-10'>
             Por favor, inicia sesión para continuar...
           </p>
 
@@ -65,23 +68,30 @@ export default function Login() {
           >
             <Input
               color='primary'
-              variant='faded'
-              size='lg'
+              variant='underlined'
               type='text'
               name='username'
               value={username}
               className='mb-2'
+              ref={usernameRef}
               onChange={(e) => setUsername(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.keyCode === 13 && username.trim() !== '')
+                  passwordRef.current.focus()
+              }}
               placeholder='Nombre de usuario'
             />
             <Input
               color='primary'
-              variant='faded'
-              size='lg'
+              variant='underlined'
               type={visible ? 'text' : 'password'}
               name='password'
               value={password}
+              ref={passwordRef}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.keyCode === 13 && password.trim() !== '') login()
+              }}
               placeholder='Contraseña'
               endContent={
                 <button
@@ -93,13 +103,12 @@ export default function Login() {
                 </button>
               }
             />
-            <div className='text-sm text-end hover:underline hover:text-primary-500'>
+            <div className='text-xs text-end hover:underline hover:text-primary-500'>
               <a href='#'>¿Olvidaste tu contraseña?</a>
             </div>
             <Button
               isLoading={loading}
               color='primary'
-              size='lg'
               onClick={login}
               className='hover:bg-primary-600'
             >
