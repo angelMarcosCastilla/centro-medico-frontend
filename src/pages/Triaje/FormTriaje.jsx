@@ -14,7 +14,7 @@ import {
   Tab,
   Tabs
 } from '@nextui-org/react'
-import DateTimeClock from '../components/DateTimeClock'
+import DateTimeClock from '../../components/DateTimeClock'
 
 const listRiskFactors = [
   {

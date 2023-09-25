@@ -50,6 +50,13 @@ export default function Dashboard() {
             route='plantillas'
           />
         </HasRole>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.triaje}>
+          <SidebarItem
+            icon={<LayoutTemplate size={20} />}
+            text='Triaje'
+            route='triaje'
+          />
+        </HasRole>
       </Sidebar>
       <div className='bg-slate-100 flex-1 px-5 py-3 overflow-y-auto'>
         <DataProvider>
