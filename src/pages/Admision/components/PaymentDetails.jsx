@@ -38,7 +38,7 @@ export default function PaymentDetails({
 
     // agregamos el pago
     if (selectedMetodoPago.size > 0) {
-      const metodoPagoSeleccionado = tipoPagos.data.find(
+      const metodoPagoSeleccionado = tipoPagos.find(
         (pago) =>
           pago.idtipopago === parseInt(Array.from(selectedMetodoPago)[0])
       )
@@ -84,7 +84,6 @@ export default function PaymentDetails({
     detPago.reduce((acc, curr) => acc + curr.cantidad, 0) ===
     Number(totalPayment)
 
-    console.log(dataToSend)
   useEffect(() => {
     setDetPago([])
     onChange([])
@@ -101,12 +100,14 @@ export default function PaymentDetails({
           selectedKeys={selectedMetodoPago}
           onSelectionChange={setSelectedMetodoPago}
         >
-          {tipoPagos.data &&
-            tipoPagos.data.map((tipoPago) => (
+          {tipoPagos.map((tipoPago) => {
+            if (tipoPago.tipo_pago === 'CONVENIO') return null
+            return (
               <SelectItem key={tipoPago.idtipopago} value={tipoPago.idtipopago}>
                 {tipoPago.tipo_pago}
               </SelectItem>
-            ))}
+            )
+          })}
         </Select>
         <Input
           value={String(countPartialPayment)}
