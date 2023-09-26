@@ -15,7 +15,7 @@ import {
 import CustomRadio from '../../components/CustomRadio'
 import { Newspaper, Plus, ScrollText, Search } from 'lucide-react'
 import DateTimeClock from '../../components/DateTimeClock'
-import { getAllServices } from '../../services/servicios'
+import { getAllServices } from '../../services/service'
 import { ModalServicios } from './components/ModalServicios'
 import { searchPersonByNumDoc } from '../../services/person'
 import { searchCompanyByRUC } from '../../services/company'

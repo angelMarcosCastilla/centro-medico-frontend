@@ -1,6 +1,13 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import Sidebar, { SidebarItem } from '../components/Sidebar'
-import { Brain, Bone, Microscope, FileText, LayoutTemplate } from 'lucide-react'
+import {
+  Brain,
+  Bone,
+  Microscope,
+  FileText,
+  LayoutTemplate,
+  HeartHandshake
+} from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import HasRole from '../components/HasRole'
 import { listRoles } from '../constants/auth.constant'
@@ -41,6 +48,13 @@ export default function Dashboard() {
             icon={<Microscope size={20} />}
             text='Laboratorio'
             route='laboratorio'
+          />
+        </HasRole>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.servicios}>
+          <SidebarItem
+            icon={<HeartHandshake size={20} />}
+            text='Servicios'
+            route='servicios'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.plantillas}>
