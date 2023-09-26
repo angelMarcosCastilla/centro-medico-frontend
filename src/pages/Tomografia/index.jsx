@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react'
+import { useCallback, useState, useMemo } from 'react'
 import {
   Table,
   TableHeader,
@@ -21,28 +21,21 @@ import {
 import { ChevronDownIcon, SearchIcon } from 'lucide-react'
 import { getallDetails, changeStatus } from '../../services/detalleAtencion'
 import { listState, statusColorMap } from '../../constants/state'
+import { usePagination } from '../../hook/usePagination'
+import { capitalize } from '../../utils'
+import { useFetcher } from '../../hook/useFetcher'
 
 const columns = [
   { name: 'ID', uid: 'idatencion', sortable: true },
-  { name: 'PACIENTE', uid: 'Paciente', sortable: true },
+  { name: 'PACIENTE', uid: 'paciente', sortable: true },
   { name: 'CATEGORIA', uid: 'nombre_categoria', sortable: true },
   { name: 'TIPO DE SERIVICIO', uid: 'nombre_servicio', sortable: true },
   { name: 'ESTADO', uid: 'estado', sortable: true },
   { name: 'ACCIONES', uid: 'acciones' }
 ]
 
-const statusOptions = [
-  { name: 'Activo', uid: 'activo' },
-  { name: 'Cancelado', uid: 'cancelado' },
-  { name: 'Pendiente', uid: 'pendiente' }
-]
-
-export function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1)
-}
-
 const INITIAL_VISIBLE_COLUMNS = [
-  'Paciente',
+  'paciente',
   'nombre_categoria',
   'nombre_servicio',
   'estado',
@@ -54,30 +47,15 @@ export default function Tomografia() {
   const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   )
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [rowsPerPage, setRowsPerPage] = useState(5)
   const [sortDescriptor, setSortDescriptor] = useState({
     column: 'id',
     direction: 'ascending'
   })
-  const [page, setPage] = useState(1)
-  const [data, setData] = useState([])
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await getallDetails()
-        setData(response)
-      } catch (error) {
-        console.error('Error', error)
-      }
-    }
-    fetchData()
-  }, [])
+  const { data, loading, error, mutate } = useFetcher(getallDetails)
 
   const hasSearchFilter = Boolean(filterValue)
 
-  const headerColumns = React.useMemo(() => {
+  const headerColumns = useMemo(() => {
     if (visibleColumns === 'all') return columns
 
     return columns.filter((column) =>
@@ -85,7 +63,7 @@ export default function Tomografia() {
     )
   }, [visibleColumns])
 
-  const filteredItems = React.useMemo(() => {
+  const filteredItems = useMemo(() => {
     let filteredUsers = [...data]
 
     if (hasSearchFilter) {
@@ -93,28 +71,20 @@ export default function Tomografia() {
         detail.paciente.toLowerCase().includes(filterValue.toLowerCase())
       )
     }
-    if (
-      statusFilter !== 'all' &&
-      Array.from(statusFilter).length !== statusOptions.length
-    ) {
-      filteredUsers = filteredUsers.filter((detail) =>
-        Array.from(statusFilter).includes(detail.status)
-      )
-    }
-
     return filteredUsers
-  }, [data, filterValue, statusFilter])
+  }, [data, filterValue])
 
-  const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1
+  const {
+    items,
+    onNextPage,
+    onPreviousPage,
+    onRowsPerPageChange,
+    page,
+    pages,
+    setPage
+  } = usePagination(filteredItems)
 
-  const items = React.useMemo(() => {
-    const start = (page - 1) * rowsPerPage
-    const end = start + rowsPerPage
-
-    return filteredItems.slice(start, end)
-  }, [page, filteredItems, rowsPerPage])
-
-  const sortedItems = React.useMemo(() => {
+  const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
       const first = a[sortDescriptor.column]
       const second = b[sortDescriptor.column]
@@ -124,9 +94,8 @@ export default function Tomografia() {
     })
   }, [sortDescriptor, items])
 
-  const renderCell = React.useCallback((detail, columnKey) => {
+  const renderCell = useCallback((detail, columnKey) => {
     const cellValue = detail[columnKey]
-
     const estadoTexto = listState[cellValue]
     const classChip = statusColorMap[cellValue]
     switch (columnKey) {
@@ -139,7 +108,11 @@ export default function Tomografia() {
       case 'acciones':
         return (
           <div className=''>
-            <Button color='primary' size='sm' onClick={() => handleAtender(detail.iddetatencion)}>
+            <Button
+              color='primary'
+              size='sm'
+              onClick={() => handleAtender(detail.iddetatencion)}
+            >
               Atender
             </Button>
           </div>
@@ -148,40 +121,23 @@ export default function Tomografia() {
         return cellValue
     }
   }, [])
+
   const handleAtender = async (iddetatencion) => {
-    const nuevoEstado = 'PI'; // Reemplaza con el nuevo estado deseado
-    const result = await changeStatus(iddetatencion, nuevoEstado);
+    const nuevoEstado = 'PI' // Reemplaza con el nuevo estado deseado
+    const result = await changeStatus(iddetatencion, nuevoEstado)
 
     if (result) {
-      console.log('Estado cambiado con éxito');
-      // Realiza cualquier otra lógica necesaria después de cambiar el estado
+      mutate((prevData) => {
+        return prevData.filter((item) => item.iddetatencion !== iddetatencion)
+      })
     } else {
-      console.error('Error al cambiar el estado');
-      // Maneja el error de acuerdo a tus necesidades
+      console.error('Error al cambiar el estado')
     }
-  };
+  }
 
-  const onNextPage = React.useCallback(() => {
-    if (page < pages) {
-      setPage(page + 1)
-    }
-  }, [page, pages])
-
-  const onPreviousPage = React.useCallback(() => {
-    if (page > 1) {
-      setPage(page - 1)
-    }
-  }, [page])
-
-  const onRowsPerPageChange = React.useCallback((e) => {
-    setRowsPerPage(Number(e.target.value))
-    setPage(1)
-  }, [])
-
-  const onSearchChange = React.useCallback((value) => {
+  const onSearchChange = useCallback((value) => {
     if (value) {
       setFilterValue(value)
-      setPage(1)
     } else {
       setFilterValue('')
     }
@@ -189,10 +145,9 @@ export default function Tomografia() {
 
   const onClear = useCallback(() => {
     setFilterValue('')
-    setPage(1)
   }, [])
 
-  const topContent = React.useMemo(() => {
+  const topContent = useMemo(() => {
     return (
       <div className='flex flex-col gap-4'>
         <div className='flex justify-between gap-3 items-end'>
@@ -212,29 +167,6 @@ export default function Tomografia() {
                   endContent={<ChevronDownIcon className='text-small' />}
                   variant='flat'
                 >
-                  Estado
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label='Table Columns'
-                closeOnSelect={false}
-                selectionMode='multiple'
-                onSelectionChange={setStatusFilter}
-              >
-                {statusOptions.map((status) => (
-                  <DropdownItem key={status.uid} className='capitalize'>
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Dropdown>
-              <DropdownTrigger className='hidden sm:flex'>
-                <Button
-                  endContent={<ChevronDownIcon className='text-small' />}
-                  variant='flat'
-                >
                   Columnas
                 </Button>
               </DropdownTrigger>
@@ -246,11 +178,14 @@ export default function Tomografia() {
                 selectionMode='multiple'
                 onSelectionChange={setVisibleColumns}
               >
-                {columns.map((column) => (
-                  <DropdownItem key={column.uid} className='capitalize'>
-                    {capitalize(column.name)}
-                  </DropdownItem>
-                ))}
+                {columns.map((column) => {
+                  if (column.uid === 'estado') return null
+                  return (
+                    <DropdownItem key={column.uid} className='capitalize'>
+                      {capitalize(column.name)}
+                    </DropdownItem>
+                  )
+                })}
               </DropdownMenu>
             </Dropdown>
           </div>
@@ -275,7 +210,6 @@ export default function Tomografia() {
     )
   }, [
     filterValue,
-    statusFilter,
     visibleColumns,
     onRowsPerPageChange,
     data.length,
@@ -283,7 +217,7 @@ export default function Tomografia() {
     hasSearchFilter
   ])
 
-  const bottomContent = React.useMemo(() => {
+  const bottomContent = useMemo(() => {
     return (
       <div className='py-2 px-2 flex justify-between items-center'>
         <Pagination
@@ -316,6 +250,9 @@ export default function Tomografia() {
       </div>
     )
   }, [items.length, page, pages, hasSearchFilter])
+
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>Error</div>
 
   return (
     <Card shadow='none'>
