@@ -4,6 +4,12 @@ export const getallDetails = async () => {
   return data
 }
 
+export const getAllDetailsRayosx = async ()=>{
+  const response= await fetch('http://localhost:3000/api/detalleAtencion/rayosx')
+  const data = await response.json()
+  return data
+}
+
 export const changeStatus = async (iddetatencion, nuevoEstado) => {
   const response = await fetch(
     `http://localhost:3000/api/detalleAtencion/${iddetatencion}`,
