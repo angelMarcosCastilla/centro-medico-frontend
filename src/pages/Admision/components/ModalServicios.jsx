@@ -72,7 +72,6 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                   <div className='grid col-span-5 gap-4'>
                     <Select
                       label='Área'
-                      size='lg'
                       selectedKeys={area}
                       onChange={(e) => {
                         setCategoria(new Set([]))
@@ -92,7 +91,6 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                     </Select>
                     <Select
                       label='Categoría'
-                      size='lg'
                       selectedKeys={categoria}
                       onChange={(e) => {
                         setServicio(new Set([]))
@@ -115,7 +113,6 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                     <Select
                       key={categoria}
                       label='Servicios'
-                      size='lg'
                       selectedKeys={servicio}
                       onChange={(e) => {
                         if (e.target.value !== '') {
@@ -185,15 +182,10 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button
-                  color='danger'
-                  variant='light'
-                  size='lg'
-                  onPress={onClose}
-                >
+                <Button color='danger' variant='light' onPress={onClose}>
                   Cerrar
                 </Button>
-                <Button color='primary' size='lg' onPress={handleAddServices}>
+                <Button color='primary' onPress={handleAddServices}>
                   Agregar
                 </Button>
               </ModalFooter>

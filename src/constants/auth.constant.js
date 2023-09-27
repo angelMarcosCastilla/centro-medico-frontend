@@ -1,5 +1,5 @@
 export const listRoles = {
-  tomografia: ['T', 'DT', 'R', 'DR'],
+  tomografia: ['T', 'DT'],
   admisión: ['A'],
   triaje: ['T'],
   radiologia: ['R', 'DR'],

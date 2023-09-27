@@ -36,7 +36,7 @@ export default function TableServicios({ detService, setDetService }) {
     )
   }
   return (
-    <Table>
+    <Table removeWrapper>
       <TableHeader>
         <TableColumn className='bg-blue-50'>SERVICIO</TableColumn>
         <TableColumn className='bg-blue-50'>DESCRIPCIÓN</TableColumn>

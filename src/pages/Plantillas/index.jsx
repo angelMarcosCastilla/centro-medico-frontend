@@ -32,7 +32,6 @@ export default function Plantillas() {
   useEffect(() => {
     if (idServicio) {
       setServiceSelected(new Set([idServicio.toString()]))
-      window.history.replaceState({}, document.title)
     }
   }, [serviceSelected])
 
@@ -293,6 +292,7 @@ export default function Plantillas() {
     setLoading(false)
 
     if (result.isSuccess) {
+      window.history.replaceState({}, document.title)
       setServiceSelected(new Set([]))
       setTypesTemplate(new Set([]))
       setTemplate({ templateName: '' })
@@ -324,6 +324,7 @@ export default function Plantillas() {
             className='col-span-1'
             selectedKeys={serviceSelected}
             onSelectionChange={setServiceSelected}
+            isDisabled={Boolean(idServicio)}
           >
             {services.map((service) => (
               <SelectItem key={service.idservicio} value={service.idservicio}>

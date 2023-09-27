@@ -15,10 +15,11 @@ import {
   Chip,
   Pagination,
   Card,
-  CardBody
+  CardBody,
+  Tooltip
 } from '@nextui-org/react'
 
-import { ChevronDownIcon, SearchIcon } from 'lucide-react'
+import { ChevronDownIcon, SearchIcon, UserCheck } from 'lucide-react'
 import { getallDetails, changeStatus } from '../../services/detalleAtencion'
 import { listState, statusColorMap } from '../../constants/state'
 import { usePagination } from '../../hook/usePagination'
@@ -107,14 +108,15 @@ export default function Tomografia() {
         )
       case 'acciones':
         return (
-          <div className=''>
-            <Button
-              color='primary'
-              size='sm'
-              onClick={() => handleAtender(detail.iddetatencion)}
-            >
-              Atender
-            </Button>
+          <div className='relative flex items-center gap-2'>
+            <Tooltip content='Editar' color='primary'>
+              <span
+                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+                onClick={() => handleAtender(detail.iddetatencion)}
+              >
+                <UserCheck size={20} />
+              </span>
+            </Tooltip>
           </div>
         )
       default:
@@ -202,7 +204,9 @@ export default function Tomografia() {
             >
               <option value='5'>5</option>
               <option value='10'>10</option>
-              <option value='15'>15</option>
+              <option value='15' selected>
+                15
+              </option>
             </select>
           </label>
         </div>
@@ -232,18 +236,12 @@ export default function Tomografia() {
         <div className='hidden sm:flex w-[30%] justify-end gap-2'>
           <Button
             isDisabled={pages === 1}
-            size='sm'
             variant='flat'
             onPress={onPreviousPage}
           >
             Anterior
           </Button>
-          <Button
-            isDisabled={pages === 1}
-            size='sm'
-            variant='flat'
-            onPress={onNextPage}
-          >
+          <Button isDisabled={pages === 1} variant='flat' onPress={onNextPage}>
             Siguiente
           </Button>
         </div>

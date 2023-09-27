@@ -96,7 +96,6 @@ export default function PaymentDetails({
           label='Método de pago'
           labelPlacement='outside'
           variant='flat'
-          size='lg'
           selectedKeys={selectedMetodoPago}
           onSelectionChange={setSelectedMetodoPago}
         >
@@ -112,7 +111,6 @@ export default function PaymentDetails({
         <Input
           value={String(countPartialPayment)}
           onChange={(e) => setCountPartialPayment(Number(e.target.value))}
-          size='lg'
           type='number'
           max={countPartialPayment}
           labelPlacement='outside'
@@ -122,7 +120,6 @@ export default function PaymentDetails({
         <Button
           className='flex-shrink-0'
           color='primary'
-          size='lg'
           variant='light'
           isDisabled={!!dataCliente.convenio || disableButton}
           startContent={<Plus />}
@@ -134,10 +131,10 @@ export default function PaymentDetails({
       <div className='col-start-1 col-end-6'>
         <Table aria-label='Tabla de métodos de pagos elegidos' removeWrapper>
           <TableHeader>
-            <TableColumn className='bg-red-50'>#</TableColumn>
-            <TableColumn className='bg-red-50'>MÉTODO</TableColumn>
-            <TableColumn className='bg-red-50'>MONTO PAGADO</TableColumn>
-            <TableColumn className='bg-red-50'>ACCIÓN</TableColumn>
+            <TableColumn className='bg-blue-50'>#</TableColumn>
+            <TableColumn className='bg-blue-50'>MÉTODO</TableColumn>
+            <TableColumn className='bg-blue-50'>MONTO PAGADO</TableColumn>
+            <TableColumn className='bg-blue-50'>ACCIÓN</TableColumn>
           </TableHeader>
           <TableBody emptyContent='Agrega algún método de pago para visualizar'>
             {detPago.map((pago, index) => (
@@ -151,7 +148,6 @@ export default function PaymentDetails({
                       isIconOnly
                       color='danger'
                       variant='light'
-                      size='md'
                       onClick={() => {
                         handleRemovePay(index)
                       }}

@@ -300,13 +300,13 @@ export default function Admision() {
           aria-label='Options'
           variant='underlined'
           color='primary'
-          size='lg'
         >
           <Tab key='informacion-paciente' title='Información del paciente'>
-            <div className='flex gap-x-4 mb-6'>
+            <div className='flex gap-x-4 mt-5 mb-6 items-end'>
               <Input
                 placeholder='Enter para buscar'
-                size='lg'
+                label='Número documento'
+                labelPlacement='outside'
                 radius='none'
                 className='rounded-lg w-[300px] flex-shrink-0'
                 maxLength={20}
@@ -316,7 +316,6 @@ export default function Admision() {
               <Button
                 isIconOnly
                 color='primary'
-                size='lg'
                 onPress={() => {
                   isPatient.current = true
                   onOpenPerson()
@@ -329,32 +328,28 @@ export default function Admision() {
               <Input
                 className='flex-1'
                 label='Apellidos y nombres'
-                size='lg'
                 value={dataPaciente.nombres || ''}
                 readOnly
               />
               <Input
                 className='flex-1'
                 label='Fecha nacimiento'
-                size='lg'
                 value={dataPaciente.fechaNacimiento || ''}
                 readOnly
               />
               <Input
                 className='flex-1'
                 label='Dirección'
-                size='lg'
                 value={dataPaciente.direccion || ''}
                 readOnly
               />
             </div>
-            <Divider className='my-5' />
+            <Divider className='my-6' />
             <Button
               variant='light'
               startContent={<Plus />}
               color='primary'
               className='mb-4'
-              size='lg'
               onPress={onOpen}
             >
               Agregar servicio
@@ -366,9 +361,9 @@ export default function Admision() {
           </Tab>
           <Tab key='metodo-pago' title='Método de pago'>
             <div className='grid grid-cols-[1fr_350px] gap-x-10'>
-              <div className='flex flex-col gap-y-5'>
+              <div className='flex flex-col gap-y-6'>
                 <div className='flex justify-between gap-x-8'>
-                  <div className='flex items-end gap-x-2'>
+                  <div className='flex items-end gap-x-4'>
                     <Input
                       label={
                         dataToSend.pagoData.tipoComprobante === 'B'
@@ -377,7 +372,6 @@ export default function Admision() {
                       }
                       labelPlacement='outside'
                       placeholder='Enter para buscar'
-                      size='lg'
                       radius='none'
                       className='rounded-lg w-[300px] flex-shrink-0'
                       maxLength={20}
@@ -387,7 +381,6 @@ export default function Admision() {
                     <Button
                       isIconOnly
                       color='primary'
-                      size='lg'
                       onClick={handleOpenModalNewClient}
                     >
                       <Plus />
@@ -426,14 +419,12 @@ export default function Admision() {
                         ? 'Apellidos y nombres'
                         : 'Razón social'
                     }
-                    size='lg'
                     value={dataCliente.nombres || ''}
                     readOnly
                   />
                   <Input
                     className='col-start-3 col-end-6'
                     label='Dirección'
-                    size='lg'
                     value={dataCliente.direccion || ''}
                     readOnly
                   />
@@ -449,7 +440,7 @@ export default function Admision() {
                       </Checkbox>
                     </div>
                   )}
-                <Divider className='col-span-5 my-4' />
+                <Divider className='col-span-5 mb-5' />
                 <PaymentDetails
                   key={resetTable}
                   tipoPagos={tipoPagos}
@@ -468,7 +459,6 @@ export default function Admision() {
       <CardFooter className='flex justify-end'>
         <Button
           color='primary'
-          size='lg'
           onClick={handleAddAdmissionAndData}
           isDisabled={!isDisableButton || !isPaymentValid}
         >

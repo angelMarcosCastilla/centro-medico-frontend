@@ -42,10 +42,13 @@ export default function ModalNewCompany({ isOpen, onOpenChange }) {
   }
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='2xl'>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='xl'>
         <ModalContent>
           {(onClose) => (
-            <form onSubmit={(e)=>handleAddCompany(e, onClose)} autoComplete='off'>
+            <form
+              onSubmit={(e) => handleAddCompany(e, onClose)}
+              autoComplete='off'
+            >
               <>
                 <ModalHeader className='flex flex-col gap-1'>
                   <h2 className='text-xl'>Registro de empresa</h2>
@@ -55,7 +58,6 @@ export default function ModalNewCompany({ isOpen, onOpenChange }) {
                     <Input
                       className='mb-2'
                       label='RUC'
-                      size='lg'
                       maxLength={11}
                       isRequired
                       name='ruc'
@@ -63,7 +65,6 @@ export default function ModalNewCompany({ isOpen, onOpenChange }) {
                     <Input
                       className='mb-2'
                       label='Razon Social'
-                      size='lg'
                       maxLength={50}
                       isRequired
                       name='razonSocial'
@@ -72,7 +73,6 @@ export default function ModalNewCompany({ isOpen, onOpenChange }) {
                     <Input
                       className='mb-2'
                       label='Dirección'
-                      size='lg'
                       maxLength={150}
                       isRequired
                       name='direccion'
@@ -84,7 +84,6 @@ export default function ModalNewCompany({ isOpen, onOpenChange }) {
                     color='danger'
                     type='button'
                     variant='light'
-                    size='lg'
                     onPress={onClose}
                   >
                     Cerrar
@@ -92,7 +91,6 @@ export default function ModalNewCompany({ isOpen, onOpenChange }) {
                   <Button
                     color='primary'
                     type='submit'
-                    size='lg'
                     isLoading={loading}
                     onPress={onClose}
                   >

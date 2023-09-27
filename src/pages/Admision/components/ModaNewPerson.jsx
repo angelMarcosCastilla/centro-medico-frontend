@@ -87,7 +87,7 @@ export default function ModalNewPerson({
       toast.error('Error al al momento de registrar')
     }
   }
-  
+
   return (
     <>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='2xl'>
@@ -105,7 +105,6 @@ export default function ModalNewPerson({
               <ModalBody>
                 <div className='flex flex-row gap-x-4'>
                   <Select
-                    size='lg'
                     label='Tipo documento'
                     defaultSelectedKeys={['D']}
                     name='tipoDocumento'
@@ -121,7 +120,6 @@ export default function ModalNewPerson({
                   <Input
                     className='mb-2'
                     label='Número documento'
-                    size='lg'
                     name='numDocumento'
                     maxLength={20}
                     isRequired
@@ -131,7 +129,6 @@ export default function ModalNewPerson({
                   <Input
                     className='mb-2'
                     label='Nombres'
-                    size='lg'
                     name='nombres'
                     maxLength={50}
                     isRequired
@@ -139,7 +136,6 @@ export default function ModalNewPerson({
                   <Input
                     className='mb-2'
                     label='Apellidos'
-                    size='lg'
                     name='apellidos'
                     maxLength={50}
                     isRequired
@@ -153,29 +149,13 @@ export default function ModalNewPerson({
                     className='mb-2'
                     label='Fecha nacimiento'
                     placeholder='fecha nacimiento'
-                    size='lg'
                     isRequired
                   />
-                  <Input
-                    className='mb-2'
-                    label='Dirección'
-                    size='lg'
-                    name='direccion'
-                  />
+                  <Input className='mb-2' label='Dirección' name='direccion' />
                 </div>
                 <div className='flex flex-row gap-x-4'>
-                  <Input
-                    className='mb-2'
-                    label='Correo'
-                    size='lg'
-                    name='correo'
-                  />
-                  <Input
-                    name='celular'
-                    className='mb-2'
-                    label='Celular'
-                    size='lg'
-                  />
+                  <Input className='mb-2' label='Correo' name='correo' />
+                  <Input name='celular' className='mb-2' label='Celular' />
                 </div>
               </ModalBody>
               <ModalFooter>
@@ -183,17 +163,11 @@ export default function ModalNewPerson({
                   color='danger'
                   type='button'
                   variant='light'
-                  size='lg'
                   onPress={onClose}
                 >
                   Cerrar
                 </Button>
-                <Button
-                  color='primary'
-                  type='submit'
-                  size='lg'
-                  isLoading={loading}
-                >
+                <Button color='primary' type='submit' isLoading={loading}>
                   Registrar
                 </Button>
               </ModalFooter>
