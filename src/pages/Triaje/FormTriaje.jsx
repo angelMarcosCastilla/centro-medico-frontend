@@ -15,42 +15,9 @@ import {
   Tabs
 } from '@nextui-org/react'
 import DateTimeClock from '../../components/DateTimeClock'
-import { useLocation } from 'react-router-dom'
-
-const listRiskFactors = [
-  {
-    name: 'Diabetes',
-    checked: false
-  },
-  {
-    name: 'Hipertensión Arterial',
-    checked: false
-  },
-  {
-    name: 'Alergia: cerdo, marisco, etc',
-    checked: false
-  },
-  {
-    name: 'Enfermedad Renal',
-    checked: false
-  },
-  {
-    name: 'Inmunodeficencia VIH',
-    checked: false
-  },
-  {
-    name: 'Daño Hepático',
-    checked: false
-  },
-  {
-    name: 'Embarazo',
-    checked: false
-  },
-  {
-    name: 'Otros',
-    text: ''
-  }
-]
+import { useLocation, useNavigate } from 'react-router-dom'
+import { registrarTriajeService } from '../../services/triaje'
+import { toast } from 'sonner'
 
 const listInvestigators = [
   { name: 'Alejandro Torres', signature: 'https://i.imgur.com/IvNkEE0.png' },
@@ -61,11 +28,10 @@ const listInvestigators = [
 ]
 
 export default function FormTriaje() {
-  const [riskFactors, setRiskFactors] = useState(listRiskFactors)
   const [investigator, setInvestigator] = useState('')
   const [signature, setSignature] = useState('')
   const { state } = useLocation()
-
+  const navigate = useNavigate()
   const [values, setValues] = useState({
     complicaciones: state.complicaciones,
     detalleTriaje: {
@@ -108,8 +74,21 @@ export default function FormTriaje() {
     })
   }
 
-  const handleAddTriaje = () => {
-    console.log('values', values)
+  const handleAddTriaje = async () => {
+    try {
+      const data = {
+        ...values,
+        idcompliacionmed: state.datosPaciente.idcompliacionmed,
+        idatencion: state.datosPaciente.idatencion
+      }
+      const result = await registrarTriajeService(data)
+      if (result.isSuccess) {
+        toast.success('Triaje registrado correctamente')
+        navigate("/triaje", { replace: true })
+      }
+    } catch (error) {
+      toast.error('Ocurrió un error al registrar el triaje')
+    }
   }
 
   return (
@@ -333,7 +312,7 @@ export default function FormTriaje() {
       <Divider />
       <CardFooter className='flex justify-end gap-5'>
         <Button
-          onClick={() => window.history.back()}
+          onClick={() => navigate(-1, { replace: true })}
           size='lg'
           radius='lg'
           className='hover:bg-danger hover:text-white'

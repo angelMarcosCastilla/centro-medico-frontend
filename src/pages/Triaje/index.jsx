@@ -48,6 +48,8 @@ export default function TriajePage() {
 
     const structureData = {
       datosPaciente: {
+        idatencion,
+        idcompliacionmed,
         apellidos,
         nombres,
         num_documento,
@@ -85,7 +87,7 @@ export default function TriajePage() {
           <TableColumn>Estado</TableColumn>
           <TableColumn>acciones</TableColumn>
         </TableHeader>
-        <TableBody>
+        <TableBody emptyContent={'No Hay pacientes para triaje'}>
           {filteredData.map((triaje, index) => (
             <TableRow key={triaje.idatencion}>
               <TableCell>{index + 1}</TableCell>
