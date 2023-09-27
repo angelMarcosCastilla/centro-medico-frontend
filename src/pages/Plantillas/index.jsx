@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   columnTemplate,
   keyValueTemplate,
@@ -16,12 +16,25 @@ import { ListPlus } from 'lucide-react'
 import { addTemplate } from '../../services/template'
 import { toast } from 'sonner'
 import TypeTemplate from './components/TypeTemplate'
+import { getAllServicesLaboratory } from '../../services/service'
+
+const services = await getAllServicesLaboratory()
 
 export default function Plantillas() {
+  const [serviceSelected, setServiceSelected] = useState(new Set([]))
+  const idServicio = window.history.state.usr?.idservicio
   const [typesTemplate, setTypesTemplate] = useState(new Set([]))
   const [template, setTemplate] = useState({ templateName: '' })
   const [sections, setSections] = useState([])
   const [loading, setLoading] = useState(false)
+
+  // Mejorar esta lógica
+  useEffect(() => {
+    if (idServicio) {
+      setServiceSelected(new Set([idServicio.toString()]))
+      window.history.replaceState({}, document.title)
+    }
+  }, [serviceSelected])
 
   const handleFormatChange = (selectedFormat) => {
     let selectedTemplate
@@ -38,7 +51,6 @@ export default function Plantillas() {
     setTemplate(selectedTemplate)
     setSections(selectedTemplate.sections)
   }
-
 
   const handleInputChange = (sectionUid, rowIndex, field, newValue) => {
     setSections((prevSections) =>
@@ -65,7 +77,7 @@ export default function Plantillas() {
       })
     )
   }
-  console.log("render")
+
   const handleInputChangeKeyValue = (
     sectionUid,
     itemIndex,
@@ -269,9 +281,10 @@ export default function Plantillas() {
       ...template,
       sections
     }
-
     const data = {
-      idServicio: 96, // Cambiar por ID del servicio
+      idServicio: parseInt(
+        Array.from(serviceSelected)[0] || serviceSelected.currentKey
+      ),
       formato: JSON.stringify(updatedTemplate)
     }
 
@@ -279,8 +292,14 @@ export default function Plantillas() {
     const result = await addTemplate(data)
     setLoading(false)
 
-    if (result.isSuccess) toast.success(result.message)
-    else toast.error(result.message)
+    if (result.isSuccess) {
+      setServiceSelected(new Set([]))
+      setTypesTemplate(new Set([]))
+      setTemplate({ templateName: '' })
+      toast.success(result.message)
+    } else {
+      toast.error(result.message)
+    }
   }
 
   return (
@@ -303,12 +322,14 @@ export default function Plantillas() {
             color='primary'
             variant='underlined'
             className='col-span-1'
+            selectedKeys={serviceSelected}
+            onSelectionChange={setServiceSelected}
           >
-            <SelectItem>Servicio 1</SelectItem>
-            <SelectItem>Servicio 2</SelectItem>
-            <SelectItem>Servicio 3</SelectItem>
-            <SelectItem>Servicio 4</SelectItem>
-            <SelectItem>Servicio 5</SelectItem>
+            {services.map((service) => (
+              <SelectItem key={service.idservicio} value={service.idservicio}>
+                {service.servicio}
+              </SelectItem>
+            ))}
           </Select>
           <Select
             label='Formato'

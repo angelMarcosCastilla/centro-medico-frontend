@@ -20,14 +20,16 @@ import {
 
 import {
   ChevronDownIcon,
+  FileJson,
   PencilLine,
   SearchIcon,
   Trash2
 } from 'lucide-react'
-import { getAllServicesLaboratory } from '../services/service'
-import { usePagination } from '../hook/usePagination'
-import { useFetcher } from '../hook/useFetcher'
-import { capitalize } from '../utils'
+import { getAllServicesLaboratory } from '../../services/service'
+import { usePagination } from '../../hook/usePagination'
+import { useFetcher } from '../../hook/useFetcher'
+import { capitalize } from '../../utils'
+import { useNavigate } from 'react-router-dom'
 
 const columns = [
   { name: 'CATEGORIA', uid: 'categoria', sortable: true },
@@ -38,6 +40,7 @@ const columns = [
 ]
 
 export default function ServiciosLaboratorio() {
+  const navigate = useNavigate()
   const [filterValue, setFilterValue] = useState('')
   const [visibleColumns, setVisibleColumns] = useState(
     new Set(['categoria', 'servicio', 'observacion', 'precio', 'acciones'])
@@ -98,6 +101,28 @@ export default function ServiciosLaboratorio() {
             <Tooltip content='Editar'>
               <span className='text-lg text-default-400 cursor-pointer active:opacity-50'>
                 <PencilLine size={20} />
+              </span>
+            </Tooltip>
+            <Tooltip content='Plantilla'>
+              <span className='text-lg text-default-400 cursor-pointer active:opacity-50'>
+                <Dropdown>
+                  <DropdownTrigger>
+                    <FileJson size={20} />
+                  </DropdownTrigger>
+                  <DropdownMenu aria-label='Static Actions'>
+                    <DropdownItem
+                      key='new'
+                      onClick={() =>
+                        navigate('/plantillas', {
+                          state: { idservicio: service.idservicio }
+                        })
+                      }
+                    >
+                      Nueva plantilla
+                    </DropdownItem>
+                    <DropdownItem key='edit'>Editar plantilla</DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
               </span>
             </Tooltip>
             <Tooltip color='danger' content='Eliminar'>
@@ -209,18 +234,12 @@ export default function ServiciosLaboratorio() {
         <div className='hidden sm:flex w-[30%] justify-end gap-2'>
           <Button
             isDisabled={pages === 1}
-            size='sm'
             variant='flat'
             onPress={onPreviousPage}
           >
             Anterior
           </Button>
-          <Button
-            isDisabled={pages === 1}
-            size='sm'
-            variant='flat'
-            onPress={onNextPage}
-          >
+          <Button isDisabled={pages === 1} variant='flat' onPress={onNextPage}>
             Siguiente
           </Button>
         </div>
@@ -259,7 +278,10 @@ export default function ServiciosLaboratorio() {
               </TableColumn>
             )}
           </TableHeader>
-          <TableBody emptyContent={'No users found'} items={sortedItems}>
+          <TableBody
+            emptyContent={'No se encontraron servicios'}
+            items={sortedItems}
+          >
             {(item) => (
               <TableRow key={crypto.randomUUID().toString()}>
                 {(columnKey) => (
