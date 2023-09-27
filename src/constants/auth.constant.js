@@ -1,21 +1,22 @@
 export const listRoles = {
+  admisión: ['A'],
+  triaje: ['T'],
   tomografia: ['T', 'DT'],
   radiologia: ['R', 'DR'],
   laboratorio: ['L', 'DL'],
+  servicios: ['L'],
   plantillas: ['L'],
-  admisión: ['A'],
-  pagos: ['A'],
-  triaje: ['T']
+  pagos: ['A']
 }
 
 export const redirectRoles = {
-  T: '/tomografia',
   A: '/admision',
+  T: '/tomografia',
   L: '/laboratorio'
 }
 
 export const mapRoles = {
-  T: 'Tomografia',
   A: 'Admisión',
+  T: 'Tomografia',
   L: 'Laboratorio'
 }
