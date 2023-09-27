@@ -9,7 +9,9 @@ import Triaje from '../pages/Triaje'
 import RoleGard from './RoleGard.jsx'
 import { listRoles } from '../constants/auth.constant.js'
 import Plantillas from '../pages/Plantillas/index.jsx'
+import ServiciosLaboratorio from '../pages/ServiciosLaboratorio'
 import FormTriaje from '../pages/Triaje/FormTriaje.jsx'
+
 
 const router = createBrowserRouter([
   {
@@ -45,18 +47,26 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: 'plantillas',
-        element: (
-          <RoleGard listRoles={listRoles.plantillas}>
-            <Plantillas />
-          </RoleGard>
-        )
-      },
-      {
         path: 'laboratorio',
         element: (
           <RoleGard listRoles={listRoles.laboratorio}>
             <h1>Laboratorio</h1>
+          </RoleGard>
+        )
+      },
+      {
+        path: 'servicios',
+        element: (
+          <RoleGard listRoles={listRoles.servicios}>
+            <ServiciosLaboratorio />
+          </RoleGard>
+        )
+      },
+      {
+        path: 'plantillas',
+        element: (
+          <RoleGard listRoles={listRoles.plantillas}>
+            <Plantillas />
           </RoleGard>
         )
       },

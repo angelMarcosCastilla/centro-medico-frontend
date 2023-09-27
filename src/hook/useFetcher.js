@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from 'react'
 
 export const useFetcher = (callback) => {
   const [data, setData] = useState([])
@@ -19,8 +19,6 @@ export const useFetcher = (callback) => {
   useEffect(() => {
     fetchData()
   }, [])
-
-
 
   return { data, loading, error, mutate: setData }
 }

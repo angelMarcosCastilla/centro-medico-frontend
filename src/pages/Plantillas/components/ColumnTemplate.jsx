@@ -1,6 +1,7 @@
 import { Button, Input, Tooltip } from '@nextui-org/react'
 import { ListX, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import './style.css'
 
 const useDebaunce = (value, delay = 500) => {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -43,6 +44,7 @@ export default function ColumnTemplate({
   onRemoveRow,
   onRemoveSection
 }) {
+  
   return (
     <>
       <div className='grid grid-cols-4 px-4 gap-4 items-end'>
@@ -70,25 +72,24 @@ export default function ColumnTemplate({
         </Tooltip>
       </div>
 
-      <div className='relative '>
+      <div className='relative px-4 mt-3'>
         <table className='w-full text-sm text-left text-gray-500 dark:text-gray-400'>
-          <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
-            {section.columns.map((col, index) => (
-              <th key={index} className='px-3'>
-                {col.title}
-              </th>
-            ))}
+          <thead className='text-xs text-gray-500 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400'>
+            <tr>
+              {section.columns.map((col, index) => (
+                <th key={index} className='py-3 px-4'>
+                  {col.title}
+                </th>
+              ))}
+            </tr>
           </thead>
           <tbody>
             {section.rows.map((row, index) => (
-              <tr
-                key={index}
-                className='bg-white border-b dark:bg-gray-800 dark:border-gray-700'
-              >
+              <tr key={index} className='bg-white dark:bg-gray-800'>
                 {section.columns.map((column) => (
                   <td
                     key={section.uid + '_' + column.uid + '_' + index}
-                    className='px-3 py-4'
+                    className='p-3 text-slate-700'
                   >
                     {column.uid !== 'acciones' ? (
                       <InputTable
