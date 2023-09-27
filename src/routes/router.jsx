@@ -4,6 +4,7 @@ import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Admision from '../pages/Admision'
 import Tomografia from '../pages/Tomografia'
+import Rayosx from '../pages/Rayosx'
 import Triaje from '../pages/Triaje'
 import RoleGard from './RoleGard.jsx'
 import { listRoles } from '../constants/auth.constant.js'
@@ -40,8 +41,8 @@ const router = createBrowserRouter([
       {
         path: 'rayosx',
         element: (
-          <RoleGard listRoles={listRoles.tomografia}>
-            <h1>Rayos x</h1>
+          <RoleGard listRoles={listRoles.radiologia}>
+            <Rayosx/>
           </RoleGard>
         )
       },
