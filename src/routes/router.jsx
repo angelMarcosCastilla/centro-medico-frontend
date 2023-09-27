@@ -9,6 +9,8 @@ import RoleGard from './RoleGard.jsx'
 import { listRoles } from '../constants/auth.constant.js'
 import Plantillas from '../pages/Plantillas/index.jsx'
 import ServiciosLaboratorio from '../pages/ServiciosLaboratorio'
+import FormTriaje from '../pages/Triaje/FormTriaje.jsx'
+
 
 const router = createBrowserRouter([
   {
@@ -72,6 +74,14 @@ const router = createBrowserRouter([
         element: (
           <RoleGard listRoles={listRoles.triaje}>
             <Triaje />
+          </RoleGard>
+        )
+      },
+      {
+        path: '/triaje/:id',
+        element: (
+          <RoleGard listRoles={listRoles.triaje}>
+            <FormTriaje/>
           </RoleGard>
         )
       },
