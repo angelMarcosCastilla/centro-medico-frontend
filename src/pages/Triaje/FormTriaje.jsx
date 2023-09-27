@@ -15,6 +15,7 @@ import {
   Tabs
 } from '@nextui-org/react'
 import DateTimeClock from '../../components/DateTimeClock'
+import { useLocation } from 'react-router-dom'
 
 const listRiskFactors = [
   {
@@ -59,32 +60,23 @@ const listInvestigators = [
   { name: 'Sebastián Rodríguez', signature: 'https://i.imgur.com/nim2HOX.png' }
 ]
 
-export default function Triaje() {
+export default function FormTriaje() {
   const [riskFactors, setRiskFactors] = useState(listRiskFactors)
   const [investigator, setInvestigator] = useState('')
   const [signature, setSignature] = useState('')
+  const { state } = useLocation()
 
-  const handleSelectedRisk = (e) => {
-    const { value, checked } = e.target
-    const selectedRiskFactors = riskFactors.map((risk) => {
-      if (risk.name === value) {
-        risk.checked = checked
-      }
-      return risk
-    })
-    setRiskFactors(selectedRiskFactors)
-  }
-
-  const handleChangeToOthers = (e) => {
-    const { value } = e.target
-    const selectedRiskFactors = riskFactors.map((risk) => {
-      if (risk.name === 'Otros') {
-        risk.text = value
-      }
-      return risk
-    })
-    setRiskFactors(selectedRiskFactors)
-  }
+  const [values, setValues] = useState({
+    complicaciones: state.complicaciones,
+    detalleTriaje: {
+      temperatura: '',
+      peso: '',
+      talla: '',
+      presion_arterial: '',
+      frecuencia_cardiaca: '',
+      frecuencia_respiratoria: ''
+    }
+  })
 
   const handleSelectedInvestigator = (e) => {
     const { value } = e.target
@@ -99,37 +91,99 @@ export default function Triaje() {
     else setSignature(null)
   }, [investigator])
 
+  const currentAge =
+    new Date().getFullYear() -
+    new Date(state.datosPaciente.fecha_nacimiento).getFullYear()
+
+  const handleChange = (e, key) => {
+    const { value } = e.target
+    setValues((prev) => {
+      return {
+        ...prev,
+        detalleTriaje: {
+          ...prev.detalleTriaje,
+          [e.target.name]: value
+        }
+      }
+    })
+  }
+
+  const handleAddTriaje = () => {
+    console.log('values', values)
+  }
+
   return (
-    <Card shadow='none'>
+    <>
       <CardHeader className='flex justify-between'>
         <h2 className='text-2xl'>Identificación del paciente en Triaje</h2>
         <DateTimeClock />
       </CardHeader>
       <Divider />
       <CardBody>
-        <div className='grid grid-cols-2 gap-4'>
-          <Card shadow='none'>
+        <div className='lg:flex'>
+          <Card shadow='none' className='flex-1'>
             <CardHeader>Datos generales del paciente</CardHeader>
             <CardBody>
               <div className='flex gap-3 mb-4'>
-                <Input label='Nombres' size='lg' maxLength={60} isRequired />
-                <Input label='Apellidos' size='lg' maxLength={60} isRequired />
+                <Input
+                  label='Nombres'
+                  value={state.datosPaciente.nombres}
+                  size='lg'
+                  maxLength={60}
+                  isRequired
+                />
+                <Input
+                  label='Apellidos'
+                  value={state.datosPaciente.apellidos}
+                  size='lg'
+                  maxLength={60}
+                  isRequired
+                />
               </div>
               <div className='flex gap-3 mb-4'>
-                <Input label='DNI' size='lg' maxLength={20} isRequired />
-                <Input label='Fecha de nacimiento' size='lg' isRequired />
+                <Input
+                  label='DNI'
+                  size='lg'
+                  maxLength={20}
+                  value={state.datosPaciente.num_documento}
+                  isRequired
+                />
+                <Input
+                  label='Fecha de nacimiento'
+                  value={new Date(
+                    state.datosPaciente.fecha_nacimiento
+                  ).toLocaleDateString('es')}
+                  size='lg'
+                  isRequired
+                />
               </div>
               <div className='flex gap-3 mb-4'>
-                <Input label='Número celular' size='lg' maxLength={9} />
-                <Input label='Correo electrónico' size='lg' maxLength={100} />
+                <Input
+                  label='Número celular'
+                  value={state.datosPaciente.celular}
+                  size='lg'
+                  maxLength={9}
+                />
+                <Input
+                  label='Correo electrónico'
+                  value={state.datosPaciente.correo}
+                  size='lg'
+                  maxLength={100}
+                />
               </div>
               <div className='flex gap-3 mb-4'>
-                <Input label='Dirección' size='lg' maxLength={150} />
+                <Input
+                  label='Dirección'
+                  size='lg'
+                  maxLength={150}
+                  value={state.datosPaciente.direccion}
+                />
               </div>
               <div className='flex gap-3 mb-4'>
                 <Input
                   label='Edad'
                   type='number'
+                  value={currentAge}
                   size='lg'
                   disabled
                   isRequired
@@ -139,6 +193,9 @@ export default function Triaje() {
                   type='number'
                   size='lg'
                   min={0}
+                  name='talla'
+                  value={values.detalleTriaje.talla}
+                  onChange={handleChange}
                   max={250}
                   isRequired
                 />
@@ -148,12 +205,15 @@ export default function Triaje() {
                   size='lg'
                   min={0}
                   max={500}
+                  onChange={handleChange}
+                  name='peso'
+                  value={values.detalleTriaje.peso}
                   isRequired
                 />
               </div>
             </CardBody>
           </Card>
-          <Card shadow='none'>
+          <Card shadow='none' className='flex-1'>
             <CardBody>
               <Tabs
                 color='primary'
@@ -166,38 +226,25 @@ export default function Triaje() {
                   title='Factores de riesgo o comorbilidad'
                 >
                   <div className='grid grid-cols-2 gap-6 px-4'>
-                    {listRiskFactors.map((factor, index) => {
-                      return (
-                        factor.name !== 'Otros' && (
-                          <Checkbox
-                            defaultSelected={factor.checked}
-                            value={factor.name}
-                            key={index}
-                            onChange={handleSelectedRisk}
-                          >
-                            {factor.name}
-                          </Checkbox>
-                        )
-                      )
-                    })}
-                  </div>
-                  <div className='px-4 mt-5'>
-                    {listRiskFactors.map((factor, index) => {
-                      return (
-                        factor.name === 'Otros' && (
-                          <Input
-                            label='Otros'
-                            variant='bordered'
-                            size='sm'
-                            radius='lg'
-                            onChange={handleChangeToOthers}
-                            key={index}
-                            value={factor.text}
-                            maxLength={50}
-                          />
-                        )
-                      )
-                    })}
+                    {Object.entries(values.complicaciones).map((item) => (
+                      <Checkbox
+                        isSelected={item[1]}
+                        onValueChange={() => {
+                          setValues((prev) => {
+                            return {
+                              ...prev,
+                              complicaciones: {
+                                ...prev.complicaciones,
+                                [item[0]]: !item[1]
+                              }
+                            }
+                          })
+                        }}
+                        key={item[0]}
+                      >
+                        {item[0]}
+                      </Checkbox>
+                    ))}
                   </div>
                 </Tab>
                 <Tab
@@ -207,6 +254,9 @@ export default function Triaje() {
                   <div className='grid grid-cols-2 gap-6 px-4'>
                     <Input
                       label='Temperatura (°C)'
+                      name='temperatura'
+                      value={values.detalleTriaje.temperatura}
+                      onChange={handleChange}
                       variant='bordered'
                       size='lg'
                       radius='lg'
@@ -214,21 +264,30 @@ export default function Triaje() {
                     />
                     <Input
                       label='Presión arterial (mm Hg)'
+                      onChange={handleChange}
                       variant='bordered'
                       size='lg'
+                      name='presion_arterial'
+                      value={values.detalleTriaje.presion_arterial}
                       radius='lg'
                     />
                     <Input
                       label='Frecuencia Cardiaca (lpm)'
                       variant='bordered'
                       size='lg'
+                      onChange={handleChange}
                       radius='lg'
+                      name='frecuencia_cardiaca'
+                      value={values.detalleTriaje.frecuencia_cardiaca}
                     />
                     <Input
+                      onChange={handleChange}
                       label='Frecuencia Respiratoria (rpm)'
                       variant='bordered'
                       size='lg'
                       radius='lg'
+                      name='frecuencia_respiratoria'
+                      value={values.detalleTriaje.frecuencia_respiratoria}
                     />
                   </div>
                 </Tab>
@@ -274,16 +333,17 @@ export default function Triaje() {
       <Divider />
       <CardFooter className='flex justify-end gap-5'>
         <Button
+          onClick={() => window.history.back()}
           size='lg'
           radius='lg'
           className='hover:bg-danger hover:text-white'
         >
           Cancelar
         </Button>
-        <Button color='primary' size='lg' radius='lg'>
+        <Button color='primary' size='lg' radius='lg' onClick={handleAddTriaje}>
           Guardar
         </Button>
       </CardFooter>
-    </Card>
+    </>
   )
 }
