@@ -111,7 +111,7 @@ export default function Rayosx() {
             <Button
               color='primary'
               size='sm'
-              onClick={() => handleAtender(detail.iddetatencion)}
+              onClick={() => handleAtender(detail.iddetatencion, detail.estado)}
             >
               Atender
             </Button>
@@ -122,13 +122,20 @@ export default function Rayosx() {
     }
   }, [])
 
-  const handleAtender = async (iddetatencion) => {
-    const nuevoEstado = 'PI' // Reemplaza con el nuevo estado deseado
+  const handleAtender = async (iddetatencion, estado) => {
+    const nuevoEstado = estado === 'P' ? "A" : "PI" // Reemplaza con el nuevo estado deseado
     const result = await changeStatus(iddetatencion, nuevoEstado)
 
     if (result) {
       mutate((prevData) => {
-        return prevData.filter((item) => item.iddetatencion !== iddetatencion)
+        if(nuevoEstado === "A"){
+          return prevData.map((item) => {
+            if(item.iddetatencion === iddetatencion) return {...item, estado: "A"}
+            return item
+          })
+        }else{
+          return prevData.filter((item) => item.iddetatencion !== iddetatencion)
+        }
       })
     } else {
       console.error('Error al cambiar el estado')

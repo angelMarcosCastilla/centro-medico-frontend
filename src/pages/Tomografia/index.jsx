@@ -19,7 +19,7 @@ import {
   Tooltip
 } from '@nextui-org/react'
 
-import { ChevronDownIcon, SearchIcon, UserCheck } from 'lucide-react'
+import { ChevronDownIcon, MonitorPause, SearchIcon, UserCheck } from 'lucide-react'
 import { getallDetails, changeStatus } from '../../services/detalleAtencion'
 import { listState, statusColorMap } from '../../constants/state'
 import { usePagination } from '../../hook/usePagination'
@@ -108,15 +108,16 @@ export default function Tomografia() {
         )
       case 'acciones':
         return (
-          <div className='relative flex items-center gap-2'>
-            <Tooltip content='Editar' color='primary'>
-              <span
-                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
-                onClick={() => handleAtender(detail.iddetatencion)}
+          <div className='relative flex items-center gap-2'>            
+              <Button              
+                isIconOnly
+                color='primary'  
+                variant='light'              
+                onClick={() => handleAtender(detail.iddetatencion, detail.estado)}
               >
-                <UserCheck size={20} />
-              </span>
-            </Tooltip>
+                
+                {detail.estado==='P'?<MonitorPause size={20} /> : <UserCheck size={20}/>}
+              </Button>            
           </div>
         )
       default:
@@ -124,13 +125,20 @@ export default function Tomografia() {
     }
   }, [])
 
-  const handleAtender = async (iddetatencion) => {
-    const nuevoEstado = 'PI' // Reemplaza con el nuevo estado deseado
+  const handleAtender = async (iddetatencion, estado) => {
+    const nuevoEstado = estado === 'P' ? "A" : "PI" // Reemplaza con el nuevo estado deseado
     const result = await changeStatus(iddetatencion, nuevoEstado)
 
     if (result) {
       mutate((prevData) => {
-        return prevData.filter((item) => item.iddetatencion !== iddetatencion)
+        if(nuevoEstado === "A"){
+          return prevData.map((item) => {
+            if(item.iddetatencion === iddetatencion) return {...item, estado: "A"}
+            return item
+          })
+        }else{
+          return prevData.filter((item) => item.iddetatencion !== iddetatencion)
+        }
       })
     } else {
       console.error('Error al cambiar el estado')
