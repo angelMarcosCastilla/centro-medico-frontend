@@ -386,7 +386,6 @@ export default function Admision() {
                       <Plus />
                     </Button>
                   </div>
-
                   <RadioGroup
                     value={dataToSend.pagoData.tipoComprobante}
                     onValueChange={(e) => {
@@ -433,6 +432,7 @@ export default function Admision() {
                   calculateAgePerson(dataPaciente.fechaNacimiento) && (
                     <div className='justify-items-start'>
                       <Checkbox
+                        size='sm'
                         isSelected={isSamePatient}
                         onValueChange={setIsSamePatient}
                       >

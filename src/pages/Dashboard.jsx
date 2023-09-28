@@ -6,7 +6,8 @@ import {
   Microscope,
   FileText,
   LayoutTemplate,
-  HeartHandshake
+  HeartHandshake,
+  Folders
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import HasRole from '../components/HasRole'
@@ -48,6 +49,13 @@ export default function Dashboard() {
             icon={<Microscope size={20} />}
             text='Laboratorio'
             route='laboratorio'
+          />
+        </HasRole>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.informes}>
+          <SidebarItem
+            icon={<Folders size={20} />}
+            text='Informes'
+            route='informes'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.servicios}>
