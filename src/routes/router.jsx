@@ -12,6 +12,7 @@ import Plantillas from '../pages/Plantillas/index.jsx'
 import ServiciosLaboratorio from '../pages/ServiciosLaboratorio'
 import FormTriaje from '../pages/Triaje/FormTriaje.jsx'
 import Laboratorio from '../pages/Laboratorio/index.jsx'
+import Informes from '../pages/Informes/index.jsx'
 
 const router = createBrowserRouter([
   {
@@ -59,6 +60,14 @@ const router = createBrowserRouter([
         element: (
           <RoleGard listRoles={listRoles.servicios}>
             <ServiciosLaboratorio />
+          </RoleGard>
+        )
+      },
+      {
+        path: 'informes',
+        element: (
+          <RoleGard listRoles={listRoles.informes}>
+            <Informes />
           </RoleGard>
         )
       },

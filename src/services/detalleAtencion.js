@@ -20,6 +20,14 @@ export const getInProcessAttentionsByLaboratory = async () => {
   return data
 }
 
+export const getInProcessReportAttentionsByLaboratory = async () => {
+  const response = await fetch(
+    'http://localhost:3000/api/detalleatencion/informes/3'
+  )
+  const data = await response.json()
+  return data
+}
+
 export const changeStatus = async (iddetatencion, nuevoEstado) => {
   const response = await fetch(
     `http://localhost:3000/api/detalleAtencion/${iddetatencion}`,

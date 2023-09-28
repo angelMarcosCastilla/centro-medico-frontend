@@ -4,6 +4,7 @@ export const listRoles = {
   triaje: ['T'],
   radiologia: ['R', 'DR'],
   laboratorio: ['L', 'DL'],
+  informes: ['L'],
   servicios: ['L'],
   plantillas: ['L'],
   pagos: ['A']

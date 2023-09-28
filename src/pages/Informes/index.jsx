@@ -1,11 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useFetcher } from '../../hook/useFetcher'
-import {
-  changeStatus,
-  getInProcessAttentionsByLaboratory
-} from '../../services/detalleAtencion'
+import { getInProcessReportAttentionsByLaboratory } from '../../services/detalleAtencion'
 import { usePagination } from '../../hook/usePagination'
 import { listState, statusColorMap } from '../../constants/state'
+import { capitalize } from '../../utils'
 import {
   Button,
   CardBody,
@@ -24,9 +22,7 @@ import {
   TableRow,
   Tooltip
 } from '@nextui-org/react'
-import { capitalize } from '../../utils'
-import { ChevronDownIcon, ListTodo, SearchIcon } from 'lucide-react'
-import { toast } from 'sonner'
+import { ChevronDownIcon, FileEdit, FileLock2, SearchIcon } from 'lucide-react'
 
 const columns = [
   { name: 'ID', uid: 'iddetatencion', sortable: true },
@@ -45,7 +41,7 @@ const INITIAL_VISIBLE_COLUMNS = [
   'acciones'
 ]
 
-export default function Laboratorio() {
+export default function Informes() {
   const [filterValue, setFilterValue] = useState('')
   const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
@@ -54,7 +50,8 @@ export default function Laboratorio() {
     column: 'id',
     direction: 'ascending'
   })
-  const { data, mutate } = useFetcher(getInProcessAttentionsByLaboratory)
+
+  const { data } = useFetcher(getInProcessReportAttentionsByLaboratory)
 
   const hasSearchFilter = Boolean(filterValue)
 
@@ -113,16 +110,21 @@ export default function Laboratorio() {
       case 'acciones':
         return (
           <div className='relative flex items-center gap-2'>
-            <Tooltip content='Cambiar estado' color='primary'>
+            <Tooltip content='Redactar' color='primary'>
               <span
                 className='text-lg text-primary-400 cursor-pointer active:opacity-50'
-                onClick={() =>
-                  handleChangeStatus(detail.iddetatencion, detail.estado)
-                }
+                onClick={() => handleOpenEditor(detail.iddetatencion)}
               >
-                <ListTodo size={20} />
+                <FileEdit size={20} />
               </span>
             </Tooltip>
+            {detail.estado === 'PE' && (
+              <Tooltip content='Finalizar' color='danger'>
+                <span className='text-lg text-danger-400 cursor-pointer active:opacity-50'>
+                  <FileLock2 size={20} />
+                </span>
+              </Tooltip>
+            )}
           </div>
         )
       default:
@@ -130,31 +132,7 @@ export default function Laboratorio() {
     }
   }, [])
 
-  const handleChangeStatus = async (idDetAttention, status) => {
-    const newStatus = status === 'P' ? 'A' : 'PI'
-    const result = await changeStatus(idDetAttention, newStatus)
-
-    if (result) {
-      mutate((prevData) => {
-        if (status === 'A') {
-          // Si el estado actual es "A", elimina la fila de la tabla
-          return prevData.filter(
-            (item) => item.iddetatencion !== idDetAttention
-          )
-        } else {
-          // Si el estado actual no es "A", simplemente actualiza la fila localmente
-          return prevData.map((item) => {
-            if (item.iddetatencion === idDetAttention) {
-              return { ...item, estado: newStatus }
-            }
-            return item
-          })
-        }
-      })
-    } else {
-      toast.error('Error al cambiar el estado')
-    }
-  }
+  const handleOpenEditor = (idDetAttention) => alert('abriendo editor')
 
   const onSearchChange = useCallback((value) => {
     if (value) {
