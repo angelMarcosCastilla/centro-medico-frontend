@@ -11,7 +11,7 @@ import { listRoles } from '../constants/auth.constant.js'
 import Plantillas from '../pages/Plantillas/index.jsx'
 import ServiciosLaboratorio from '../pages/ServiciosLaboratorio'
 import FormTriaje from '../pages/Triaje/FormTriaje.jsx'
-
+import Laboratorio from '../pages/Laboratorio/index.jsx'
 
 const router = createBrowserRouter([
   {
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
         path: 'rayosx',
         element: (
           <RoleGard listRoles={listRoles.radiologia}>
-            <Rayosx/>
+            <Rayosx />
           </RoleGard>
         )
       },
@@ -50,7 +50,7 @@ const router = createBrowserRouter([
         path: 'laboratorio',
         element: (
           <RoleGard listRoles={listRoles.laboratorio}>
-            <h1>Laboratorio</h1>
+            <Laboratorio />
           </RoleGard>
         )
       },
@@ -82,7 +82,7 @@ const router = createBrowserRouter([
         path: '/triaje/:id',
         element: (
           <RoleGard listRoles={listRoles.triaje}>
-            <FormTriaje/>
+            <FormTriaje />
           </RoleGard>
         )
       },
