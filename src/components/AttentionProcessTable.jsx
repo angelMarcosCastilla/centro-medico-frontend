@@ -17,7 +17,12 @@ import {
   TableRow,
   Tooltip
 } from '@nextui-org/react'
-import { ChevronDownIcon, ListTodo, SearchIcon } from 'lucide-react'
+import {
+  ChevronDownIcon,
+  MonitorPause,
+  SearchIcon,
+  UserCheck
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { useFetcher } from '../hook/useFetcher'
 import { usePagination } from '../hook/usePagination'
@@ -110,14 +115,22 @@ export default function AttentionProcessTable({ useFecherFunction }) {
       case 'acciones':
         return (
           <div className='relative flex items-center gap-2'>
-            <Tooltip content='Cambiar estado' color='primary' closeDelay={0}>
+            <Tooltip
+              content={detail.estado === 'P' ? 'Atender' : 'Confirmar Atencion'}
+              color='primary'
+              closeDelay={0}
+            >
               <span
                 className='text-lg text-primary-400 cursor-pointer active:opacity-50'
                 onClick={() =>
                   handleChangeStatus(detail.iddetatencion, detail.estado)
                 }
               >
-                <ListTodo size={20} />
+                {detail.estado === 'P' ? (
+                  <MonitorPause size={20} />
+                ) : (
+                  <UserCheck size={20} />
+                )}
               </span>
             </Tooltip>
           </div>

@@ -213,10 +213,11 @@ export default function Admision() {
     const hasTriaje = detService.some((el) => Boolean(el.triaje))
 
     const detalleAtencion = detService.map(
-      ({ idservicio, precio, descuento }) => ({
+      ({ idservicio, precio, descuento, idpersonalMedico }) => ({
         idServicio: idservicio,
         precioPagado: precio - descuento,
         descuento,
+        idpersonalMedico,
         estado: hasTriaje ? 'PT' : 'P'
       })
     )

@@ -17,6 +17,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
   const [area, setArea] = useState(new Set([]))
   const [categoria, setCategoria] = useState(new Set([]))
   const [servicio, setServicio] = useState(new Set([]))
+  const [personal, setPersonal] = useState(new Set([]))
 
   const { dataToSend } = useDataContext()
 
@@ -25,6 +26,15 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
     const options = data.find((item) =>
       area.has(String(item.idarea))
     ).categorias
+
+    return options
+  }, [area])
+
+  const optionDoctor = useMemo(() => {
+    if (area.size === 0) return []
+    const options = data.find((item) =>
+      area.has(String(item.idarea))
+    ).personal
 
     return options
   }, [area])
@@ -45,14 +55,15 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
   const handleAddServices = () => {
     // ver que no estea el servicio ya agregado
     const isExist = dataToSend.detalleAtencion?.some(
-      (item) => item.idServicio === currentServicio?.idservicio
+      (item) => item.idservicio === currentServicio?.idservicio
     )
     if (!isExist) {
-      onChange({ ...currentServicio, descuento: '' })
+      onChange({ ...currentServicio, descuento: '', idpersonalMedico: Array.from(personal)[0]})
       onOpenChange(false)
       setArea(new Set([]))
       setCategoria(new Set([]))
       setServicio(new Set([]))
+      setPersonal(new Set([]))
     } else {
       toast.error('El servicio ya fue agregado')
     }
@@ -110,8 +121,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                         </SelectItem>
                       ))}
                     </Select>
-                    <Select
-                      key={categoria}
+                    <Select                      
                       label='Servicios'
                       selectedKeys={servicio}
                       onChange={(e) => {
@@ -128,6 +138,27 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                           value={servicio.idservicio}
                         >
                           {servicio.nombre}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                    <Select
+                      key={personal}
+                      label='Personal'
+                      selectedKeys={personal}
+                      onChange={(e) => {                        
+                        if (e.target.value !== '') {
+                          setPersonal(new Set([e.target.value]))
+                        } else {
+                          setPersonal(new Set([]))
+                        }
+                      }}
+                    >
+                      {optionDoctor.map((personal) => (
+                        <SelectItem
+                          key={personal.idpersonalmedico}
+                          value={personal.idpersonalmedico}
+                        >
+                          {personal.personal}
                         </SelectItem>
                       ))}
                     </Select>
