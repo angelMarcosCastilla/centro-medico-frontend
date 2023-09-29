@@ -17,23 +17,16 @@ import { addTemplate } from '../../services/template'
 import { toast } from 'sonner'
 import TypeTemplate from './components/TypeTemplate'
 import { getAllServicesLaboratory } from '../../services/service'
-
-const services = await getAllServicesLaboratory()
+import { useFetcher } from '../../hook/useFetcher'
 
 export default function Plantillas() {
+  const { data: services } = useFetcher(getAllServicesLaboratory)
   const [serviceSelected, setServiceSelected] = useState(new Set([]))
   const idServicio = window.history.state.usr?.idservicio
   const [typesTemplate, setTypesTemplate] = useState(new Set([]))
   const [template, setTemplate] = useState({ templateName: '' })
   const [sections, setSections] = useState([])
   const [loading, setLoading] = useState(false)
-
-  // Mejorar esta lógica
-  useEffect(() => {
-    if (idServicio) {
-      setServiceSelected(new Set([idServicio.toString()]))
-    }
-  }, [serviceSelected])
 
   const handleFormatChange = (selectedFormat) => {
     let selectedTemplate
@@ -301,6 +294,12 @@ export default function Plantillas() {
       toast.error(result.message)
     }
   }
+
+  useEffect(() => {
+    if (idServicio) {
+      setServiceSelected(new Set([idServicio.toString()]))
+    }
+  }, [])
 
   return (
     <>

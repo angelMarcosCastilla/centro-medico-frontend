@@ -44,12 +44,12 @@ export default function ColumnTemplate({
   onRemoveRow,
   onRemoveSection
 }) {
-  
   return (
     <>
       <div className='grid grid-cols-4 px-4 gap-4 items-end'>
         <Input
-          label='Nombre de la sección'
+          type='text'
+          label='Título de la Sección'
           color='primary'
           variant='underlined'
           value={section.title}

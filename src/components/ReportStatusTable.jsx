@@ -22,6 +22,7 @@ import { useFetcher } from '../hook/useFetcher'
 import { usePagination } from '../hook/usePagination'
 import { listState, statusColorMap } from '../constants/state'
 import { capitalize } from '../utils'
+import { useNavigate } from 'react-router-dom'
 
 const columns = [
   { name: 'ID', uid: 'iddetatencion', sortable: true },
@@ -53,6 +54,8 @@ export default function ReportStatusTable({ useFetcherFunction }) {
   const { data } = useFetcher(useFetcherFunction)
 
   const hasSearchFilter = Boolean(filterValue)
+
+  const navigate = useNavigate()
 
   const headerColumns = useMemo(() => {
     if (visibleColumns === 'all') return columns
@@ -109,10 +112,20 @@ export default function ReportStatusTable({ useFetcherFunction }) {
       case 'acciones':
         return (
           <div className='relative flex items-center gap-2'>
-            <Tooltip content='Redactar' color='primary'>
+            <Tooltip
+              content={detail.estado === 'PI' ? 'Redactar' : 'Editar'}
+              color='primary'
+              closeDelay={0}
+            >
               <span
                 className='text-lg text-primary-400 cursor-pointer active:opacity-50'
-                onClick={() => handleOpenEditor(detail.iddetatencion)}
+                onClick={() =>
+                  handleOpenEditor(
+                    detail.idservicio,
+                    detail.iddetatencion,
+                    detail.estado === 'PI' ? 'new' : 'edit'
+                  )
+                }
               >
                 <FileEdit size={20} />
               </span>
@@ -131,7 +144,11 @@ export default function ReportStatusTable({ useFetcherFunction }) {
     }
   }, [])
 
-  const handleOpenEditor = (idDetAttention) => alert('abriendo editor')
+  const handleOpenEditor = (idService, idDetAttention, operation) => {
+    navigate(`/informes/${idService}`, {
+      state: { idService, idDetAttention, operation }
+    })
+  }
 
   const onSearchChange = useCallback((value) => {
     if (value) {
