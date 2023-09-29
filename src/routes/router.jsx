@@ -13,6 +13,7 @@ import ServiciosLaboratorio from '../pages/ServiciosLaboratorio'
 import FormTriaje from '../pages/Triaje/FormTriaje.jsx'
 import Laboratorio from '../pages/Laboratorio/index.jsx'
 import Informes from '../pages/Informes/index.jsx'
+import ReportEditor from '../pages/Informes/ReportEditor.jsx'
 
 const router = createBrowserRouter([
   {
@@ -68,6 +69,14 @@ const router = createBrowserRouter([
         element: (
           <RoleGard listRoles={listRoles.informes}>
             <Informes />
+          </RoleGard>
+        )
+      },
+      {
+        path: 'informes/:id',
+        element: (
+          <RoleGard listRoles={listRoles.informes}>
+            <ReportEditor />
           </RoleGard>
         )
       },
