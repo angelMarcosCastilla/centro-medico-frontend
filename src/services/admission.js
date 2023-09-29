@@ -42,3 +42,15 @@ export const changeStatus = async (idDetAttention, newStatus) => {
   const result = await response.json()
   return result
 }
+
+export const getServiciesByDoctor = async (idpersona) => {
+  const response = await fetch(
+    `http://localhost:3000/api/atenciones/externalModule/${idpersona}`,
+    {
+      method: 'GET'
+    }
+  )
+
+  const data = await response.json()
+  return data
+}

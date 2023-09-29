@@ -13,11 +13,16 @@ import ServiciosLaboratorio from '../pages/ServiciosLaboratorio'
 import FormTriaje from '../pages/Triaje/FormTriaje.jsx'
 import Laboratorio from '../pages/Laboratorio/index.jsx'
 import Informes from '../pages/Informes/index.jsx'
+import ExternalModule from '../pages/externalModule/index.jsx'
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Login />
+  },
+  {
+    path: '/externalmodule',
+    element: <ExternalModule />
   },
   {
     element: <Dashboard />,
@@ -95,6 +100,7 @@ const router = createBrowserRouter([
           </RoleGard>
         )
       },
+
       {
         path: '*',
         element: <h1>404</h1>

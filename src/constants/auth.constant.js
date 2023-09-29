@@ -14,12 +14,14 @@ export const redirectRoles = {
   A: '/admision',
   L: '/laboratorio',
   R: '/rayosx',
-  T: '/tomografia'
+  T: '/tomografia',
+  E:"/externalmodule"
 }
 
 export const mapRoles = {
   A: 'Admisión',
   L: 'Laboratorio',
   R: 'Radiologia',
-  T: 'Tomografia'
+  T: 'Tomografia',
+  E: 'ExternalModule'
 }

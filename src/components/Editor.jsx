@@ -20,7 +20,7 @@ import {
   UnderlineIcon,
   UndoDot
 } from 'lucide-react'
-import React from 'react'
+import React, { useImperativeHandle } from 'react'
 
 const MenuBar = ({ editor }) => {
   if (!editor) {
@@ -175,9 +175,9 @@ const extensions = [
         ? node.attrs.level
         : this.options.levels[0]
       const sizes = {
-        1: 'font-size: 36px',
-        2: 'font-size: 28px',
-        3: 'font-size: 20px'
+        1: 'font-size: 25px',
+        2: 'font-size: 18px',
+        3: 'font-size: 14px'
       }
       return [
         `h${level}`,
@@ -195,29 +195,29 @@ const extensions = [
   })
 ]
 
-export default function Editor({ content = '' }) {
+function Editor({ content = '' }, ref) {
   const editor = useEditor({
     extensions,
     content,
     editorProps: {
       attributes: {
-        class: 'outline-none h-[400px] border border-gray-200 p-4'
+        class: 'outline-none h-[400px] border border-gray-200 p-4 overflow-y-auto '
       }
     }
   })
+
+  useImperativeHandle(ref, () => {
+    return {
+      getHtml: () => editor.getHTML()
+    }
+  }, [editor])
 
   return (
     <div>
       <MenuBar editor={editor} />
       <EditorContent editor={editor} />
-      <Button
-        className='mt-4'
-        onClick={() => {
-          console.log(editor.getHTML())
-        }}
-      >
-        Enviar Informe
-      </Button>
     </div>
   )
 }
+
+export default React.forwardRef(Editor)
