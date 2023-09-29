@@ -1,10 +1,13 @@
 import ReportStatusTable from '../../components/ReportStatusTable'
-import { getInProcessReportAttentionsByLaboratory } from '../../services/detalleAtencion'
+import { LABORATORIO_ID } from '../../constants/areas'
+import { getInProcessReportAttentionsByArea } from '../../services/admission'
 
 export default function Informes() {
   return (
     <ReportStatusTable
-      useFetcherFunction={getInProcessReportAttentionsByLaboratory}
+      useFetcherFunction={() =>
+        getInProcessReportAttentionsByArea(LABORATORIO_ID)
+      }
     />
   )
 }

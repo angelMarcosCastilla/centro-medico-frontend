@@ -1,10 +1,9 @@
 import AttentionProcessTable from '../../components/AttentionProcessTable'
-import { getInProcessAttentionsByLaboratory } from '../../services/detalleAtencion'
+import { LABORATORIO_ID } from '../../constants/areas'
+import { getInProcessAttentionsByArea } from '../../services/admission'
 
 export default function Laboratorio() {
   return (
-    <AttentionProcessTable
-      useFecherFunction={getInProcessAttentionsByLaboratory}
-    />
+    <AttentionProcessTable useFecherFunction={() => getInProcessAttentionsByArea(LABORATORIO_ID)} />
   )
 }

@@ -20,10 +20,10 @@ import {
 import { ChevronDownIcon, ListTodo, SearchIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useFetcher } from '../hook/useFetcher'
-import { changeStatus } from '../services/detalleAtencion'
 import { usePagination } from '../hook/usePagination'
 import { capitalize } from '../utils'
 import { listState, statusColorMap } from '../constants/state'
+import { changeStatus } from '../services/admission'
 
 const columns = [
   { name: 'ID', uid: 'iddetatencion', sortable: true },
@@ -110,7 +110,7 @@ export default function AttentionProcessTable({ useFecherFunction }) {
       case 'acciones':
         return (
           <div className='relative flex items-center gap-2'>
-            <Tooltip content='Cambiar estado' color='primary'>
+            <Tooltip content='Cambiar estado' color='primary' closeDelay={0}>
               <span
                 className='text-lg text-primary-400 cursor-pointer active:opacity-50'
                 onClick={() =>
