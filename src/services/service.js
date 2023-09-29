@@ -9,3 +9,8 @@ export const getAllServicesLaboratory = async () => {
   const { data } = await response.json()
   return data
 }
+export const getAllPersonal = async(idarea)=>{
+  const response = await fetch( `http://localhost:3000/api/servicios/personal/${idarea}`)
+  const {data} = await response.json()
+  return data
+}
