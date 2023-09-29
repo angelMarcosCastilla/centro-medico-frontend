@@ -120,7 +120,11 @@ export default function ReportStatusTable({ useFetcherFunction }) {
               <span
                 className='text-lg text-primary-400 cursor-pointer active:opacity-50'
                 onClick={() =>
-                  handleOpenEditor(detail.idservicio, detail.iddetatencion)
+                  handleOpenEditor(
+                    detail.idservicio,
+                    detail.iddetatencion,
+                    detail.estado === 'PI' ? 'new' : 'edit'
+                  )
                 }
               >
                 <FileEdit size={20} />
@@ -140,9 +144,9 @@ export default function ReportStatusTable({ useFetcherFunction }) {
     }
   }, [])
 
-  const handleOpenEditor = (idService, idDetAttention) => {
+  const handleOpenEditor = (idService, idDetAttention, operation) => {
     navigate(`/informes/${idService}`, {
-      state: { idService, idDetAttention }
+      state: { idService, idDetAttention, operation }
     })
   }
 

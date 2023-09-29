@@ -4,6 +4,12 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useFetcher } from '../../hook/useFetcher'
 import { getTemplateLatestVersionByService } from '../../services/template'
 import { toast } from 'sonner'
+import {
+  addResult,
+  searchByDetAttention,
+  updateResult
+} from '../../services/result'
+import { changeStatus } from '../../services/admission'
 
 const useDebaunce = (value, delay = 500) => {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -41,10 +47,16 @@ function InputTable({ value, onChange }) {
 export default function ReportEditor() {
   const navigate = useNavigate()
   const { state } = useLocation()
-  const { data, loading, error } = useFetcher(() =>
+
+  const { data: templateData } = useFetcher(() =>
     getTemplateLatestVersionByService(state.idService)
   )
+  const { data: searchData } = useFetcher(() =>
+    searchByDetAttention(state.idDetAttention)
+  )
+
   const [template, setTemplate] = useState({})
+  const [loading, setLoading] = useState(false)
 
   const onInputChange = (sectionUid, rowIndex, columnUid, value) => {
     setTemplate((prevTemplate) => {
@@ -70,17 +82,63 @@ export default function ReportEditor() {
     })
   }
 
-  useEffect(() => {
-    if (data && data.data) {
-      const loadedTemplate = JSON.parse(data.data.formato)
-      setTemplate(loadedTemplate)
-    } else {
-      if (!loading && !error) {
-        toast.error('Sin plantilla para este servicio. Por favor, cree una.')
-        navigate('/informes')
-      }
+  const handleAddResult = async () => {
+    const data = {
+      idDetAtencion: state.idDetAttention,
+      diagnostico: JSON.stringify(template)
     }
-  }, [data])
+
+    setLoading(true)
+    const result = await addResult(data)
+    setLoading(false)
+
+    if (result.isSuccess) {
+      await changeStatus(state.idDetAttention, 'PE')
+      toast.success(result.message)
+      navigate('/informes')
+    } else {
+      toast.error(result.message)
+    }
+  }
+
+  const handleUpdateResult = async () => {
+    const data = {
+      idDetAtencion: state.idDetAttention,
+      diagnostico: JSON.stringify(template)
+    }
+
+    setLoading(true)
+    const result = await updateResult(data)
+    setLoading(false)
+
+    if (result.isSuccess) {
+      toast.success(result.message)
+      navigate('/informes')
+    } else {
+      toast.error(result.message)
+    }
+  }
+
+  useEffect(() => {
+    if (templateData.isSuccess && templateData.data) {
+      let loadedTemplate
+      console.clear()
+      console.log('state', state)
+      console.log('template', templateData)
+      console.log('search', searchData)
+
+      if (state.operation === 'new') {
+        loadedTemplate = JSON.parse(templateData.data.formato)
+      } else if (state.operation === 'edit') {
+        loadedTemplate = JSON.parse(searchData.data.diagnostico)
+      }
+
+      setTemplate(loadedTemplate)
+    } else if (templateData.isSuccess && !templateData.data) {
+      toast.error('Sin plantilla para este servicio. Por favor, cree una.')
+      navigate('/informes')
+    }
+  }, [searchData])
 
   return (
     <>
@@ -91,7 +149,7 @@ export default function ReportEditor() {
             color='primary'
             size='lg'
             variant='underlined'
-            className='col-span-2ñ'
+            className='col-span-2'
             value={template.templateName || ''}
             readOnly
           />
@@ -99,14 +157,14 @@ export default function ReportEditor() {
             label='Categoría'
             color='primary'
             variant='underlined'
-            value={data.data?.nombre_categoria || ''}
+            value={templateData.data?.nombre_categoria || ''}
             readOnly
           />
           <Input
             label='Servicio'
             color='primary'
             variant='underlined'
-            value={data.data?.nombre_servicio || ''}
+            value={templateData.data?.nombre_servicio || ''}
             readOnly
           />
         </div>
@@ -144,9 +202,7 @@ export default function ReportEditor() {
                               key={section.uid + '_' + column.uid + '_' + index}
                               className='p-3 text-slate-700'
                             >
-                              {column.uid !== 'resultado' ? (
-                                row[column.uid]
-                              ) : (
+                              {column.editable ? (
                                 <InputTable
                                   value={row[column.uid]}
                                   onChange={(value) =>
@@ -158,6 +214,8 @@ export default function ReportEditor() {
                                     )
                                   }
                                 />
+                              ) : (
+                                row[column.uid]
                               )}
                             </td>
                           ) : null
@@ -178,7 +236,15 @@ export default function ReportEditor() {
         >
           Cancelar
         </Button>
-        <Button color='primary'>Guardar</Button>
+        <Button
+          color='primary'
+          onPress={
+            state.operation === 'new' ? handleAddResult : handleUpdateResult
+          }
+          isLoading={loading}
+        >
+          Guardar
+        </Button>
       </CardFooter>
     </>
   )
