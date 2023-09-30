@@ -65,13 +65,6 @@ export default function Dashboard() {
             route='servicios'
           />
         </HasRole>
-        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.plantillas}>
-          <SidebarItem
-            icon={<LayoutTemplate size={20} />}
-            text='Plantillas'
-            route='plantillas'
-          />
-        </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.triaje}>
           <SidebarItem
             icon={<LayoutTemplate size={20} />}

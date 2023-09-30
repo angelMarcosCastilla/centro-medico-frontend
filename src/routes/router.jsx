@@ -86,7 +86,7 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: 'plantillas',
+        path: 'plantillas/:id',
         element: (
           <RoleGard listRoles={listRoles.plantillas}>
             <Plantillas />

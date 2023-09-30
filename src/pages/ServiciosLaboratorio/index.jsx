@@ -98,13 +98,13 @@ export default function ServiciosLaboratorio() {
       case 'acciones':
         return (
           <div className='relative flex items-center gap-2'>
-            <Tooltip content='Editar'>
-              <span className='text-lg text-default-400 cursor-pointer active:opacity-50'>
+            <Tooltip content='Editar' color='primary' closeDelay={0}>
+              <span className='text-lg text-primary-400 cursor-pointer active:opacity-50'>
                 <PencilLine size={20} />
               </span>
             </Tooltip>
-            <Tooltip content='Plantilla'>
-              <span className='text-lg text-default-400 cursor-pointer active:opacity-50'>
+            <Tooltip content='Plantilla' color='primary' closeDelay={0}>
+              <span className='text-lg text-primary-400 cursor-pointer active:opacity-50'>
                 <Dropdown>
                   <DropdownTrigger>
                     <FileJson size={20} />
@@ -113,19 +113,34 @@ export default function ServiciosLaboratorio() {
                     <DropdownItem
                       key='new'
                       onClick={() =>
-                        navigate('/plantillas', {
-                          state: { idservicio: service.idservicio }
+                        navigate(`/plantillas/${service.idservicio}`, {
+                          state: {
+                            service,
+                            operation: 'new'
+                          }
                         })
                       }
                     >
                       Nueva plantilla
                     </DropdownItem>
-                    <DropdownItem key='edit'>Editar plantilla</DropdownItem>
+                    <DropdownItem
+                      key='edit'
+                      onClick={() =>
+                        navigate(`/plantillas/${service.idservicio}`, {
+                          state: {
+                            service,
+                            operation: 'edit'
+                          }
+                        })
+                      }
+                    >
+                      Editar plantilla
+                    </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>
               </span>
             </Tooltip>
-            <Tooltip color='danger' content='Eliminar'>
+            <Tooltip color='danger' content='Eliminar' closeDelay={0}>
               <span className='text-lg text-danger cursor-pointer active:opacity-50'>
                 <Trash2 size={20} />
               </span>

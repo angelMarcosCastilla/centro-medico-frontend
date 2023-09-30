@@ -13,35 +13,40 @@ import {
   SelectItem
 } from '@nextui-org/react'
 import { ListPlus } from 'lucide-react'
-import { addTemplate } from '../../services/template'
+import {
+  addTemplate,
+  getTemplateLatestVersionByService
+} from '../../services/template'
 import { toast } from 'sonner'
 import TypeTemplate from './components/TypeTemplate'
-import { getAllServicesLaboratory } from '../../services/service'
-import { useFetcher } from '../../hook/useFetcher'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 export default function Plantillas() {
-  const { data: services } = useFetcher(getAllServicesLaboratory)
-  const [serviceSelected, setServiceSelected] = useState(new Set([]))
-  const idServicio = window.history.state.usr?.idservicio
+  const { state } = useLocation()
+  const navigate = useNavigate()
   const [typesTemplate, setTypesTemplate] = useState(new Set([]))
-  const [template, setTemplate] = useState({ templateName: '' })
+  const [template, setTemplate] = useState({})
   const [sections, setSections] = useState([])
   const [loading, setLoading] = useState(false)
 
   const handleFormatChange = (selectedFormat) => {
     let selectedTemplate
 
-    switch (selectedFormat) {
-      case 'fourColumns':
-        selectedTemplate = columnTemplate
-        break
-      case 'keysValues':
-        selectedTemplate = keyValueTemplate
-        break
-    }
+    if (state.operation === 'new') {
+      console.log('si entra')
+      switch (selectedFormat) {
+        case 'fourColumns':
+          selectedTemplate = columnTemplate
+          break
+        case 'keysValues':
+          selectedTemplate = keyValueTemplate
+          break
+      }
 
-    setTemplate(selectedTemplate)
-    setSections(selectedTemplate.sections)
+      setTemplate(selectedTemplate)
+      setSections(selectedTemplate.sections)
+    } 
+    
   }
 
   const handleInputChange = (sectionUid, rowIndex, field, newValue) => {
@@ -268,25 +273,25 @@ export default function Plantillas() {
   }
 
   const handleAddTemplate = async () => {
-    // Testing
     const updatedTemplate = {
       ...template,
       sections
     }
     const data = {
-      idServicio: parseInt(
-        Array.from(serviceSelected)[0] || serviceSelected.currentKey
-      ),
+      idServicio: state.service.idservicio,
       formato: JSON.stringify(updatedTemplate)
     }
 
     setLoading(true)
-    const result = await addTemplate(data)
+    let result
+    if (state.operation === 'new') {
+      result = await addTemplate(data)
+    } else {
+      // result = await updateTemplate(data)
+    }
     setLoading(false)
 
     if (result.isSuccess) {
-      window.history.replaceState({}, document.title)
-      setServiceSelected(new Set([]))
       setTypesTemplate(new Set([]))
       setTemplate({ templateName: '' })
       toast.success(result.message)
@@ -296,10 +301,26 @@ export default function Plantillas() {
   }
 
   useEffect(() => {
-    if (idServicio) {
-      setServiceSelected(new Set([idServicio.toString()]))
+    console.log(state)
+    if (state.operation === 'new') {
+      setTemplate({ templateName: '' })
+    } else {
+      getTemplateLatestVersionByService(state.service.idservicio).then(
+        (result) => {
+          const formato = JSON.parse(result.data.formato)
+          console.log(formato)
+          setTypesTemplate(new Set([formato.type]))
+          setTemplate(formato)
+          setSections(formato.sections)
+          console.log(template)
+        }
+      )
     }
   }, [])
+
+  useEffect(() => {
+    console.log(template)
+  }, [template])
 
   return (
     <>
@@ -311,26 +332,19 @@ export default function Plantillas() {
             size='lg'
             variant='underlined'
             className='col-span-2'
-            value={template.templateName}
+            value={template.templateName || ''}
             onChange={(e) =>
               setTemplate({ ...template, templateName: e.target.value })
             }
           />
-          <Select
+          <Input
+            isReadOnly
             label='Servicio'
             color='primary'
             variant='underlined'
             className='col-span-1'
-            selectedKeys={serviceSelected}
-            onSelectionChange={setServiceSelected}
-            isDisabled={Boolean(idServicio)}
-          >
-            {services.map((service) => (
-              <SelectItem key={service.idservicio} value={service.idservicio}>
-                {service.servicio}
-              </SelectItem>
-            ))}
-          </Select>
+            value={state.service.servicio}
+          />
           <Select
             label='Formato'
             color='primary'
@@ -379,7 +393,11 @@ export default function Plantillas() {
         )}
       </CardBody>
       <CardFooter className='flex justify-end gap-4'>
-        <Button color='danger' variant='light'>
+        <Button
+          color='danger'
+          variant='light'
+          onClick={() => navigate('/servicios')}
+        >
           Cancelar
         </Button>
         <Button color='primary' onClick={handleAddTemplate} isLoading={loading}>
