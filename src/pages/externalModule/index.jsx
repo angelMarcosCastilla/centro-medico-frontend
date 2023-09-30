@@ -26,35 +26,81 @@ import { useAuth } from '../../context/AuthContext'
 import { Navigate } from 'react-router-dom'
 import { mapRoles } from '../../constants/auth.constant'
 import { useFetcher } from '../../hook/useFetcher'
-import { getServiciesByDoctor } from '../../services/admission'
-import { capitalize } from '../../utils'
+import { changeStatus, getServiciesByDoctor } from '../../services/admission'
 import { listState, statusColorMap } from '../../constants/state'
+import { addResult, updateResult } from '../../services/result'
+import { toast } from 'sonner'
+import { Eye, FileEdit } from 'lucide-react'
 
 export default function ExternalModule() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const ref = React.useRef()
   const refTitulo = React.useRef()
-  const [content, setContent] = React.useState('')
+  const idDet = React.useRef()
+  const resultId = React.useRef()
+
+  const [json, setjson] = React.useState({ titulo: '', contenido: '' })
+
   const { isAuthenticated, userInfo, logout } = useAuth()
-  const { data, loading } = useFetcher(() =>
+
+  const { data, loading, mutate } = useFetcher(() =>
     getServiciesByDoctor(userInfo.idpersona)
   )
 
   if (!isAuthenticated) return <Navigate to='/' />
 
-  const handleSubmit = () => {
-    const contentData = {
+  const handleSubmit = async () => {
+    const template = {
       titulo: refTitulo.current,
       contenido: ref.current.getHtml()
     }
 
     const data = {
-      iddetatencion: 1,
-      resultado_json: JSON.stringify(contentData),
-      idpersonalmedico: userInfo.idpersona
+      idDetAtencion: idDet.current,
+      diagnostico: JSON.stringify(template)
+    }
+
+    if (!resultId.current) {
+      const result = await addResult(data)
+      const idresultado = result.data
+
+      if (result.isSuccess) {
+        await changeStatus(idDet.current, 'PE')
+        mutate((prev) =>
+          prev.map((el) =>
+            el.iddetatencion === idDet.current
+              ? {
+                  ...el,
+                  estado: 'PE',
+                  idresultado,
+                  diagnostico: data.diagnostico
+                }
+              : el
+          )
+        )
+        onClose()
+        toast.success(result.message)
+      } else {
+        toast.error(result.message)
+      }
+    } else {
+      const result = await updateResult(data)
+      if (result.isSuccess) {
+        mutate((prev) =>
+          prev.map((el) =>
+            el.iddetatencion === idDet.current
+              ? {
+                  ...el,
+                  diagnostico: data.diagnostico
+                }
+              : el
+          )
+        )
+        onClose()
+        toast.success(result.message)
+      }
     }
   }
-
   return (
     <>
       <div className='px-3 py-4 bg-slate-100 h-screen flex flex-col gap-y-4'>
@@ -100,19 +146,21 @@ export default function ExternalModule() {
               <TableHeader>
                 <TableColumn>n°</TableColumn>
                 <TableColumn>Dni</TableColumn>
-                <TableColumn>Paciento</TableColumn>
+                <TableColumn>Paciente</TableColumn>
+                <TableColumn>Categoria</TableColumn>
                 <TableColumn>Servicio</TableColumn>
                 <TableColumn>Estado</TableColumn>
                 <TableColumn>Acciones</TableColumn>
               </TableHeader>
               <TableBody isLoading={loading} loadingContent='cargando'>
-                {data?.data?.map((el, index) => (
+                {data?.map((el, index) => (
                   <TableRow key={index}>
-                    <TableCell>{index}</TableCell>
-                    <TableCell>{el.dni}</TableCell>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{el.num_documento}</TableCell>
                     <TableCell>
                       {el.nombres} {el.apellidos}
                     </TableCell>
+                    <TableCell>{el.nombre_categoria}</TableCell>
                     <TableCell>{el.nombre_servicio}</TableCell>
                     <TableCell>
                       <Chip
@@ -120,18 +168,37 @@ export default function ExternalModule() {
                         size='sm'
                         variant='flat'
                       >
-                        {capitalize(listState[el.estado])}
+                        {listState[el.estado]}
                       </Chip>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        onPress={() => {
-                          setContent('item' + el.nombre_servicio)
-                          onOpen()
-                        }}
-                      >
-                        redactar
-                      </Button>
+                      <div className='flex items-center gap-x-2'>
+                        <Button
+                          isIconOnly
+                          variant='light'
+                          color='primary'
+                          onPress={() => {
+                            if (el.idresultado) {
+                              setjson(JSON.parse(el.diagnostico))
+                            }
+                            idDet.current = el.iddetatencion
+                            resultId.current = el.idresultado
+                            onOpen()
+                          }}
+                        >
+                          <FileEdit size={20} />
+                        </Button>
+                        {el.idresultado && (
+                          <a
+                            target='_blank'
+                            href={`http://localhost:3000/api/resultados/${el.idresultado}/report`}
+                            className='text-gray-400'
+                            rel='noreferrer'
+                          >
+                            <Eye size={20} />
+                          </a>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -156,18 +223,19 @@ export default function ExternalModule() {
                   label='Título del informe'
                   className='mb-2'
                   labelPlacement='inside'
+                  defaultValue={json.titulo}
                   onChange={(e) => {
                     refTitulo.current = e.target.value
                   }}
                 />
-                <Editor ref={ref} content={content} />
+                <Editor ref={ref} content={json.contenido} />
               </ModalBody>
               <ModalFooter>
                 <Button color='danger' variant='light' onPress={onClose}>
                   Cancelar
                 </Button>
                 <Button color='primary' onPress={() => handleSubmit(onClose)}>
-                  Enviar Informe
+                  {resultId.current ? 'Actualizar informe' : 'Redactar informe'}
                 </Button>
               </ModalFooter>
             </>
