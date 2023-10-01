@@ -15,6 +15,7 @@ import {
 import { ListPlus } from 'lucide-react'
 import {
   addTemplate,
+  updateTemplate,
   getTemplateLatestVersionByService
 } from '../../services/template'
 import { toast } from 'sonner'
@@ -26,35 +27,33 @@ export default function Plantillas() {
   const navigate = useNavigate()
   const [typesTemplate, setTypesTemplate] = useState(new Set([]))
   const [template, setTemplate] = useState({})
+  const [originalTemplate, setOriginalTemplate] = useState({})
   const [sections, setSections] = useState([])
   const [loading, setLoading] = useState(false)
 
-  const handleFormatChange = (selectedFormat) => {
-    let selectedTemplate
+  const handleFormatChange = (newSelectedFormat) => {
+    const formatTemplates = {
+      fourColumns: columnTemplate,
+      keysValues: keyValueTemplate
+    }
 
-    if (state.operation === 'new') {
-      console.log('si entra')
-      switch (selectedFormat) {
-        case 'fourColumns':
-          selectedTemplate = columnTemplate
-          break
-        case 'keysValues':
-          selectedTemplate = keyValueTemplate
-          break
-      }
+    const selectedTemplate =
+      state.operation === 'new'
+        ? formatTemplates[newSelectedFormat]
+        : originalTemplate.type === newSelectedFormat
+        ? originalTemplate
+        : formatTemplates[newSelectedFormat]
 
-      setTemplate(selectedTemplate)
-      setSections(selectedTemplate.sections)
-    } 
-    
+    setTemplate(selectedTemplate)
+    setSections(selectedTemplate.sections)
   }
 
-  const handleInputChange = (sectionUid, rowIndex, field, newValue) => {
+  const handleInputChange = (sectionUid, rowUid, field, newValue) => {
     setSections((prevSections) =>
       prevSections.map((section) => {
         if (section.uid === sectionUid) {
-          const updatedRows = section.rows.map((row, index) => {
-            if (index === rowIndex) {
+          const updatedRows = section.rows.map((row) => {
+            if (row.uid === rowUid) {
               return {
                 ...row,
                 [field]: newValue
@@ -123,10 +122,11 @@ export default function Plantillas() {
 
   const handleAddRow = (sectionUid) => {
     const newRow = {
-      analisis: 'Hola Mundo',
-      resultado: 'Aqui estoy',
-      unidad: 'Probando',
-      rangoReferencial: 'Esto'
+      uid: Date.now().toString(),
+      analisis: '',
+      resultado: '',
+      unidad: '',
+      rangoReferencial: ''
     }
 
     const updatedSections = sections.map((section) => {
@@ -143,12 +143,10 @@ export default function Plantillas() {
     setSections(updatedSections)
   }
 
-  const handleRemoveRow = (sectionUid, indexToRemove) => {
+  const handleRemoveRow = (sectionUid, rowUid) => {
     const updatedSections = sections.map((section) => {
       if (section.uid === sectionUid && section.rows.length > 1) {
-        const updatedRows = section.rows.filter(
-          (_, index) => index !== indexToRemove
-        )
+        const updatedRows = section.rows.filter((row) => row.uid !== rowUid)
         return {
           ...section,
           rows: updatedRows
@@ -157,14 +155,14 @@ export default function Plantillas() {
         return section
       }
     })
-
     setSections(updatedSections)
   }
 
   const handleAddItem = (sectionUid) => {
     const newItem = {
-      key: 'key 1',
-      value: 'value 1'
+      uid: Date.now().toString(),
+      key: '',
+      value: ''
     }
 
     const updatedSections = sections.map((section) => {
@@ -205,58 +203,55 @@ export default function Plantillas() {
       title: 'Nombre de la sección'
     }
 
-    switch (typesTemplate.currentKey) {
-      case 'fourColumns':
-        newSection = {
-          ...newSection,
-          columns: [
-            {
-              uid: 'analisis',
-              title: 'ANÁLISIS',
-              editable: false
-            },
-            {
-              uid: 'resultado',
-              title: 'RESULTADO',
-              editable: true
-            },
-            {
-              uid: 'unidad',
-              title: 'UNIDAD',
-              editable: false
-            },
-            {
-              uid: 'rangoReferencial',
-              title: 'RANGO REFERENCIAL',
-              editable: false
-            },
-            {
-              uid: 'acciones',
-              title: 'ACCIONES',
-              editable: false
-            }
-          ],
-          rows: [
-            {
-              analisis: 'Hola Mundo',
-              resultado: 'Aqui estoy',
-              unidad: 'Probando',
-              rangoReferencial: 'Esto'
-            }
-          ]
-        }
-        break
-      case 'keysValues':
-        newSection = {
-          ...newSection,
-          items: [
-            {
-              key: 'key 1',
-              value: 'value 1'
-            }
-          ]
-        }
-        break
+    if (typesTemplate.currentKey === 'fourColumns') {
+      newSection = {
+        ...newSection,
+        columns: [
+          {
+            uid: 'analisis',
+            title: 'ANÁLISIS',
+            editable: false
+          },
+          {
+            uid: 'resultado',
+            title: 'RESULTADO',
+            editable: true
+          },
+          {
+            uid: 'unidad',
+            title: 'UNIDAD',
+            editable: false
+          },
+          {
+            uid: 'rangoReferencial',
+            title: 'RANGO REFERENCIAL',
+            editable: false
+          },
+          {
+            uid: 'acciones',
+            title: 'ACCIONES',
+            editable: false
+          }
+        ],
+        rows: [
+          {
+            analisis: 'Hola Mundo',
+            resultado: 'Aqui estoy',
+            unidad: 'Probando',
+            rangoReferencial: 'Esto'
+          }
+        ]
+      }
+    } else {
+      newSection = {
+        ...newSection,
+        items: [
+          {
+            key: '',
+            value: ''
+          }
+        ]
+      }
     }
 
     setSections([...sections, newSection])
@@ -284,43 +279,42 @@ export default function Plantillas() {
 
     setLoading(true)
     let result
+
     if (state.operation === 'new') {
       result = await addTemplate(data)
     } else {
-      // result = await updateTemplate(data)
+      result = await updateTemplate(data)
     }
     setLoading(false)
 
     if (result.isSuccess) {
-      setTypesTemplate(new Set([]))
-      setTemplate({ templateName: '' })
       toast.success(result.message)
+      navigate('/servicios')
     } else {
       toast.error(result.message)
     }
   }
 
   useEffect(() => {
-    console.log(state)
     if (state.operation === 'new') {
       setTemplate({ templateName: '' })
     } else {
       getTemplateLatestVersionByService(state.service.idservicio).then(
         (result) => {
-          const formato = JSON.parse(result.data.formato)
-          console.log(formato)
-          setTypesTemplate(new Set([formato.type]))
-          setTemplate(formato)
-          setSections(formato.sections)
-          console.log(template)
+          if (result.data) {
+            const formato = JSON.parse(result.data.formato)
+            setTemplate(formato)
+            setOriginalTemplate(formato)
+            setTypesTemplate(new Set([formato.type]))
+            setSections(formato.sections)
+          } else {
+            toast.error('No encontré una plantilla para editar')
+            navigate('/servicios')
+          }
         }
       )
     }
   }, [])
-
-  useEffect(() => {
-    console.log(template)
-  }, [template])
 
   return (
     <>
@@ -366,7 +360,7 @@ export default function Plantillas() {
         </div>
         {
           <TypeTemplate
-            typeTemplate={typesTemplate.currentKey}
+            typeTemplate={template.type}
             sections={sections}
             onInputChange={handleInputChange}
             onInputChangeKeyValue={handleInputChangeKeyValue}

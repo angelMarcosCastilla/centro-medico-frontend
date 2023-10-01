@@ -3,8 +3,8 @@ export const columnTemplate = {
   type: 'fourColumns',
   sections: [
     {
-      uid: 'section1',
-      title: 'Section 1',
+      uid: Date.now().toString(),
+      title: 'Sección 1',
       columns: [
         {
           uid: 'analisis',
@@ -34,10 +34,11 @@ export const columnTemplate = {
       ],
       rows: [
         {
-          analisis: 'Hola Mundo',
-          resultado: 'Aqui estoy',
-          unidad: 'Probando',
-          rangoReferencial: 'Esto'
+          uid: Date.now().toString(),
+          analisis: '',
+          resultado: '',
+          unidad: '',
+          rangoReferencial: ''
         }
       ]
     }
@@ -49,12 +50,13 @@ export const keyValueTemplate = {
   type: 'keysValues',
   sections: [
     {
-      uid: 'section1',
-      title: 'Section 1',
+      uid: Date.now().toString(),
+      title: 'Sección 1',
       items: [
         {
-          key: 'key 1',
-          value: 'value 1'
+          uid: Date.now().toString(),
+          key: '',
+          value: ''
         }
       ]
     }

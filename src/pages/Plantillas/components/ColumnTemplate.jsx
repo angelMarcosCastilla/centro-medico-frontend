@@ -76,26 +76,26 @@ export default function ColumnTemplate({
         <table className='w-full text-sm text-left text-gray-500 dark:text-gray-400'>
           <thead className='text-xs text-gray-500 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400'>
             <tr>
-              {section.columns.map((col, index) => (
-                <th key={index} className='py-3 px-4'>
+              {section.columns.map((col) => (
+                <th key={col.uid} className='py-3 px-4'>
                   {col.title}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {section.rows.map((row, index) => (
-              <tr key={index} className='bg-white dark:bg-gray-800'>
+            {section.rows.map((row) => (
+              <tr key={row.uid} className='bg-white dark:bg-gray-800'>
                 {section.columns.map((column) => (
                   <td
-                    key={section.uid + '_' + column.uid + '_' + index}
+                    key={section.uid + '_' + column.uid + '_' + row.uid}
                     className='p-3 text-slate-700'
                   >
                     {column.uid !== 'acciones' ? (
                       <InputTable
                         value={row[column.uid]}
                         onChange={(value) =>
-                          onInputChange(section.uid, index, column.uid, value)
+                          onInputChange(section.uid, row.uid, column.uid, value)
                         }
                       />
                     ) : (
@@ -107,7 +107,9 @@ export default function ColumnTemplate({
                         >
                           <span
                             className='text-danger cursor-pointer active:opacity-50'
-                            onClick={() => onRemoveRow(section.uid, index)}
+                            onClick={() => {
+                              onRemoveRow(section.uid, row.uid)
+                            }}
                           >
                             <Trash2 size={20} />
                           </span>

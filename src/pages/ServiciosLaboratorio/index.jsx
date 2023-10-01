@@ -49,7 +49,7 @@ export default function ServiciosLaboratorio() {
     column: 'id',
     direction: 'ascending'
   })
-  const { data, loading, error } = useFetcher(getAllServicesLaboratory)
+  const { data } = useFetcher(getAllServicesLaboratory)
   const hasSearchFilter = Boolean(filterValue)
 
   const headerColumns = useMemo(() => {
@@ -261,9 +261,6 @@ export default function ServiciosLaboratorio() {
       </div>
     )
   }, [items.length, page, pages, hasSearchFilter])
-
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>Error</div>
 
   return (
     <Card shadow='none'>
