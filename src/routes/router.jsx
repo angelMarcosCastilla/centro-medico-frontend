@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Admision from '../pages/Admision'
+import Reportes from '../pages/Admision/Reportes'
 import Tomografia from '../pages/Tomografia'
 import Rayosx from '../pages/Rayosx'
 import Triaje from '../pages/Triaje'
@@ -33,6 +34,15 @@ const router = createBrowserRouter([
         element: (
           <RoleGard listRoles={listRoles.admisión}>
             <Admision />
+          </RoleGard>
+        ),
+        index: true
+      },
+      {
+        path: 'reportes',
+        element: (
+          <RoleGard listRoles={listRoles.admisión}>
+            <Reportes />
           </RoleGard>
         ),
         index: true
