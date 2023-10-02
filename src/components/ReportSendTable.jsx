@@ -14,15 +14,9 @@ import {
   TableCell,
   TableColumn,
   TableHeader,
-  TableRow,
-  Tooltip
+  TableRow
 } from '@nextui-org/react'
-import {
-  ChevronDownIcon,  
-  Printer,  
-  SearchIcon,  
-  Smile,
-} from 'lucide-react'
+import { ChevronDownIcon, SearchIcon, FileDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { useFetcher } from '../hook/useFetcher'
 import { usePagination } from '../hook/usePagination'
@@ -115,21 +109,19 @@ export default function ReportSendTable({ useFecherFunction }) {
       case 'acciones':
         return (
           <div className='relative flex items-center gap-2'>
-            
-            <Tooltip content={detail.estado === 'PE'?'Imprimir Reporte': 'Finalizado'} color='primary' closeDelay={0}>
-              <span
-                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+            {detail.estado === 'PE' && (
+              <Button
+                color='primary'
                 onClick={() =>
                   handleChangeStatus(detail.iddetatencion, detail.estado)
                 }
               >
-                {detail.estado === 'PE' ? (
-                  <Printer size={20} />
-                ) : (
-                  <Smile size={20} />
-                )}
-              </span>
-            </Tooltip>
+                Entregar
+              </Button>
+            )}
+            <a target='_blank' rel='noreferrer' href={`http://localhost:3000/api/resultados/${detail.iddetatencion}/report`}>
+              <FileDown size={20} />
+            </a>
           </div>
         )
       default:
@@ -138,29 +130,28 @@ export default function ReportSendTable({ useFecherFunction }) {
   }, [])
 
   const handleChangeStatus = async (idDetAttention, status) => {
-    const newStatus = status === 'PE' ? 'F' : 'PE'; // Cambiar el estado a 'F' si es 'PE', y viceversa
-    const result = await changeStatus(idDetAttention, newStatus);
-  
+    const newStatus = status === 'PE' ? 'F' : 'PE' // Cambiar el estado a 'F' si es 'PE', y viceversa
+    const result = await changeStatus(idDetAttention, newStatus)
+
     if (result) {
       mutate((prevData) => {
         // Actualizar la fila localmente solo si el estado actual es 'PE' y el nuevo estado es 'F'
         if (status === 'PE' && newStatus === 'F') {
           return prevData.map((item) => {
             if (item.iddetatencion === idDetAttention) {
-              return { ...item, estado: newStatus };
+              return { ...item, estado: newStatus }
             }
-            return item;
-          });
+            return item
+          })
         } else {
-          return prevData;
+          return prevData
         }
-      });
+      })
     } else {
-      toast.error('Error al cambiar el estado');
+      toast.error('Error al cambiar el estado')
     }
-  };
-  
-  
+  }
+
   const onSearchChange = useCallback((value) => {
     if (value) {
       setFilterValue(value)
