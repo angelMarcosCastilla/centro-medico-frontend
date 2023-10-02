@@ -38,6 +38,7 @@ export default function ExternalModule() {
   const refTitulo = React.useRef()
   const idDet = React.useRef()
   const resultId = React.useRef()
+  const detailCurrent = React.useRef()
 
   const [json, setjson] = React.useState({ titulo: '', contenido: '' })
 
@@ -180,9 +181,12 @@ export default function ExternalModule() {
                           onPress={() => {
                             if (el.idresultado) {
                               setjson(JSON.parse(el.diagnostico))
+                            } else {
+                              setjson({ titulo: '', contenido: '' })
                             }
                             idDet.current = el.iddetatencion
                             resultId.current = el.idresultado
+                            detailCurrent.current = el
                             onOpen()
                           }}
                         >
@@ -211,14 +215,19 @@ export default function ExternalModule() {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className='flex flex-col gap-1'>
+              <ModalHeader className='flex  gap-1 justify-between'>
                 <h2>Redactar Informe</h2>
+                <div className='pr-7 font-normal'>
+                  <p className='text-sm'>
+                    <b>Paciente</b> {detailCurrent.current?.nombres}{' '}
+                    {detailCurrent.current?.apellidos}
+                  </p>
+                  <p className='text-sm'>
+                    <b>servicio:</b> {detailCurrent.current?.nombre_servicio}
+                  </p>
+                </div>
               </ModalHeader>
               <ModalBody>
-                <div className='flex items-center gap-x-6'>
-                  <p className='text-sm'>servicio: aaswd</p>
-                  <p className='text-sm'>paciente: asda</p>
-                </div>
                 <Input
                   label='Título del informe'
                   className='mb-2'
