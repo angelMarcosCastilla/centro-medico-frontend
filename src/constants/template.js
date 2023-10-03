@@ -1,10 +1,10 @@
 export const columnTemplate = {
-  templateName: 'My Column Template',
+  templateName: '',
   type: 'fourColumns',
   sections: [
     {
       uid: Date.now().toString(),
-      title: 'Sección 1',
+      title: '',
       columns: [
         {
           uid: 'analisis',
@@ -46,12 +46,12 @@ export const columnTemplate = {
 }
 
 export const keyValueTemplate = {
-  templateName: 'My KeyValue Template',
+  templateName: '',
   type: 'keysValues',
   sections: [
     {
       uid: Date.now().toString(),
-      title: 'Sección 1',
+      title: '',
       items: [
         {
           uid: Date.now().toString(),

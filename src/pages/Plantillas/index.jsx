@@ -21,6 +21,7 @@ import {
 import { toast } from 'sonner'
 import TypeTemplate from './components/TypeTemplate'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { validateColumnTemplate, validateKeyValueTemplate } from './utils'
 
 export default function Plantillas() {
   const { state } = useLocation()
@@ -179,12 +180,10 @@ export default function Plantillas() {
     setSections(updatedSections)
   }
 
-  const handleRemoveItem = (sectionUid, indexToRemove) => {
+  const handleRemoveItem = (sectionUid, rowUid) => {
     const updatedSections = sections.map((section) => {
       if (section.uid === sectionUid && section.items.length > 1) {
-        const updatedItems = section.items.filter(
-          (_, index) => index !== indexToRemove
-        )
+        const updatedItems = section.items.filter((item) => item.uid !== rowUid)
 
         return {
           ...section,
@@ -200,7 +199,7 @@ export default function Plantillas() {
   const handleAddSection = () => {
     let newSection = {
       uid: Date.now().toString(),
-      title: 'Nombre de la sección'
+      title: ''
     }
 
     if (typesTemplate.currentKey === 'fourColumns') {
@@ -235,10 +234,11 @@ export default function Plantillas() {
         ],
         rows: [
           {
-            analisis: 'Hola Mundo',
-            resultado: 'Aqui estoy',
-            unidad: 'Probando',
-            rangoReferencial: 'Esto'
+            uid: Date.now().toString(),
+            analisis: '',
+            resultado: '',
+            unidad: '',
+            rangoReferencial: ''
           }
         ]
       }
@@ -247,6 +247,7 @@ export default function Plantillas() {
         ...newSection,
         items: [
           {
+            uid: Date.now().toString(),
             key: '',
             value: ''
           }
@@ -272,6 +273,15 @@ export default function Plantillas() {
       ...template,
       sections
     }
+
+    const isValid =
+      typesTemplate.currentKey === 'fourColumns'
+        ? validateColumnTemplate(updatedTemplate)
+        : validateKeyValueTemplate(updatedTemplate)
+    if (!isValid) {
+      return toast.error('Complete todos los datos')
+    }
+
     const data = {
       idServicio: state.service.idservicio,
       formato: JSON.stringify(updatedTemplate)
