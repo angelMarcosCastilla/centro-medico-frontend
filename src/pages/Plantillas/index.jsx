@@ -75,12 +75,7 @@ export default function Plantillas() {
     )
   }
 
-  const handleInputChangeKeyValue = (
-    sectionUid,
-    itemUid,
-    field,
-    newValue
-  ) => {
+  const handleInputChangeKeyValue = (sectionUid, itemUid, field, newValue) => {
     setSections((prevSections) =>
       prevSections.map((section) => {
         if (section.uid === sectionUid) {
@@ -204,7 +199,7 @@ export default function Plantillas() {
       title: ''
     }
 
-    if (typesTemplate.currentKey === 'fourColumns') {
+    if (template.type === 'fourColumns') {
       newSection = {
         ...newSection,
         columns: [
@@ -272,7 +267,7 @@ export default function Plantillas() {
     }
 
     const isValid =
-      typesTemplate.currentKey === 'fourColumns'
+      template.type === 'fourColumns'
         ? validateColumnTemplate(updatedTemplate)
         : validateKeyValueTemplate(updatedTemplate)
     if (!isValid) {
