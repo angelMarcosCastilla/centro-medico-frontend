@@ -1,10 +1,10 @@
 export const columnTemplate = {
-  templateName: 'My Column Template',
+  templateName: '',
   type: 'fourColumns',
   sections: [
     {
-      uid: 'section1',
-      title: 'Section 1',
+      uid: Date.now().toString(),
+      title: '',
       columns: [
         {
           uid: 'analisis',
@@ -25,19 +25,15 @@ export const columnTemplate = {
           uid: 'rangoReferencial',
           title: 'RANGO REFERENCIAL',
           editable: false
-        },
-        {
-          uid: 'acciones',
-          title: 'ACCIONES',
-          editable: false
         }
       ],
       rows: [
         {
-          analisis: 'Hola Mundo',
-          resultado: 'Aqui estoy',
-          unidad: 'Probando',
-          rangoReferencial: 'Esto'
+          uid: Date.now().toString(),
+          analisis: '',
+          resultado: '',
+          unidad: '',
+          rangoReferencial: ''
         }
       ]
     }
@@ -45,16 +41,17 @@ export const columnTemplate = {
 }
 
 export const keyValueTemplate = {
-  templateName: 'My KeyValue Template',
+  templateName: '',
   type: 'keysValues',
   sections: [
     {
-      uid: 'section1',
-      title: 'Section 1',
+      uid: Date.now().toString(),
+      title: '',
       items: [
         {
-          key: 'key 1',
-          value: 'value 1'
+          uid: Date.now().toString(),
+          key: '',
+          value: ''
         }
       ]
     }

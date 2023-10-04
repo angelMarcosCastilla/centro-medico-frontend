@@ -13,43 +13,48 @@ import {
   SelectItem
 } from '@nextui-org/react'
 import { ListPlus } from 'lucide-react'
-import { addTemplate } from '../../services/template'
+import {
+  addTemplate,
+  updateTemplate,
+  getTemplateLatestVersionByService
+} from '../../services/template'
 import { toast } from 'sonner'
 import TypeTemplate from './components/TypeTemplate'
-import { getAllServicesLaboratory } from '../../services/service'
-import { useFetcher } from '../../hook/useFetcher'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { validateColumnTemplate, validateKeyValueTemplate } from './utils'
 
 export default function Plantillas() {
-  const { data: services } = useFetcher(getAllServicesLaboratory)
-  const [serviceSelected, setServiceSelected] = useState(new Set([]))
-  const idServicio = window.history.state.usr?.idservicio
+  const { state } = useLocation()
+  const navigate = useNavigate()
   const [typesTemplate, setTypesTemplate] = useState(new Set([]))
-  const [template, setTemplate] = useState({ templateName: '' })
+  const [template, setTemplate] = useState({})
+  const [originalTemplate, setOriginalTemplate] = useState({})
   const [sections, setSections] = useState([])
   const [loading, setLoading] = useState(false)
 
-  const handleFormatChange = (selectedFormat) => {
-    let selectedTemplate
-
-    switch (selectedFormat) {
-      case 'fourColumns':
-        selectedTemplate = columnTemplate
-        break
-      case 'keysValues':
-        selectedTemplate = keyValueTemplate
-        break
+  const handleFormatChange = (newSelectedFormat) => {
+    const formatTemplates = {
+      fourColumns: columnTemplate,
+      keysValues: keyValueTemplate
     }
+
+    const selectedTemplate =
+      state.operation === 'new'
+        ? formatTemplates[newSelectedFormat]
+        : originalTemplate.type === newSelectedFormat
+        ? originalTemplate
+        : formatTemplates[newSelectedFormat]
 
     setTemplate(selectedTemplate)
     setSections(selectedTemplate.sections)
   }
 
-  const handleInputChange = (sectionUid, rowIndex, field, newValue) => {
+  const handleInputChange = (sectionUid, rowUid, field, newValue) => {
     setSections((prevSections) =>
       prevSections.map((section) => {
         if (section.uid === sectionUid) {
-          const updatedRows = section.rows.map((row, index) => {
-            if (index === rowIndex) {
+          const updatedRows = section.rows.map((row) => {
+            if (row.uid === rowUid) {
               return {
                 ...row,
                 [field]: newValue
@@ -72,15 +77,15 @@ export default function Plantillas() {
 
   const handleInputChangeKeyValue = (
     sectionUid,
-    itemIndex,
+    itemUid,
     field,
     newValue
   ) => {
     setSections((prevSections) =>
       prevSections.map((section) => {
         if (section.uid === sectionUid) {
-          const updatedItems = section.items.map((item, index) => {
-            if (index === itemIndex) {
+          const updatedItems = section.items.map((item) => {
+            if (item.uid === itemUid) {
               return {
                 ...item,
                 [field]: newValue
@@ -118,10 +123,11 @@ export default function Plantillas() {
 
   const handleAddRow = (sectionUid) => {
     const newRow = {
-      analisis: 'Hola Mundo',
-      resultado: 'Aqui estoy',
-      unidad: 'Probando',
-      rangoReferencial: 'Esto'
+      uid: Date.now().toString(),
+      analisis: '',
+      resultado: '',
+      unidad: '',
+      rangoReferencial: ''
     }
 
     const updatedSections = sections.map((section) => {
@@ -138,12 +144,10 @@ export default function Plantillas() {
     setSections(updatedSections)
   }
 
-  const handleRemoveRow = (sectionUid, indexToRemove) => {
+  const handleRemoveRow = (sectionUid, rowUid) => {
     const updatedSections = sections.map((section) => {
       if (section.uid === sectionUid && section.rows.length > 1) {
-        const updatedRows = section.rows.filter(
-          (_, index) => index !== indexToRemove
-        )
+        const updatedRows = section.rows.filter((row) => row.uid !== rowUid)
         return {
           ...section,
           rows: updatedRows
@@ -158,8 +162,9 @@ export default function Plantillas() {
 
   const handleAddItem = (sectionUid) => {
     const newItem = {
-      key: 'key 1',
-      value: 'value 1'
+      uid: Date.now().toString(),
+      key: '',
+      value: ''
     }
 
     const updatedSections = sections.map((section) => {
@@ -176,12 +181,10 @@ export default function Plantillas() {
     setSections(updatedSections)
   }
 
-  const handleRemoveItem = (sectionUid, indexToRemove) => {
+  const handleRemoveItem = (sectionUid, rowUid) => {
     const updatedSections = sections.map((section) => {
       if (section.uid === sectionUid && section.items.length > 1) {
-        const updatedItems = section.items.filter(
-          (_, index) => index !== indexToRemove
-        )
+        const updatedItems = section.items.filter((item) => item.uid !== rowUid)
 
         return {
           ...section,
@@ -191,67 +194,62 @@ export default function Plantillas() {
         return section
       }
     })
+
     setSections(updatedSections)
   }
 
   const handleAddSection = () => {
     let newSection = {
       uid: Date.now().toString(),
-      title: 'Nombre de la sección'
+      title: ''
     }
 
-    switch (typesTemplate.currentKey) {
-      case 'fourColumns':
-        newSection = {
-          ...newSection,
-          columns: [
-            {
-              uid: 'analisis',
-              title: 'ANÁLISIS',
-              editable: false
-            },
-            {
-              uid: 'resultado',
-              title: 'RESULTADO',
-              editable: true
-            },
-            {
-              uid: 'unidad',
-              title: 'UNIDAD',
-              editable: false
-            },
-            {
-              uid: 'rangoReferencial',
-              title: 'RANGO REFERENCIAL',
-              editable: false
-            },
-            {
-              uid: 'acciones',
-              title: 'ACCIONES',
-              editable: false
-            }
-          ],
-          rows: [
-            {
-              analisis: 'Hola Mundo',
-              resultado: 'Aqui estoy',
-              unidad: 'Probando',
-              rangoReferencial: 'Esto'
-            }
-          ]
-        }
-        break
-      case 'keysValues':
-        newSection = {
-          ...newSection,
-          items: [
-            {
-              key: 'key 1',
-              value: 'value 1'
-            }
-          ]
-        }
-        break
+    if (typesTemplate.currentKey === 'fourColumns') {
+      newSection = {
+        ...newSection,
+        columns: [
+          {
+            uid: 'analisis',
+            title: 'ANÁLISIS',
+            editable: false
+          },
+          {
+            uid: 'resultado',
+            title: 'RESULTADO',
+            editable: true
+          },
+          {
+            uid: 'unidad',
+            title: 'UNIDAD',
+            editable: false
+          },
+          {
+            uid: 'rangoReferencial',
+            title: 'RANGO REFERENCIAL',
+            editable: false
+          }
+        ],
+        rows: [
+          {
+            uid: Date.now().toString(),
+            analisis: '',
+            resultado: '',
+            unidad: '',
+            rangoReferencial: ''
+          }
+        ]
+      }
+    } else {
+      newSection = {
+        ...newSection,
+        items: [
+          {
+            uid: Date.now().toString(),
+            key: '',
+            value: ''
+          }
+        ]
+      }
     }
 
     setSections([...sections, newSection])
@@ -268,36 +266,60 @@ export default function Plantillas() {
   }
 
   const handleAddTemplate = async () => {
-    // Testing
     const updatedTemplate = {
       ...template,
       sections
     }
+
+    const isValid =
+      typesTemplate.currentKey === 'fourColumns'
+        ? validateColumnTemplate(updatedTemplate)
+        : validateKeyValueTemplate(updatedTemplate)
+    if (!isValid) {
+      return toast.error('Complete todos los datos')
+    }
+
     const data = {
-      idServicio: parseInt(
-        Array.from(serviceSelected)[0] || serviceSelected.currentKey
-      ),
+      idServicio: state.service.idservicio,
       formato: JSON.stringify(updatedTemplate)
     }
 
     setLoading(true)
-    const result = await addTemplate(data)
+    let result
+
+    if (state.operation === 'new') {
+      result = await addTemplate(data)
+    } else {
+      result = await updateTemplate(data)
+    }
     setLoading(false)
 
     if (result.isSuccess) {
-      window.history.replaceState({}, document.title)
-      setServiceSelected(new Set([]))
-      setTypesTemplate(new Set([]))
-      setTemplate({ templateName: '' })
       toast.success(result.message)
+      navigate('/servicios')
     } else {
       toast.error(result.message)
     }
   }
 
   useEffect(() => {
-    if (idServicio) {
-      setServiceSelected(new Set([idServicio.toString()]))
+    if (state.operation === 'new') {
+      setTemplate({ templateName: '' })
+    } else {
+      getTemplateLatestVersionByService(state.service.idservicio).then(
+        (result) => {
+          if (result.data) {
+            const formato = JSON.parse(result.data.formato)
+            setTemplate(formato)
+            setOriginalTemplate(formato)
+            setTypesTemplate(new Set([formato.type]))
+            setSections(formato.sections)
+          } else {
+            toast.error('No encontré una plantilla para editar')
+            navigate('/servicios')
+          }
+        }
+      )
     }
   }, [])
 
@@ -311,26 +333,19 @@ export default function Plantillas() {
             size='lg'
             variant='underlined'
             className='col-span-2'
-            value={template.templateName}
+            value={template.templateName || ''}
             onChange={(e) =>
               setTemplate({ ...template, templateName: e.target.value })
             }
           />
-          <Select
+          <Input
+            isReadOnly
             label='Servicio'
             color='primary'
             variant='underlined'
             className='col-span-1'
-            selectedKeys={serviceSelected}
-            onSelectionChange={setServiceSelected}
-            isDisabled={Boolean(idServicio)}
-          >
-            {services.map((service) => (
-              <SelectItem key={service.idservicio} value={service.idservicio}>
-                {service.servicio}
-              </SelectItem>
-            ))}
-          </Select>
+            value={state.service.servicio}
+          />
           <Select
             label='Formato'
             color='primary'
@@ -352,7 +367,7 @@ export default function Plantillas() {
         </div>
         {
           <TypeTemplate
-            typeTemplate={typesTemplate.currentKey}
+            typeTemplate={template.type}
             sections={sections}
             onInputChange={handleInputChange}
             onInputChangeKeyValue={handleInputChangeKeyValue}
@@ -379,7 +394,11 @@ export default function Plantillas() {
         )}
       </CardBody>
       <CardFooter className='flex justify-end gap-4'>
-        <Button color='danger' variant='light'>
+        <Button
+          color='danger'
+          variant='light'
+          onClick={() => navigate('/servicios')}
+        >
           Cancelar
         </Button>
         <Button color='primary' onClick={handleAddTemplate} isLoading={loading}>

@@ -10,6 +10,7 @@ import {
   updateResult
 } from '../../services/result'
 import { changeStatus } from '../../services/admission'
+import { ChevronsRight } from 'lucide-react'
 
 const useDebaunce = (value, delay = 500) => {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -40,6 +41,25 @@ function InputTable({ value, onChange }) {
       type='text'
       value={newValue}
       onChange={(e) => setNewValue(e.target.value)}
+    />
+  )
+}
+
+function InputItem({ value, onChange }) {
+  const [itemValue, setItemValue] = useState(value)
+
+  const handleInputChange = (e) => {
+    setItemValue(e.target.value)
+    onChange(e.target.value)
+  }
+
+  return (
+    <Input
+      type='text'
+      color='primary'
+      variant='bordered'
+      value={itemValue}
+      onChange={handleInputChange}
     />
   )
 }
@@ -77,6 +97,32 @@ export default function ReportEditor() {
         sectionCopy.rows[rowIndex] = rowCopy
 
         newTemplate.sections[sectionIndex] = sectionCopy
+      }
+      return newTemplate
+    })
+  }
+
+  const onItemInputChange = (sectionUid, itemIndex, field, newValue) => {
+    setTemplate((prevTemplate) => {
+      const newTemplate = { ...prevTemplate }
+      newTemplate.sections = [...prevTemplate.sections]
+
+      const sectionIndex = newTemplate.sections.findIndex(
+        (section) => section.uid === sectionUid
+      )
+
+      if (sectionIndex !== -1) {
+        const sectionCopy = { ...newTemplate.sections[sectionIndex] }
+        const itemsCopy = [...sectionCopy.items]
+
+        if (itemIndex >= 0 && itemIndex < itemsCopy.length) {
+          const itemCopy = { ...itemsCopy[itemIndex] }
+          itemCopy[field] = newValue
+
+          itemsCopy[itemIndex] = itemCopy
+          sectionCopy.items = itemsCopy
+          newTemplate.sections[sectionIndex] = sectionCopy
+        }
       }
       return newTemplate
     })
@@ -122,10 +168,6 @@ export default function ReportEditor() {
   useEffect(() => {
     if (templateData.isSuccess && templateData.data) {
       let loadedTemplate
-      console.clear()
-      console.log('state', state)
-      console.log('template', templateData)
-      console.log('search', searchData)
 
       if (state.operation === 'new') {
         loadedTemplate = JSON.parse(templateData.data.formato)
@@ -151,80 +193,113 @@ export default function ReportEditor() {
             variant='underlined'
             className='col-span-2'
             value={template.templateName || ''}
-            readOnly
+            isReadOnly
           />
           <Input
             label='Categoría'
             color='primary'
             variant='underlined'
             value={templateData.data?.nombre_categoria || ''}
-            readOnly
+            isReadOnly
           />
           <Input
             label='Servicio'
             color='primary'
             variant='underlined'
             value={templateData.data?.nombre_servicio || ''}
-            readOnly
+            isReadOnly
           />
         </div>
         {template.sections &&
           template.sections.map((section) => (
             <div key={section.uid}>
-              <div className='grid grid-cols-4 px-4'>
+              <div className='grid grid-cols-4 px-4 mb-4'>
                 <Input
                   type='text'
                   label='Título de la Sección'
                   color='primary'
                   variant='underlined'
                   value={section.title}
+                  isReadOnly
                 />
               </div>
-              <div className='relative px-4 mt-3'>
-                <table className='w-full text-sm text-left text-gray-500 dark:text-gray-400'>
-                  <thead className='text-xs text-gray-500 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400'>
-                    <tr>
-                      {section.columns.map((col) =>
-                        col.uid !== 'acciones' ? (
-                          <th key={col.uid} className='py-3 px-4'>
-                            {col.title}
-                          </th>
-                        ) : null
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {section.rows.map((row, index) => (
-                      <tr key={index} className='bg-white dark:bg-gray-800'>
-                        {section.columns.map((column) =>
-                          column.uid !== 'acciones' ? (
-                            <td
-                              key={section.uid + '_' + column.uid + '_' + index}
-                              className='p-3 text-slate-700'
-                            >
-                              {column.editable ? (
-                                <InputTable
-                                  value={row[column.uid]}
-                                  onChange={(value) =>
-                                    onInputChange(
-                                      section.uid,
-                                      index,
-                                      column.uid,
-                                      value
-                                    )
-                                  }
-                                />
-                              ) : (
-                                row[column.uid]
-                              )}
-                            </td>
+              {template.type === 'fourColumns' ? (
+                <div className='relative px-4 mb-4'>
+                  <table className='w-full text-sm text-left text-gray-500 dark:text-gray-400'>
+                    <thead className='text-xs text-gray-500 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400'>
+                      <tr>
+                        {section.columns.map((col) =>
+                          col.uid !== 'acciones' ? (
+                            <th key={col.uid} className='py-3 px-4'>
+                              {col.title}
+                            </th>
                           ) : null
                         )}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {section.rows.map((row, index) => (
+                        <tr key={index} className='bg-white dark:bg-gray-800'>
+                          {section.columns.map((column) =>
+                            column.uid !== 'acciones' ? (
+                              <td
+                                key={
+                                  section.uid + '_' + column.uid + '_' + index
+                                }
+                                className='p-3 text-slate-700'
+                              >
+                                {column.editable ? (
+                                  <InputTable
+                                    value={row[column.uid]}
+                                    onChange={(value) =>
+                                      onInputChange(
+                                        section.uid,
+                                        index,
+                                        column.uid,
+                                        value
+                                      )
+                                    }
+                                  />
+                                ) : (
+                                  row[column.uid]
+                                )}
+                              </td>
+                            ) : null
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className='grid grid-cols-2 px-4 gap-4 mb-4'>
+                  {section.items.map((item, index) => (
+                    <div className='flex col-span-1 gap-4' key={index}>
+                      <Input
+                        isReadOnly
+                        radius='lg'
+                        value={item.key}
+                        color='primary'
+                        variant='faded'
+                      />
+                      <Button
+                        isIconOnly
+                        color='primary'
+                        variant='faded'
+                        disableAnimation
+                      >
+                        <ChevronsRight size={20} />
+                      </Button>
+                      <InputItem
+                        value={item.value}
+                        onChange={(value) =>
+                          onItemInputChange(section.uid, index, 'value', value)
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
       </CardBody>

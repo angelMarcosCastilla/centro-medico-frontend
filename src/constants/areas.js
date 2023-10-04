@@ -1,3 +1,5 @@
-export const TOMOGRAFIA_ID = 1
-export const RAYOSX_ID = 2
-export const LABORATORIO_ID = 3
+const TOMOGRAFIA_ID = 1
+const RAYOSX_ID = 2
+const LABORATORIO_ID = 3
+
+export { TOMOGRAFIA_ID, RAYOSX_ID, LABORATORIO_ID }

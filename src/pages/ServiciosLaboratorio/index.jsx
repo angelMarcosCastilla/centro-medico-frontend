@@ -15,21 +15,24 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  Tooltip
+  Tooltip,
+  useDisclosure
 } from '@nextui-org/react'
-
 import {
   ChevronDownIcon,
   FileJson,
   PencilLine,
+  Plus,
   SearchIcon,
   Trash2
 } from 'lucide-react'
-import { getAllServicesLaboratory } from '../../services/service'
+import { getServicesByArea } from '../../services/service'
 import { usePagination } from '../../hook/usePagination'
 import { useFetcher } from '../../hook/useFetcher'
 import { capitalize } from '../../utils'
 import { useNavigate } from 'react-router-dom'
+import ModalFormService from './components/ModalFormService'
+import { LABORATORIO_ID } from '../../constants/areas'
 
 const columns = [
   { name: 'CATEGORIA', uid: 'categoria', sortable: true },
@@ -49,7 +52,11 @@ export default function ServiciosLaboratorio() {
     column: 'id',
     direction: 'ascending'
   })
-  const { data, loading, error } = useFetcher(getAllServicesLaboratory)
+  const [editService, setEditService] = useState(null)
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure()
+
+  const { data } = useFetcher(() => getServicesByArea(LABORATORIO_ID))
   const hasSearchFilter = Boolean(filterValue)
 
   const headerColumns = useMemo(() => {
@@ -75,6 +82,7 @@ export default function ServiciosLaboratorio() {
     items,
     onNextPage,
     onPreviousPage,
+    rowsPerPage,
     onRowsPerPageChange,
     page,
     pages,
@@ -91,6 +99,11 @@ export default function ServiciosLaboratorio() {
     })
   }, [sortDescriptor, items])
 
+  const handleEditClick = (service) => {
+    setEditService(service)
+    onOpen()
+  }
+
   const renderCell = useCallback((service, columnKey) => {
     const cellValue = service[columnKey]
 
@@ -98,13 +111,16 @@ export default function ServiciosLaboratorio() {
       case 'acciones':
         return (
           <div className='relative flex items-center gap-2'>
-            <Tooltip content='Editar'>
-              <span className='text-lg text-default-400 cursor-pointer active:opacity-50'>
+            <Tooltip content='Editar' color='primary' closeDelay={0}>
+              <span
+                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+                onClick={() => handleEditClick(service.idservicio)}
+              >
                 <PencilLine size={20} />
               </span>
             </Tooltip>
-            <Tooltip content='Plantilla'>
-              <span className='text-lg text-default-400 cursor-pointer active:opacity-50'>
+            <Tooltip content='Plantilla' color='primary' closeDelay={0}>
+              <span className='text-lg text-primary-400 cursor-pointer active:opacity-50'>
                 <Dropdown>
                   <DropdownTrigger>
                     <FileJson size={20} />
@@ -113,19 +129,34 @@ export default function ServiciosLaboratorio() {
                     <DropdownItem
                       key='new'
                       onClick={() =>
-                        navigate('/plantillas', {
-                          state: { idservicio: service.idservicio }
+                        navigate(`/plantillas/${service.idservicio}`, {
+                          state: {
+                            service,
+                            operation: 'new'
+                          }
                         })
                       }
                     >
                       Nueva plantilla
                     </DropdownItem>
-                    <DropdownItem key='edit'>Editar plantilla</DropdownItem>
+                    <DropdownItem
+                      key='edit'
+                      onClick={() =>
+                        navigate(`/plantillas/${service.idservicio}`, {
+                          state: {
+                            service,
+                            operation: 'edit'
+                          }
+                        })
+                      }
+                    >
+                      Editar plantilla
+                    </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>
               </span>
             </Tooltip>
-            <Tooltip color='danger' content='Eliminar'>
+            <Tooltip color='danger' content='Eliminar' closeDelay={0}>
               <span className='text-lg text-danger cursor-pointer active:opacity-50'>
                 <Trash2 size={20} />
               </span>
@@ -190,6 +221,16 @@ export default function ServiciosLaboratorio() {
                 })}
               </DropdownMenu>
             </Dropdown>
+            <Button
+              color='primary'
+              endContent={<Plus size={20} />}
+              onPress={() => {
+                setEditService(null)
+                onOpen()
+              }}
+            >
+              Agregar nuevo
+            </Button>
           </div>
         </div>
         <div className='flex justify-between items-center'>
@@ -200,6 +241,7 @@ export default function ServiciosLaboratorio() {
             Filas por página:
             <select
               className='bg-transparent outline-none text-default-400 text-small'
+              defaultValue={rowsPerPage}
               onChange={onRowsPerPageChange}
             >
               <option value='5'>5</option>
@@ -247,51 +289,57 @@ export default function ServiciosLaboratorio() {
     )
   }, [items.length, page, pages, hasSearchFilter])
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>Error</div>
-
   return (
-    <Card shadow='none'>
-      <CardBody>
-        <Table
-          aria-label='Example table with custom cells, pagination and sorting'
-          isHeaderSticky
-          bottomContent={bottomContent}
-          bottomContentPlacement='outside'
-          classNames={{
-            wrapper: 'max-h-[600px]'
-          }}
-          sortDescriptor={sortDescriptor}
-          topContent={topContent}
-          topContentPlacement='outside'
-          shadow='none'
-          onSortChange={setSortDescriptor}
-        >
-          <TableHeader columns={headerColumns}>
-            {(column) => (
-              <TableColumn
-                key={column.uid}
-                align={column.uid === 'actions' ? 'center' : 'start'}
-                allowsSorting={column.sortable}
-              >
-                {column.name}
-              </TableColumn>
-            )}
-          </TableHeader>
-          <TableBody
-            emptyContent={'No se encontraron servicios'}
-            items={sortedItems}
+    <>
+      <Card shadow='none'>
+        <CardBody>
+          <Table
+            aria-label='Example table with custom cells, pagination and sorting'
+            isHeaderSticky
+            bottomContent={bottomContent}
+            bottomContentPlacement='outside'
+            classNames={{
+              wrapper: 'max-h-[600px]'
+            }}
+            sortDescriptor={sortDescriptor}
+            topContent={topContent}
+            topContentPlacement='outside'
+            shadow='none'
+            onSortChange={setSortDescriptor}
           >
-            {(item) => (
-              <TableRow key={crypto.randomUUID().toString()}>
-                {(columnKey) => (
-                  <TableCell>{renderCell(item, columnKey)}</TableCell>
-                )}
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </CardBody>
-    </Card>
+            <TableHeader columns={headerColumns}>
+              {(column) => (
+                <TableColumn
+                  key={column.uid}
+                  align={column.uid === 'actions' ? 'center' : 'start'}
+                  allowsSorting={column.sortable}
+                >
+                  {column.name}
+                </TableColumn>
+              )}
+            </TableHeader>
+            <TableBody
+              emptyContent={'No se encontraron servicios'}
+              items={sortedItems}
+            >
+              {(item) => (
+                <TableRow key={crypto.randomUUID().toString()}>
+                  {(columnKey) => (
+                    <TableCell>{renderCell(item, columnKey)}</TableCell>
+                  )}
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardBody>
+      </Card>
+
+      <ModalFormService
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        operation={editService ? 'edit' : 'new'}
+        serviceToEdit={editService}
+      />
+    </>
   )
 }
