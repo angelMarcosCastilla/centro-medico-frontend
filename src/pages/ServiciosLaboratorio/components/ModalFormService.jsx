@@ -39,7 +39,8 @@ export default function ModalFormService({
   isOpen,
   onOpenChange,
   operation,
-  serviceToEdit
+  serviceToEdit,
+  refreshTable
 }) {
   const [loading, setLoading] = useState(false)
   const { data: categoriesData } = useFetcher(() =>
@@ -77,7 +78,6 @@ export default function ModalFormService({
     e.preventDefault()
 
     try {
-      console.log(form)
       setLoading(true)
 
       let result
@@ -90,6 +90,7 @@ export default function ModalFormService({
 
       if (result.isSuccess) {
         toast.success(result.message)
+        refreshTable()
         onClose()
       } else {
         toast.error(result.message)

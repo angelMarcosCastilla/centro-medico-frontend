@@ -56,7 +56,7 @@ export default function ServiciosLaboratorio() {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
-  const { data } = useFetcher(() => getServicesByArea(LABORATORIO_ID))
+  const { data, refresh } = useFetcher(() => getServicesByArea(LABORATORIO_ID))
   const hasSearchFilter = Boolean(filterValue)
 
   const headerColumns = useMemo(() => {
@@ -339,6 +339,7 @@ export default function ServiciosLaboratorio() {
         onOpenChange={onOpenChange}
         operation={editService ? 'edit' : 'new'}
         serviceToEdit={editService}
+        refreshTable={refresh}
       />
     </>
   )
