@@ -62,7 +62,7 @@ export default function ModalFormService({
   const handleSelectChange = (e) => {
     setForm({
       ...form,
-      [e.target.name]: parseInt(e.target.value)
+      [e.target.name]: parseInt(e.target.value || 0)
     })
   }
 
@@ -86,6 +86,7 @@ export default function ModalFormService({
       } else {
         result = await updateService(serviceToEdit, form)
       }
+      setLoading(false)
 
       if (result.isSuccess) {
         toast.success(result.message)
@@ -113,17 +114,20 @@ export default function ModalFormService({
     if (operation === 'edit' && serviceToEdit) {
       getService(serviceToEdit).then((res) => {
         setForm({
-          idServicio: res.idservicio,
           idCategoria: res.idcategoria,
           nombreServicio: res.nombre_servicio,
-          observacion: res.observacion,
-          precio: res.precio,
-          idRequisito: res.idrequisito,
+          observacion: res.observacion || '',
+          precio: parseFloat(res.precio),
+          idRequisito: res.idrequisito || 0,
           ordenMedica: Boolean(res.orden_medica),
           triaje: Boolean(res.triaje)
         })
         setSelectedCategory(new Set([res.idcategoria.toString()]))
-        setSelectedRequirement(new Set([res.idrequisito.toString()]))
+        if (res.idrequisito !== null) {
+          setSelectedRequirement(new Set([res.idrequisito.toString()]))
+        } else {
+          setSelectedRequirement(new Set([]))
+        }
         setSelected([
           res.orden_medica === 1 ? 'ordenmedica' : '',
           res.triaje === 1 ? 'triaje' : ''
@@ -158,10 +162,8 @@ export default function ModalFormService({
                   label='Categoría'
                   name='idCategoria'
                   selectedKeys={selectedCategory}
-                  onChange={(e) => {
-                    handleSelectChange(e)
-                    setSelectedCategory(new Set([e.target.value]))
-                  }}
+                  onChange={handleSelectChange}
+                  onSelectionChange={setSelectedCategory}
                   isRequired
                 >
                   {categoriesData.map((category) => (
@@ -184,7 +186,7 @@ export default function ModalFormService({
                   label='Observación'
                   name='observacion'
                   maxRows={3}
-                  value={form.observacion || ''}
+                  value={form.observacion}
                   onChange={handleInputChange}
                 />
               </div>
@@ -207,10 +209,8 @@ export default function ModalFormService({
                   label='Requisito'
                   name='idRequisito'
                   selectedKeys={selectedRequirement}
-                  onChange={(e) => {
-                    handleSelectChange(e)
-                    setSelectedRequirement(new Set([e.target.value]))
-                  }}
+                  onChange={handleSelectChange}
+                  onSelectionChange={setSelectedRequirement}
                 >
                   {requirementsData.map((requirement) => (
                     <SelectItem key={requirement.idrequisito}>
