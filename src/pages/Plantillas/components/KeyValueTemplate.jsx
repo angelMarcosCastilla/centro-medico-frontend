@@ -36,14 +36,14 @@ export default function KeyValueTemplate({
         </Tooltip>
       </div>
       <div className='grid grid-cols-2 px-4 gap-4 mb-4'>
-        {section.items.map((item, index) => (
-          <div className='flex col-span-1 gap-4' key={index}>
+        {section.items.map((item) => (
+          <div className='flex col-span-1 gap-4' key={item.uid}>
             <Input
               value={item.key}
               color='primary'
               variant='bordered'
               onChange={(e) =>
-                onInputChange(section.uid, index, 'key', e.target.value)
+                onInputChange(section.uid, item.uid, 'key', e.target.value)
               }
             />
             <Button isIconOnly color='primary' variant='faded' disabled>
@@ -54,14 +54,14 @@ export default function KeyValueTemplate({
               variant='bordered'
               value={item.value}
               onChange={(e) =>
-                onInputChange(section.uid, index, 'value', e.target.value)
+                onInputChange(section.uid, item.uid, 'value', e.target.value)
               }
             />
             <div className='flex items-center'>
               <Tooltip content='Eliminar fila' color='danger' closeDelay={0}>
                 <span
                   className='text-danger cursor-pointer active:opacity-50'
-                  onClick={() => onRemoveItem(section.uid, index)}
+                  onClick={() => onRemoveItem(section.uid, item.uid)}
                 >
                   <Trash2 size={20} />
                 </span>

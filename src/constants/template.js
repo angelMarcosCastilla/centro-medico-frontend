@@ -25,11 +25,6 @@ export const columnTemplate = {
           uid: 'rangoReferencial',
           title: 'RANGO REFERENCIAL',
           editable: false
-        },
-        {
-          uid: 'acciones',
-          title: 'ACCIONES',
-          editable: false
         }
       ],
       rows: [

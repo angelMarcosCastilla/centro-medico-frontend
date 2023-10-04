@@ -77,15 +77,15 @@ export default function Plantillas() {
 
   const handleInputChangeKeyValue = (
     sectionUid,
-    itemIndex,
+    itemUid,
     field,
     newValue
   ) => {
     setSections((prevSections) =>
       prevSections.map((section) => {
         if (section.uid === sectionUid) {
-          const updatedItems = section.items.map((item, index) => {
-            if (index === itemIndex) {
+          const updatedItems = section.items.map((item) => {
+            if (item.uid === itemUid) {
               return {
                 ...item,
                 [field]: newValue
@@ -156,6 +156,7 @@ export default function Plantillas() {
         return section
       }
     })
+
     setSections(updatedSections)
   }
 
@@ -193,6 +194,7 @@ export default function Plantillas() {
         return section
       }
     })
+
     setSections(updatedSections)
   }
 
@@ -224,11 +226,6 @@ export default function Plantillas() {
           {
             uid: 'rangoReferencial',
             title: 'RANGO REFERENCIAL',
-            editable: false
-          },
-          {
-            uid: 'acciones',
-            title: 'ACCIONES',
             editable: false
           }
         ],

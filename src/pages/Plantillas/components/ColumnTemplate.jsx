@@ -81,6 +81,7 @@ export default function ColumnTemplate({
                   {col.title}
                 </th>
               ))}
+              <th className='py-3 px-4'>ACCIONES</th>
             </tr>
           </thead>
           <tbody>
@@ -91,33 +92,32 @@ export default function ColumnTemplate({
                     key={section.uid + '_' + column.uid + '_' + row.uid}
                     className='p-3 text-slate-700'
                   >
-                    {column.uid !== 'acciones' ? (
-                      <InputTable
-                        value={row[column.uid]}
-                        onChange={(value) =>
-                          onInputChange(section.uid, row.uid, column.uid, value)
-                        }
-                      />
-                    ) : (
-                      <div className='flex justify-center gap-2'>
-                        <Tooltip
-                          content='Eliminar fila'
-                          color='danger'
-                          closeDelay={0}
-                        >
-                          <span
-                            className='text-danger cursor-pointer active:opacity-50'
-                            onClick={() => {
-                              onRemoveRow(section.uid, row.uid)
-                            }}
-                          >
-                            <Trash2 size={20} />
-                          </span>
-                        </Tooltip>
-                      </div>
-                    )}
+                    <InputTable
+                      value={row[column.uid]}
+                      onChange={(value) =>
+                        onInputChange(section.uid, row.uid, column.uid, value)
+                      }
+                    />
                   </td>
                 ))}
+                <td>
+                  <div className='flex justify-center gap-2'>
+                    <Tooltip
+                      content='Eliminar fila'
+                      color='danger'
+                      closeDelay={0}
+                    >
+                      <span
+                        className='text-danger cursor-pointer active:opacity-50'
+                        onClick={() => {
+                          onRemoveRow(section.uid, row.uid)
+                        }}
+                      >
+                        <Trash2 size={20} />
+                      </span>
+                    </Tooltip>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

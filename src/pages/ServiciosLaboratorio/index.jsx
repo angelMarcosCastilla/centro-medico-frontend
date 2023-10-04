@@ -15,21 +15,24 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  Tooltip
+  Tooltip,
+  useDisclosure
 } from '@nextui-org/react'
-
 import {
   ChevronDownIcon,
   FileJson,
   PencilLine,
+  Plus,
   SearchIcon,
   Trash2
 } from 'lucide-react'
-import { getAllServicesLaboratory } from '../../services/service'
+import { getServicesByArea } from '../../services/service'
 import { usePagination } from '../../hook/usePagination'
 import { useFetcher } from '../../hook/useFetcher'
 import { capitalize } from '../../utils'
 import { useNavigate } from 'react-router-dom'
+import ModalFormService from './components/ModalFormService'
+import { LABORATORIO_ID } from '../../constants/areas'
 
 const columns = [
   { name: 'CATEGORIA', uid: 'categoria', sortable: true },
@@ -49,7 +52,9 @@ export default function ServiciosLaboratorio() {
     column: 'id',
     direction: 'ascending'
   })
-  const { data } = useFetcher(getAllServicesLaboratory)
+  const { isOpen, onOpen, onOpenChange } = useDisclosure()
+
+  const { data } = useFetcher(() => getServicesByArea(LABORATORIO_ID))
   const hasSearchFilter = Boolean(filterValue)
 
   const headerColumns = useMemo(() => {
@@ -205,6 +210,13 @@ export default function ServiciosLaboratorio() {
                 })}
               </DropdownMenu>
             </Dropdown>
+            <Button
+              color='primary'
+              endContent={<Plus size={20} />}
+              onPress={onOpen}
+            >
+              Agregar nuevo
+            </Button>
           </div>
         </div>
         <div className='flex justify-between items-center'>
@@ -263,47 +275,51 @@ export default function ServiciosLaboratorio() {
   }, [items.length, page, pages, hasSearchFilter])
 
   return (
-    <Card shadow='none'>
-      <CardBody>
-        <Table
-          aria-label='Example table with custom cells, pagination and sorting'
-          isHeaderSticky
-          bottomContent={bottomContent}
-          bottomContentPlacement='outside'
-          classNames={{
-            wrapper: 'max-h-[600px]'
-          }}
-          sortDescriptor={sortDescriptor}
-          topContent={topContent}
-          topContentPlacement='outside'
-          shadow='none'
-          onSortChange={setSortDescriptor}
-        >
-          <TableHeader columns={headerColumns}>
-            {(column) => (
-              <TableColumn
-                key={column.uid}
-                align={column.uid === 'actions' ? 'center' : 'start'}
-                allowsSorting={column.sortable}
-              >
-                {column.name}
-              </TableColumn>
-            )}
-          </TableHeader>
-          <TableBody
-            emptyContent={'No se encontraron servicios'}
-            items={sortedItems}
+    <>
+      <Card shadow='none'>
+        <CardBody>
+          <Table
+            aria-label='Example table with custom cells, pagination and sorting'
+            isHeaderSticky
+            bottomContent={bottomContent}
+            bottomContentPlacement='outside'
+            classNames={{
+              wrapper: 'max-h-[600px]'
+            }}
+            sortDescriptor={sortDescriptor}
+            topContent={topContent}
+            topContentPlacement='outside'
+            shadow='none'
+            onSortChange={setSortDescriptor}
           >
-            {(item) => (
-              <TableRow key={crypto.randomUUID().toString()}>
-                {(columnKey) => (
-                  <TableCell>{renderCell(item, columnKey)}</TableCell>
-                )}
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </CardBody>
-    </Card>
+            <TableHeader columns={headerColumns}>
+              {(column) => (
+                <TableColumn
+                  key={column.uid}
+                  align={column.uid === 'actions' ? 'center' : 'start'}
+                  allowsSorting={column.sortable}
+                >
+                  {column.name}
+                </TableColumn>
+              )}
+            </TableHeader>
+            <TableBody
+              emptyContent={'No se encontraron servicios'}
+              items={sortedItems}
+            >
+              {(item) => (
+                <TableRow key={crypto.randomUUID().toString()}>
+                  {(columnKey) => (
+                    <TableCell>{renderCell(item, columnKey)}</TableCell>
+                  )}
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardBody>
+      </Card>
+
+      <ModalFormService isOpen={isOpen} onOpenChange={onOpenChange} />
+    </>
   )
 }
