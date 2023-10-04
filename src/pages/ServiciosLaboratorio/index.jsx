@@ -52,6 +52,8 @@ export default function ServiciosLaboratorio() {
     column: 'id',
     direction: 'ascending'
   })
+  const [editService, setEditService] = useState(null)
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
   const { data } = useFetcher(() => getServicesByArea(LABORATORIO_ID))
@@ -80,6 +82,7 @@ export default function ServiciosLaboratorio() {
     items,
     onNextPage,
     onPreviousPage,
+    rowsPerPage,
     onRowsPerPageChange,
     page,
     pages,
@@ -96,6 +99,11 @@ export default function ServiciosLaboratorio() {
     })
   }, [sortDescriptor, items])
 
+  const handleEditClick = (service) => {
+    setEditService(service)
+    onOpen()
+  }
+
   const renderCell = useCallback((service, columnKey) => {
     const cellValue = service[columnKey]
 
@@ -104,7 +112,10 @@ export default function ServiciosLaboratorio() {
         return (
           <div className='relative flex items-center gap-2'>
             <Tooltip content='Editar' color='primary' closeDelay={0}>
-              <span className='text-lg text-primary-400 cursor-pointer active:opacity-50'>
+              <span
+                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+                onClick={() => handleEditClick(service.idservicio)}
+              >
                 <PencilLine size={20} />
               </span>
             </Tooltip>
@@ -213,7 +224,10 @@ export default function ServiciosLaboratorio() {
             <Button
               color='primary'
               endContent={<Plus size={20} />}
-              onPress={onOpen}
+              onPress={() => {
+                setEditService(null)
+                onOpen()
+              }}
             >
               Agregar nuevo
             </Button>
@@ -227,6 +241,7 @@ export default function ServiciosLaboratorio() {
             Filas por página:
             <select
               className='bg-transparent outline-none text-default-400 text-small'
+              defaultValue={rowsPerPage}
               onChange={onRowsPerPageChange}
             >
               <option value='5'>5</option>
@@ -319,7 +334,12 @@ export default function ServiciosLaboratorio() {
         </CardBody>
       </Card>
 
-      <ModalFormService isOpen={isOpen} onOpenChange={onOpenChange} />
+      <ModalFormService
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        operation={editService ? 'edit' : 'new'}
+        serviceToEdit={editService}
+      />
     </>
   )
 }
