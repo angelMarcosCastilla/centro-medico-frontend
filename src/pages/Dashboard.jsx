@@ -30,6 +30,13 @@ export default function Dashboard() {
             route='admision'
           />
         </HasRole>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admisión}>
+          <SidebarItem
+            icon={<FileText size={20} />}
+            text='Reportes'
+            route='reportes'
+          />
+        </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.tomografia}>
           <SidebarItem
             icon={<Brain size={20} />}
