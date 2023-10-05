@@ -1,23 +1,12 @@
+import axios from "axios"
+
 export const listarTriajeService = async () => {
-  const response = await fetch('http://localhost:3000/api/triaje/all', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  const result = await response.json()
-  return result
+  const { data } = await axios.get(`/triaje/all`)
+  return data
 }
 
 
 export const registrarTriajeService = async (data) => {
-  const response = await fetch('http://localhost:3000/api/triaje/register', {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  const result = await response.json()
+  const { data: result } = await axios.post(`/triaje/register`, data)
   return result
 }

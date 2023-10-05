@@ -1,31 +1,20 @@
-export const addResult = async (data) => {
-  const response = await fetch('http://localhost:3000/api/resultados', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  })
-  const result = await response.json()
-  return result
+import axios from 'axios'
+
+export const addResult = async (body) => {
+  const { data } = await axios.post('/resultados', body)
+  return data
 }
 
 export const updateResult = async (data) => {
-  const response = await fetch('http://localhost:3000/api/resultados', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  })
-  const result = await response.json()
+  const {
+    data: { data: result }
+  } = await axios.put('/resultados', data)
   return result
 }
 
 export const searchByDetAttention = async (idDetAttention) => {
-  const response = await fetch(
-    `http://localhost:3000/api/resultados/detatenciones/${idDetAttention}`
+  const { data } = await axios.get(
+    `/resultados/detatenciones/${idDetAttention}`
   )
-  const result = await response.json()
-  return result
+  return data
 }

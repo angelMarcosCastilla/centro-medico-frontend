@@ -31,6 +31,7 @@ import { listState, statusColorMap } from '../../constants/state'
 import { addResult, updateResult } from '../../services/result'
 import { toast } from 'sonner'
 import { Eye, FileEdit } from 'lucide-react'
+import { redirectToResult } from '../../config'
 
 export default function ExternalModule() {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -195,7 +196,7 @@ export default function ExternalModule() {
                         {el.idresultado && (
                           <a
                             target='_blank'
-                            href={`http://localhost:3000/api/resultados/${el.idresultado}/report`}
+                            href={redirectToResult(el.iddetatencion)}
                             className='text-gray-400'
                             rel='noreferrer'
                           >
