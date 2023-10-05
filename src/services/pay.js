@@ -1,5 +1,8 @@
+import axios from 'axios'
+
 export const getPaymentTypes = async () => {
-  const response = await fetch(`http://localhost:3000/api/pagos/tipos`)
-  const { data } = await response.json()
+  const {
+    data: { data }
+  } = await axios.get(`/pagos/tipos`)
   return data
 }
