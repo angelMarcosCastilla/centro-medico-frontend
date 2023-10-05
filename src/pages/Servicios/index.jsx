@@ -53,15 +53,17 @@ export default function Servicios() {
   const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   )
+  const [areasFilter, setAreasFilter] = useState('all')
   const [sortDescriptor, setSortDescriptor] = useState({
-    column: 'id',
-    direction: 'ascending'
+    column: 'idservicio',
+    direction: 'descending'
   })
   const [editService, setEditService] = useState(null)
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
   const { data, refresh } = useFetcher(getAllServices)
+
   const transformedData = data
     .reduce((result, area) => {
       area.categorias.forEach((categoria) => {
@@ -79,6 +81,11 @@ export default function Servicios() {
       return result
     }, [])
     .sort((a, b) => b.idservicio - a.idservicio)
+
+  const areasOptions = data.map((area) => ({
+    name: area.nombre,
+    uid: area.nombre
+  }))
 
   const hasSearchFilter = Boolean(filterValue)
 
@@ -98,8 +105,17 @@ export default function Servicios() {
         service.servicio.toLowerCase().includes(filterValue.toLocaleLowerCase())
       )
     }
+    if (
+      areasFilter !== 'all' &&
+      Array.from(areasFilter).length !== areasOptions.length
+    ) {
+      filteredServices = filteredServices.filter((service) =>
+        Array.from(areasFilter).includes(service.area)
+      )
+    }
+
     return filteredServices
-  }, [transformedData, filterValue])
+  }, [transformedData, filterValue, areasFilter])
 
   const {
     items,
@@ -186,6 +202,30 @@ export default function Servicios() {
                   endContent={<ChevronDownIcon className='text-small' />}
                   variant='flat'
                 >
+                  Áreas
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label='Table Colummns'
+                closeOnSelect={false}
+                selectedKeys={areasFilter}
+                selectionMode='multiple'
+                onSelectionChange={setAreasFilter}
+              >
+                {areasOptions.map((area) => (
+                  <DropdownItem key={area.uid} className='capitalize'>
+                    {capitalize(area.name)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+            <Dropdown>
+              <DropdownTrigger className='hidden sm:flex'>
+                <Button
+                  endContent={<ChevronDownIcon className='text-small' />}
+                  variant='flat'
+                >
                   Columnas
                 </Button>
               </DropdownTrigger>
@@ -240,6 +280,7 @@ export default function Servicios() {
     )
   }, [
     filterValue,
+    areasFilter,
     visibleColumns,
     onRowsPerPageChange,
     transformedData.length,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Button,
   Checkbox,
@@ -21,9 +21,9 @@ import {
   updateService
 } from '../../../services/service'
 import { useFetcher } from '../../../hook/useFetcher'
-import { LABORATORIO_ID } from '../../../constants/areas'
-import { listCategoriesByArea } from '../../../services/category'
+import { getAllCategories } from '../../../services/category'
 import { getAllRequirement } from '../../../services/requirement'
+import { getAllAreas } from '../../../services/area'
 
 const INITIAL_FORM = {
   idCategoria: 0,
@@ -43,11 +43,11 @@ export default function ModalFormService({
   refreshTable
 }) {
   const [loading, setLoading] = useState(false)
-  const { data: categoriesData } = useFetcher(() =>
-    listCategoriesByArea(LABORATORIO_ID)
-  )
+  const { data: areasData } = useFetcher(getAllAreas)
+  const { data: categoriesData } = useFetcher(getAllCategories)
   const { data: requirementsData } = useFetcher(getAllRequirement)
   const [form, setForm] = useState({})
+  const [selectedArea, setSelectedArea] = useState(new Set([]))
   const [selectedCategory, setSelectedCategory] = useState(new Set([]))
   const [selectedRequirement, setSelectedRequirement] = useState(new Set([]))
   const [selected, setSelected] = useState([])
@@ -73,6 +73,13 @@ export default function ModalFormService({
       [e.target.name]: e.target.checked
     })
   }
+
+  const filterCategoriesByArea = useMemo(() => {
+    const filtered = categoriesData.filter((category) => {
+      return category.idarea === parseInt(Array.from(selectedArea)[0])
+    })
+    return filtered
+  }, [selectedArea, categoriesData])
 
   const handleSubmitService = async (e, onClose) => {
     e.preventDefault()
@@ -104,6 +111,7 @@ export default function ModalFormService({
   const handleClose = () => {
     if (operation === 'new') {
       setForm(INITIAL_FORM)
+      setSelectedArea(new Set([]))
       setSelectedCategory(new Set([]))
       setSelectedRequirement(new Set([]))
       setSelected([])
@@ -123,12 +131,16 @@ export default function ModalFormService({
           ordenMedica: Boolean(res.orden_medica),
           triaje: Boolean(res.triaje)
         })
+
+        setSelectedArea(new Set([res.idarea.toString()]))
         setSelectedCategory(new Set([res.idcategoria.toString()]))
+
         if (res.idrequisito !== null) {
           setSelectedRequirement(new Set([res.idrequisito.toString()]))
         } else {
           setSelectedRequirement(new Set([]))
         }
+
         setSelected([
           res.orden_medica === 1 ? 'ordenmedica' : '',
           res.triaje === 1 ? 'triaje' : ''
@@ -136,6 +148,7 @@ export default function ModalFormService({
       })
     } else {
       setForm(INITIAL_FORM)
+      setSelectedArea(new Set([]))
       setSelectedCategory(new Set([]))
       setSelectedRequirement(new Set([]))
       setSelected([])
@@ -160,6 +173,21 @@ export default function ModalFormService({
             <ModalBody>
               <div className='flex flex-row gap-x-4 mb-2'>
                 <Select
+                  label='Área'
+                  selectedKeys={selectedArea}
+                  onSelectionChange={(e) => {
+                    setSelectedArea(e)
+                    setSelectedCategory(new Set([]))
+                  }}
+                  isRequired
+                >
+                  {areasData.map((area) => (
+                    <SelectItem key={area.idarea}>
+                      {area.nombre_area}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Select
                   label='Categoría'
                   name='idCategoria'
                   selectedKeys={selectedCategory}
@@ -167,12 +195,17 @@ export default function ModalFormService({
                   onSelectionChange={setSelectedCategory}
                   isRequired
                 >
-                  {categoriesData.map((category) => (
-                    <SelectItem key={category.idcategoria}>
+                  {filterCategoriesByArea.map((category) => (
+                    <SelectItem
+                      key={category.idcategoria}
+                      value={category.idcategoria}
+                    >
                       {category.nombre_categoria}
                     </SelectItem>
                   ))}
                 </Select>
+              </div>
+              <div className='flex flex-flow gap-x-4 mb-2'>
                 <Input
                   label='Nombre servicio'
                   name='nombreServicio'
@@ -202,7 +235,7 @@ export default function ModalFormService({
                   startContent={
                     <DollarSign className='text-default-400' size={20} />
                   }
-                  value={form.precio}
+                  value={!isNaN(form.precio) ? form.precio : ''}
                   onChange={(e) => handleInputChange(e, 'number')}
                   isRequired
                 />

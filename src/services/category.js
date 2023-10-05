@@ -1,5 +1,6 @@
-export const listCategoriesByArea = async (idArea) => {
-  const response = await fetch(`http://localhost:3000/api/categorias/${idArea}`)
-  const { data } = await response.json()
-  return data
+import axios from 'axios'
+
+export const getAllCategories = async () => {
+  const { data } = await axios.get('/categorias')
+  return data.data
 }
