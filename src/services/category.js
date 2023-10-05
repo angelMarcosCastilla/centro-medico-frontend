@@ -1,9 +1,6 @@
 import axios from 'axios'
 
-export const listCategoriesByArea = async (idArea) => {
-  const response = await axios.get(`/categorias/${idArea}`)
-  const {
-    data: { data }
-  } = response
-  return data
+export const getAllCategories = async () => {
+  const { data } = await axios.get('/categorias')
+  return data.data
 }
