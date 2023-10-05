@@ -9,13 +9,14 @@ import Rayosx from '../pages/Rayosx'
 import Triaje from '../pages/Triaje'
 import RoleGard from './RoleGard.jsx'
 import { listRoles } from '../constants/auth.constant.js'
-import Plantillas from '../pages/Plantillas/index.jsx'
-import ServiciosLaboratorio from '../pages/ServiciosLaboratorio'
+import Servicios from '../pages/Servicios'
 import FormTriaje from '../pages/Triaje/FormTriaje.jsx'
 import Laboratorio from '../pages/Laboratorio/index.jsx'
 import Informes from '../pages/Informes/index.jsx'
 import ExternalModule from '../pages/externalModule/index.jsx'
 import ReportEditor from '../pages/Informes/ReportEditor.jsx'
+import Plantillas from '../pages/Plantillas/index.jsx'
+import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
 
 const router = createBrowserRouter([
   {
@@ -32,7 +33,7 @@ const router = createBrowserRouter([
       {
         path: 'admision',
         element: (
-          <RoleGard listRoles={listRoles.admisión}>
+          <RoleGard listRoles={listRoles.admision}>
             <Admision />
           </RoleGard>
         ),
@@ -41,11 +42,19 @@ const router = createBrowserRouter([
       {
         path: 'reportes',
         element: (
-          <RoleGard listRoles={listRoles.admisión}>
+          <RoleGard listRoles={listRoles.admision}>
             <Reportes />
           </RoleGard>
         ),
         index: true
+      },
+      {
+        path: 'servicios',
+        element: (
+          <RoleGard listRoles={listRoles.admision}>
+            <Servicios />
+          </RoleGard>
+        )
       },
       {
         path: 'tomografia',
@@ -72,14 +81,6 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: 'servicios',
-        element: (
-          <RoleGard listRoles={listRoles.servicios}>
-            <ServiciosLaboratorio />
-          </RoleGard>
-        )
-      },
-      {
         path: 'informes',
         element: (
           <RoleGard listRoles={listRoles.informes}>
@@ -96,10 +97,18 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: 'plantillas/:id',
+        path: 'plantillas',
         element: (
           <RoleGard listRoles={listRoles.plantillas}>
             <Plantillas />
+          </RoleGard>
+        )
+      },
+      {
+        path: 'plantillas/:id',
+        element: (
+          <RoleGard listRoles={listRoles.plantillas}>
+            <TemplateEditor />
           </RoleGard>
         )
       },

@@ -20,33 +20,38 @@ import {
 } from '@nextui-org/react'
 import {
   ChevronDownIcon,
-  FileJson,
   PencilLine,
   Plus,
   SearchIcon,
   Trash2
 } from 'lucide-react'
-import { getServicesByArea } from '../../services/service'
+import { getAllServices } from '../../services/service'
 import { usePagination } from '../../hook/usePagination'
 import { useFetcher } from '../../hook/useFetcher'
 import { capitalize } from '../../utils'
-import { useNavigate } from 'react-router-dom'
 import ModalFormService from './components/ModalFormService'
-import { LABORATORIO_ID } from '../../constants/areas'
 
 const columns = [
-  { name: 'CATEGORIA', uid: 'categoria', sortable: true },
+  { name: 'ÁREA', uid: 'area', sortable: true },
+  { name: 'CATEGORÍA', uid: 'categoria', sortable: true },
   { name: 'SERVICIO', uid: 'servicio', sortable: true },
   { name: 'OBSERVACION', uid: 'observacion', sortable: true },
   { name: 'PRECIO', uid: 'precio', sortable: true },
   { name: 'ACCIONES', uid: 'acciones' }
 ]
 
-export default function ServiciosLaboratorio() {
-  const navigate = useNavigate()
+const INITIAL_VISIBLE_COLUMNS = [
+  'area',
+  'categoria',
+  'servicio',
+  'precio',
+  'acciones'
+]
+
+export default function Servicios() {
   const [filterValue, setFilterValue] = useState('')
   const [visibleColumns, setVisibleColumns] = useState(
-    new Set(['categoria', 'servicio', 'observacion', 'precio', 'acciones'])
+    new Set(INITIAL_VISIBLE_COLUMNS)
   )
   const [sortDescriptor, setSortDescriptor] = useState({
     column: 'id',
@@ -56,7 +61,25 @@ export default function ServiciosLaboratorio() {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
-  const { data, refresh } = useFetcher(() => getServicesByArea(LABORATORIO_ID))
+  const { data, refresh } = useFetcher(getAllServices)
+  const transformedData = data
+    .reduce((result, area) => {
+      area.categorias.forEach((categoria) => {
+        categoria.servicios.forEach((servicio) => {
+          result.push({
+            idservicio: servicio.idservicio,
+            area: area.nombre,
+            categoria: categoria.nombre,
+            servicio: servicio.nombre,
+            observacion: servicio.observacion || '',
+            precio: servicio.precio
+          })
+        })
+      })
+      return result
+    }, [])
+    .sort((a, b) => b.idservicio - a.idservicio)
+
   const hasSearchFilter = Boolean(filterValue)
 
   const headerColumns = useMemo(() => {
@@ -68,7 +91,7 @@ export default function ServiciosLaboratorio() {
   }, [visibleColumns])
 
   const filteredItems = useMemo(() => {
-    let filteredServices = [...data]
+    let filteredServices = [...transformedData]
 
     if (hasSearchFilter) {
       filteredServices = filteredServices.filter((service) =>
@@ -76,7 +99,7 @@ export default function ServiciosLaboratorio() {
       )
     }
     return filteredServices
-  }, [data, filterValue])
+  }, [transformedData, filterValue])
 
   const {
     items,
@@ -117,43 +140,6 @@ export default function ServiciosLaboratorio() {
                 onClick={() => handleEditClick(service.idservicio)}
               >
                 <PencilLine size={20} />
-              </span>
-            </Tooltip>
-            <Tooltip content='Plantilla' color='primary' closeDelay={0}>
-              <span className='text-lg text-primary-400 cursor-pointer active:opacity-50'>
-                <Dropdown>
-                  <DropdownTrigger>
-                    <FileJson size={20} />
-                  </DropdownTrigger>
-                  <DropdownMenu aria-label='Static Actions'>
-                    <DropdownItem
-                      key='new'
-                      onClick={() =>
-                        navigate(`/plantillas/${service.idservicio}`, {
-                          state: {
-                            service,
-                            operation: 'new'
-                          }
-                        })
-                      }
-                    >
-                      Nueva plantilla
-                    </DropdownItem>
-                    <DropdownItem
-                      key='edit'
-                      onClick={() =>
-                        navigate(`/plantillas/${service.idservicio}`, {
-                          state: {
-                            service,
-                            operation: 'edit'
-                          }
-                        })
-                      }
-                    >
-                      Editar plantilla
-                    </DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
               </span>
             </Tooltip>
             <Tooltip color='danger' content='Eliminar' closeDelay={0}>
@@ -235,7 +221,7 @@ export default function ServiciosLaboratorio() {
         </div>
         <div className='flex justify-between items-center'>
           <span className='text-default-400 text-small'>
-            Total: {data.length} servicios
+            Total: {transformedData.length} servicios
           </span>
           <label className='flex items-center text-default-400 text-small'>
             Filas por página:
@@ -256,7 +242,7 @@ export default function ServiciosLaboratorio() {
     filterValue,
     visibleColumns,
     onRowsPerPageChange,
-    data.length,
+    transformedData.length,
     onSearchChange,
     hasSearchFilter
   ])

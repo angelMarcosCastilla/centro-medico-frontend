@@ -23,18 +23,25 @@ export default function Dashboard() {
   return (
     <div className='flex h-screen'>
       <Sidebar>
-        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admisión}>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
             icon={<FileText size={20} />}
             text='Admisión'
             route='admision'
           />
         </HasRole>
-        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admisión}>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
             icon={<FileText size={20} />}
             text='Reportes'
             route='reportes'
+          />
+        </HasRole>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
+          <SidebarItem
+            icon={<HeartHandshake size={20} />}
+            text='Servicios'
+            route='servicios'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.tomografia}>
@@ -65,11 +72,11 @@ export default function Dashboard() {
             route='informes'
           />
         </HasRole>
-        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.servicios}>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.plantillas}>
           <SidebarItem
-            icon={<HeartHandshake size={20} />}
-            text='Servicios'
-            route='servicios'
+            icon={<LayoutTemplate size={20} />}
+            text='Plantillas'
+            route='plantillas'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.triaje}>

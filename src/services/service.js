@@ -14,10 +14,8 @@ export const getService = async (idService) => {
 }
 
 export const getServicesByArea = async (idArea) => {
-  const response = await fetch(
-    `http://localhost:3000/api/servicios/areas/${idArea}`)
-  const { data } = await response.json()
-  return data
+  const { data } = await axios.get(`/servicios/areas/${idArea}`)
+  return data.data
 }
 
 export const getAllPersonal = async (idArea) => {

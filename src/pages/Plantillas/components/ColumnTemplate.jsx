@@ -1,7 +1,7 @@
 import { Button, Input, Tooltip } from '@nextui-org/react'
 import { ListX, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import './style.css'
+import './ColumnTemplate.css'
 
 const useDebaunce = (value, delay = 500) => {
   const [debouncedValue, setDebouncedValue] = useState(value)
