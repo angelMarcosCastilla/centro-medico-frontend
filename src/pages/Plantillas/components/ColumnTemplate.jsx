@@ -1,7 +1,7 @@
 import { Button, Input, Tooltip } from '@nextui-org/react'
 import { ListX, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import './style.css'
+import './ColumnTemplate.css'
 
 const useDebaunce = (value, delay = 500) => {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -76,46 +76,48 @@ export default function ColumnTemplate({
         <table className='w-full text-sm text-left text-gray-500 dark:text-gray-400'>
           <thead className='text-xs text-gray-500 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400'>
             <tr>
-              {section.columns.map((col, index) => (
-                <th key={index} className='py-3 px-4'>
+              {section.columns.map((col) => (
+                <th key={col.uid} className='py-3 px-4'>
                   {col.title}
                 </th>
               ))}
+              <th className='py-3 px-4'>ACCIONES</th>
             </tr>
           </thead>
           <tbody>
-            {section.rows.map((row, index) => (
-              <tr key={index} className='bg-white dark:bg-gray-800'>
+            {section.rows.map((row) => (
+              <tr key={row.uid} className='bg-white dark:bg-gray-800'>
                 {section.columns.map((column) => (
                   <td
-                    key={section.uid + '_' + column.uid + '_' + index}
+                    key={section.uid + '_' + column.uid + '_' + row.uid}
                     className='p-3 text-slate-700'
                   >
-                    {column.uid !== 'acciones' ? (
-                      <InputTable
-                        value={row[column.uid]}
-                        onChange={(value) =>
-                          onInputChange(section.uid, index, column.uid, value)
-                        }
-                      />
-                    ) : (
-                      <div className='flex justify-center gap-2'>
-                        <Tooltip
-                          content='Eliminar fila'
-                          color='danger'
-                          closeDelay={0}
-                        >
-                          <span
-                            className='text-danger cursor-pointer active:opacity-50'
-                            onClick={() => onRemoveRow(section.uid, index)}
-                          >
-                            <Trash2 size={20} />
-                          </span>
-                        </Tooltip>
-                      </div>
-                    )}
+                    <InputTable
+                      value={row[column.uid]}
+                      onChange={(value) =>
+                        onInputChange(section.uid, row.uid, column.uid, value)
+                      }
+                    />
                   </td>
                 ))}
+                <td>
+                  <div className='flex justify-center gap-2'>
+                    <Tooltip
+                      content='Eliminar fila'
+                      color='danger'
+                      closeDelay={0}
+                    >
+                      <span
+                        className='text-danger cursor-pointer active:opacity-50'
+                        onClick={() => {
+                          onRemoveRow(section.uid, row.uid)
+                        }}
+                      >
+                        <Trash2 size={20} />
+                      </span>
+                    </Tooltip>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

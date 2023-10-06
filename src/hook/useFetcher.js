@@ -16,9 +16,13 @@ export const useFetcher = (callback) => {
     }
   }
 
+  const refreshData = async () => {
+    await fetchData()
+  }
+
   useEffect(() => {
     fetchData()
   }, [])
 
-  return { data, loading, error, mutate: setData }
+  return { data, loading, error, mutate: setData, refresh: refreshData }
 }

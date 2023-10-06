@@ -1,27 +1,16 @@
-export const addPersonService = async (data) => {
-  const response = await fetch('http://localhost:3000/api/personas', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  })
-  const result = await response.json()
-  return result
+import axios from 'axios'
+
+export const addPersonService = async (body) => {
+  const { data } = await axios.post('/personas', body)
+  return data
 }
 
 export const searchPersonByNumDoc = async (numDocumento) => {
-  const response = await fetch(
-    `http://localhost:3000/api/personas/numdocumento/${numDocumento}`
-  )
-  const result = await response.json()
-  return result
+  const { data } = await axios.get(`/personas/numdocumento/${numDocumento}`)
+  return data
 }
 
 export const searchPersonById = async (idPersona) => {
-  const response = await fetch(
-    `http://localhost:3000/api/personas/${idPersona}`
-  )
-  const result = await response.json()
-  return result
+  const { data } = await axios.get(`/personas/${idPersona}`)
+  return data
 }

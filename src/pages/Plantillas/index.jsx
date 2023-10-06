@@ -1,391 +1,294 @@
-import { useEffect, useState } from 'react'
-import {
-  columnTemplate,
-  keyValueTemplate,
-  templateFormats
-} from '../../constants/template'
+import { useCallback, useMemo, useState } from 'react'
 import {
   Button,
-  Input,
   CardBody,
-  CardFooter,
-  Select,
-  SelectItem
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Input,
+  Pagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+  Tooltip
 } from '@nextui-org/react'
-import { ListPlus } from 'lucide-react'
-import { addTemplate } from '../../services/template'
-import { toast } from 'sonner'
-import TypeTemplate from './components/TypeTemplate'
-import { getAllServicesLaboratory } from '../../services/service'
+import { ChevronDownIcon, FileEdit, FilePlus2, SearchIcon } from 'lucide-react'
+import { getServicesByArea } from '../../services/service'
+import { usePagination } from '../../hook/usePagination'
 import { useFetcher } from '../../hook/useFetcher'
+import { capitalize } from '../../utils'
+import { useNavigate } from 'react-router-dom'
+import { LABORATORIO_ID } from '../../constants/areas'
+
+const columns = [
+  { name: 'CATEGORIA', uid: 'categoria', sortable: true },
+  { name: 'SERVICIO', uid: 'servicio', sortable: true },
+  { name: 'OBSERVACION', uid: 'observacion', sortable: true },
+  { name: 'PRECIO', uid: 'precio', sortable: true },
+  { name: 'ACCIONES', uid: 'acciones' }
+]
+
+const INITIAL_VISIBLE_COLUMNS = [
+  'categoria',
+  'servicio',
+  'observacion',
+  'precio',
+  'acciones'
+]
 
 export default function Plantillas() {
-  const { data: services } = useFetcher(getAllServicesLaboratory)
-  const [serviceSelected, setServiceSelected] = useState(new Set([]))
-  const idServicio = window.history.state.usr?.idservicio
-  const [typesTemplate, setTypesTemplate] = useState(new Set([]))
-  const [template, setTemplate] = useState({ templateName: '' })
-  const [sections, setSections] = useState([])
-  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+  const [filterValue, setFilterValue] = useState('')
+  const [visibleColumns, setVisibleColumns] = useState(
+    new Set(INITIAL_VISIBLE_COLUMNS)
+  )
+  const [sortDescriptor, setSortDescriptor] = useState({
+    column: 'id',
+    direction: 'ascending'
+  })
 
-  const handleFormatChange = (selectedFormat) => {
-    let selectedTemplate
+  const { data } = useFetcher(() => getServicesByArea(LABORATORIO_ID))
+  const hasSearchFilter = Boolean(filterValue)
 
-    switch (selectedFormat) {
-      case 'fourColumns':
-        selectedTemplate = columnTemplate
-        break
-      case 'keysValues':
-        selectedTemplate = keyValueTemplate
-        break
+  const headerColumns = useMemo(() => {
+    if (visibleColumns === 'all') return columns
+
+    return columns.filter((column) =>
+      Array.from(visibleColumns).includes(column.uid)
+    )
+  }, [visibleColumns])
+
+  const filteredItems = useMemo(() => {
+    let filteredServices = [...data]
+
+    if (hasSearchFilter) {
+      filteredServices = filteredServices.filter((service) =>
+        service.servicio.toLowerCase().includes(filterValue.toLocaleLowerCase())
+      )
     }
+    return filteredServices
+  }, [data, filterValue])
 
-    setTemplate(selectedTemplate)
-    setSections(selectedTemplate.sections)
-  }
+  const {
+    items,
+    onNextPage,
+    onPreviousPage,
+    rowsPerPage,
+    onRowsPerPageChange,
+    page,
+    pages,
+    setPage
+  } = usePagination(filteredItems)
 
-  const handleInputChange = (sectionUid, rowIndex, field, newValue) => {
-    setSections((prevSections) =>
-      prevSections.map((section) => {
-        if (section.uid === sectionUid) {
-          const updatedRows = section.rows.map((row, index) => {
-            if (index === rowIndex) {
-              return {
-                ...row,
-                [field]: newValue
-              }
-            } else {
-              return row
-            }
-          })
+  const sortedItems = useMemo(() => {
+    return [...items].sort((a, b) => {
+      const first = a[sortDescriptor.column]
+      const second = b[sortDescriptor.column]
+      const cmp = first < second ? -1 : first > second ? 1 : 0
 
-          return {
-            ...section,
-            rows: updatedRows
-          }
-        } else {
-          return section
-        }
-      })
-    )
-  }
-
-  const handleInputChangeKeyValue = (
-    sectionUid,
-    itemIndex,
-    field,
-    newValue
-  ) => {
-    setSections((prevSections) =>
-      prevSections.map((section) => {
-        if (section.uid === sectionUid) {
-          const updatedItems = section.items.map((item, index) => {
-            if (index === itemIndex) {
-              return {
-                ...item,
-                [field]: newValue
-              }
-            } else {
-              return item
-            }
-          })
-
-          return {
-            ...section,
-            items: updatedItems
-          }
-        } else {
-          return section
-        }
-      })
-    )
-  }
-
-  const handleSectionChange = (sectionUid, newName) => {
-    setSections((prevSections) =>
-      prevSections.map((section) => {
-        if (section.uid === sectionUid) {
-          return {
-            ...section,
-            title: newName
-          }
-        } else {
-          return section
-        }
-      })
-    )
-  }
-
-  const handleAddRow = (sectionUid) => {
-    const newRow = {
-      analisis: 'Hola Mundo',
-      resultado: 'Aqui estoy',
-      unidad: 'Probando',
-      rangoReferencial: 'Esto'
-    }
-
-    const updatedSections = sections.map((section) => {
-      if (section.uid === sectionUid) {
-        return {
-          ...section,
-          rows: [...section.rows, newRow]
-        }
-      } else {
-        return section
-      }
+      return sortDescriptor.direction === 'descending' ? -cmp : cmp
     })
+  }, [sortDescriptor, items])
 
-    setSections(updatedSections)
-  }
+  const renderCell = useCallback((service, columnKey) => {
+    const cellValue = service[columnKey]
 
-  const handleRemoveRow = (sectionUid, indexToRemove) => {
-    const updatedSections = sections.map((section) => {
-      if (section.uid === sectionUid && section.rows.length > 1) {
-        const updatedRows = section.rows.filter(
-          (_, index) => index !== indexToRemove
+    switch (columnKey) {
+      case 'acciones':
+        return (
+          <div className='relative flex items-center gap-2'>
+            <Tooltip content='Nuevo' color='primary' closeDelay={0}>
+              <span
+                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+                onClick={() =>
+                  navigate(`/plantillas/${service.idservicio}`, {
+                    state: {
+                      service,
+                      operation: 'new'
+                    }
+                  })
+                }
+              >
+                <FilePlus2 size={20} />
+              </span>
+            </Tooltip>
+            <Tooltip content='Editar' color='primary' closeDelay={0}>
+              <span
+                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+                onClick={() =>
+                  navigate(`/plantillas/${service.idservicio}`, {
+                    state: {
+                      service,
+                      operation: 'edit'
+                    }
+                  })
+                }
+              >
+                <FileEdit size={20} />
+              </span>
+            </Tooltip>
+          </div>
         )
-        return {
-          ...section,
-          rows: updatedRows
-        }
-      } else {
-        return section
-      }
-    })
-
-    setSections(updatedSections)
-  }
-
-  const handleAddItem = (sectionUid) => {
-    const newItem = {
-      key: 'key 1',
-      value: 'value 1'
-    }
-
-    const updatedSections = sections.map((section) => {
-      if (section.uid === sectionUid) {
-        return {
-          ...section,
-          items: [...section.items, newItem]
-        }
-      } else {
-        return section
-      }
-    })
-
-    setSections(updatedSections)
-  }
-
-  const handleRemoveItem = (sectionUid, indexToRemove) => {
-    const updatedSections = sections.map((section) => {
-      if (section.uid === sectionUid && section.items.length > 1) {
-        const updatedItems = section.items.filter(
-          (_, index) => index !== indexToRemove
-        )
-
-        return {
-          ...section,
-          items: updatedItems
-        }
-      } else {
-        return section
-      }
-    })
-    setSections(updatedSections)
-  }
-
-  const handleAddSection = () => {
-    let newSection = {
-      uid: Date.now().toString(),
-      title: 'Nombre de la sección'
-    }
-
-    switch (typesTemplate.currentKey) {
-      case 'fourColumns':
-        newSection = {
-          ...newSection,
-          columns: [
-            {
-              uid: 'analisis',
-              title: 'ANÁLISIS',
-              editable: false
-            },
-            {
-              uid: 'resultado',
-              title: 'RESULTADO',
-              editable: true
-            },
-            {
-              uid: 'unidad',
-              title: 'UNIDAD',
-              editable: false
-            },
-            {
-              uid: 'rangoReferencial',
-              title: 'RANGO REFERENCIAL',
-              editable: false
-            },
-            {
-              uid: 'acciones',
-              title: 'ACCIONES',
-              editable: false
-            }
-          ],
-          rows: [
-            {
-              analisis: 'Hola Mundo',
-              resultado: 'Aqui estoy',
-              unidad: 'Probando',
-              rangoReferencial: 'Esto'
-            }
-          ]
-        }
-        break
-      case 'keysValues':
-        newSection = {
-          ...newSection,
-          items: [
-            {
-              key: 'key 1',
-              value: 'value 1'
-            }
-          ]
-        }
-        break
-    }
-
-    setSections([...sections, newSection])
-  }
-
-  const handleRemoveSection = (sectionUid) => {
-    if (sections.length === 1) return
-
-    const updatedSections = sections.filter(
-      (section) => section.uid !== sectionUid
-    )
-
-    setSections(updatedSections)
-  }
-
-  const handleAddTemplate = async () => {
-    // Testing
-    const updatedTemplate = {
-      ...template,
-      sections
-    }
-    const data = {
-      idServicio: parseInt(
-        Array.from(serviceSelected)[0] || serviceSelected.currentKey
-      ),
-      formato: JSON.stringify(updatedTemplate)
-    }
-
-    setLoading(true)
-    const result = await addTemplate(data)
-    setLoading(false)
-
-    if (result.isSuccess) {
-      window.history.replaceState({}, document.title)
-      setServiceSelected(new Set([]))
-      setTypesTemplate(new Set([]))
-      setTemplate({ templateName: '' })
-      toast.success(result.message)
-    } else {
-      toast.error(result.message)
-    }
-  }
-
-  useEffect(() => {
-    if (idServicio) {
-      setServiceSelected(new Set([idServicio.toString()]))
+      default:
+        return cellValue
     }
   }, [])
 
-  return (
-    <>
-      <CardBody>
-        <div className='grid grid-cols-4 px-4 mb-4 gap-4 items-end'>
+  const onSearchChange = useCallback((value) => {
+    if (value) {
+      setFilterValue(value)
+    } else {
+      setFilterValue('')
+    }
+  }, [])
+
+  const onClear = useCallback(() => {
+    setFilterValue('')
+  }, [])
+
+  const topContent = useMemo(() => {
+    return (
+      <div className='flex flex-col gap-4'>
+        <div className='flex justify-between gap-3 items-end'>
           <Input
-            label='Nombre de la plantilla'
-            color='primary'
-            size='lg'
-            variant='underlined'
-            className='col-span-2'
-            value={template.templateName}
-            onChange={(e) =>
-              setTemplate({ ...template, templateName: e.target.value })
-            }
+            isClearable
+            className='w-full sm:max-w-[44%]'
+            placeholder='Buscar por nombre...'
+            startContent={<SearchIcon />}
+            value={filterValue}
+            onClear={() => onClear()}
+            onValueChange={onSearchChange}
           />
-          <Select
-            label='Servicio'
-            color='primary'
-            variant='underlined'
-            className='col-span-1'
-            selectedKeys={serviceSelected}
-            onSelectionChange={setServiceSelected}
-            isDisabled={Boolean(idServicio)}
-          >
-            {services.map((service) => (
-              <SelectItem key={service.idservicio} value={service.idservicio}>
-                {service.servicio}
-              </SelectItem>
-            ))}
-          </Select>
-          <Select
-            label='Formato'
-            color='primary'
-            variant='underlined'
-            disallowEmptySelection={true}
-            selectedKeys={typesTemplate}
-            className='col-span-1'
-            onSelectionChange={(selectedKeys) => {
-              setTypesTemplate(selectedKeys)
-              handleFormatChange(selectedKeys.currentKey)
-            }}
-          >
-            {templateFormats.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.label}
-              </SelectItem>
-            ))}
-          </Select>
-        </div>
-        {
-          <TypeTemplate
-            typeTemplate={typesTemplate.currentKey}
-            sections={sections}
-            onInputChange={handleInputChange}
-            onInputChangeKeyValue={handleInputChangeKeyValue}
-            onSectionChange={handleSectionChange}
-            onAddRow={handleAddRow}
-            onRemoveRow={handleRemoveRow}
-            onAddItem={handleAddItem}
-            onRemoveItem={handleRemoveItem}
-            onRemoveSection={handleRemoveSection}
-          />
-        }
-        {template.sections && (
-          <div className='flex px-4'>
-            <Button
-              color='primary'
-              variant='light'
-              radius='full'
-              startContent={<ListPlus size={20} />}
-              onPress={handleAddSection}
-            >
-              Nueva sección
-            </Button>
+          <div className='flex gap-3'>
+            <Dropdown>
+              <DropdownTrigger className='hidden sm:flex'>
+                <Button
+                  endContent={<ChevronDownIcon className='text-small' />}
+                  variant='flat'
+                >
+                  Columnas
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label='Table Columns'
+                closeOnSelect={false}
+                selectedKeys={visibleColumns}
+                selectionMode='multiple'
+                onSelectionChange={setVisibleColumns}
+              >
+                {columns.map((column) => {
+                  if (column.uid === 'estado') return null
+                  return (
+                    <DropdownItem key={column.uid} className='capitalize'>
+                      {capitalize(column.name)}
+                    </DropdownItem>
+                  )
+                })}
+              </DropdownMenu>
+            </Dropdown>
           </div>
-        )}
-      </CardBody>
-      <CardFooter className='flex justify-end gap-4'>
-        <Button color='danger' variant='light'>
-          Cancelar
-        </Button>
-        <Button color='primary' onClick={handleAddTemplate} isLoading={loading}>
-          Guardar
-        </Button>
-      </CardFooter>
-    </>
+        </div>
+        <div className='flex justify-between items-center'>
+          <span className='text-default-400 text-small'>
+            Total: {data.length} servicios
+          </span>
+          <label className='flex items-center text-default-400 text-small'>
+            Filas por página:
+            <select
+              className='bg-transparent outline-none text-default-400 text-small'
+              defaultValue={rowsPerPage}
+              onChange={onRowsPerPageChange}
+            >
+              <option value='5'>5</option>
+              <option value='10'>10</option>
+              <option value='15'>15</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    )
+  }, [
+    filterValue,
+    visibleColumns,
+    onRowsPerPageChange,
+    data.length,
+    onSearchChange,
+    hasSearchFilter
+  ])
+
+  const bottomContent = useMemo(() => {
+    return (
+      <div className='py-2 px-2 flex justify-between items-center'>
+        <Pagination
+          isCompact
+          showControls
+          showShadow
+          color='primary'
+          page={page}
+          total={pages}
+          onChange={setPage}
+        />
+        <div className='hidden sm:flex w-[30%] justify-end gap-2'>
+          <Button
+            isDisabled={pages === 1}
+            variant='flat'
+            onPress={onPreviousPage}
+          >
+            Anterior
+          </Button>
+          <Button isDisabled={pages === 1} variant='flat' onPress={onNextPage}>
+            Siguiente
+          </Button>
+        </div>
+      </div>
+    )
+  }, [items.length, page, pages, hasSearchFilter])
+
+  return (
+    <CardBody>
+      <Table
+        isHeaderSticky
+        aria-label='Tabla de servicios de laboratorio para la creación o edición de plantillas personalizadas'
+        bottomContent={bottomContent}
+        bottomContentPlacement='outside'
+        classNames={{
+          wrapper: 'max-h-[600px]'
+        }}
+        sortDescriptor={sortDescriptor}
+        topContent={topContent}
+        topContentPlacement='outside'
+        shadow='none'
+        onSortChange={setSortDescriptor}
+      >
+        <TableHeader columns={headerColumns}>
+          {(column) => (
+            <TableColumn
+              key={column.uid}
+              align={column.uid === 'acciones' ? 'center' : 'start'}
+              allowsSorting={column.sortable}
+            >
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody
+          emptyContent={'No se encontraron servicios'}
+          items={sortedItems}
+        >
+          {(item) => (
+            <TableRow key={crypto.randomUUID().toString()}>
+              {(columnKey) => (
+                <TableCell>{renderCell(item, columnKey)}</TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </CardBody>
   )
 }

@@ -17,17 +17,19 @@ export const useAuth = () => {
 }
 
 export default function AuthProvider({ children }) {
-  const [userInfo, setUserInfo] = useState(()=>{
+  const [userInfo, setUserInfo] = useState(() => {
     const data = localStorage.getItem('userInfo')
-    if(data){
+    if (data) {
       return JSON.parse(data)
     }
     return null
   })
+  const [isValidateAuth, setIsValidateAuth] = useState(false)
 
   const setLoginData = useCallback(async (userInfo) => {
     localStorage.setItem('userInfo', JSON.stringify(userInfo))
     setUserInfo(userInfo)
+    setIsValidateAuth(true)
   }, [])
 
   const logout = useCallback(async () => {
@@ -37,12 +39,13 @@ export default function AuthProvider({ children }) {
 
   const value = useMemo(() => {
     return {
-      isAuthenticated:  userInfo !== null,
-      userInfo, 
+      isAuthenticated: userInfo !== null,
+      userInfo,
       setLoginData,
-      logout
+      logout,
+      isValidateAuth
     }
-  }, [ userInfo, setLoginData, logout])
+  }, [userInfo, setLoginData, logout, isValidateAuth])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

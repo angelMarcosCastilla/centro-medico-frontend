@@ -23,7 +23,6 @@ import {
 } from '@nextui-org/react'
 import Editor from '../../components/Editor'
 import { useAuth } from '../../context/AuthContext'
-import { Navigate } from 'react-router-dom'
 import { mapRoles } from '../../constants/auth.constant'
 import { useFetcher } from '../../hook/useFetcher'
 import { changeStatus, getServiciesByDoctor } from '../../services/admission'
@@ -31,6 +30,7 @@ import { listState, statusColorMap } from '../../constants/state'
 import { addResult, updateResult } from '../../services/result'
 import { toast } from 'sonner'
 import { Eye, FileEdit } from 'lucide-react'
+import { redirectToResult } from '../../config'
 
 export default function ExternalModule() {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -42,13 +42,11 @@ export default function ExternalModule() {
 
   const [json, setjson] = React.useState({ titulo: '', contenido: '' })
 
-  const { isAuthenticated, userInfo, logout } = useAuth()
+  const { userInfo, logout } = useAuth()
 
   const { data, loading, mutate } = useFetcher(() =>
     getServiciesByDoctor(userInfo.idpersona)
   )
-
-  if (!isAuthenticated) return <Navigate to='/' />
 
   const handleSubmit = async () => {
     const template = {
@@ -195,7 +193,7 @@ export default function ExternalModule() {
                         {el.idresultado && (
                           <a
                             target='_blank'
-                            href={`http://localhost:3000/api/resultados/${el.idresultado}/report`}
+                            href={redirectToResult(el.iddetatencion)}
                             className='text-gray-400'
                             rel='noreferrer'
                           >

@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import Sidebar, { SidebarItem } from '../components/Sidebar'
 import {
   Brain,
@@ -17,21 +17,19 @@ import { DataProvider } from './Admision/components/DataContext'
 import { Card } from '@nextui-org/react'
 
 export default function Dashboard() {
-  const { isAuthenticated, userInfo } = useAuth()
-
-  if (!isAuthenticated) return <Navigate to='/' />
+  const { userInfo } = useAuth()
 
   return (
     <div className='flex h-screen'>
       <Sidebar>
-        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admisión}>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
             icon={<FileText size={20} />}
             text='Admisión'
             route='admision'
           />
         </HasRole>
-        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admisión}>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
             icon={<FileText size={20} />}
             text='Reportes'
@@ -43,6 +41,13 @@ export default function Dashboard() {
             icon={<HelpingHand size={20}/>}
             text= 'Pagos'
             route = 'pagos'
+         />
+        </HasRole>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
+          <SidebarItem
+            icon={<HeartHandshake size={20} />}
+            text='Servicios'
+            route='servicios'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.tomografia}>
@@ -71,13 +76,6 @@ export default function Dashboard() {
             icon={<Folders size={20} />}
             text='Informes'
             route='informes'
-          />
-        </HasRole>
-        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.servicios}>
-          <SidebarItem
-            icon={<HeartHandshake size={20} />}
-            text='Servicios'
-            route='servicios'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.plantillas}>

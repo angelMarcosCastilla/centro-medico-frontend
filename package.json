@@ -16,6 +16,7 @@
     "@tiptap/pm": "^2.1.8",
     "@tiptap/react": "^2.1.8",
     "@tiptap/starter-kit": "^2.1.8",
+    "axios": "^1.5.1",
     "framer-motion": "^10.16.1",
     "lucide-react": "^0.271.0",
     "react": "^18.2.0",
