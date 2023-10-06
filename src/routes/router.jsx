@@ -4,6 +4,7 @@ import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Admision from '../pages/Admision'
 import Reportes from '../pages/Admision/Reportes'
+import Pagos  from '../pages/Admision/Pagos'
 import Tomografia from '../pages/Tomografia'
 import Rayosx from '../pages/Rayosx'
 import Triaje from '../pages/Triaje'
@@ -46,6 +47,14 @@ const router = createBrowserRouter([
           </RoleGard>
         ),
         index: true
+      },
+      {
+        path: 'pagos',
+        element:(
+          <RoleGard listRoles={listRoles.admisión}>
+            <Pagos/>
+          </RoleGard>
+        )
       },
       {
         path: 'tomografia',

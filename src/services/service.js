@@ -22,3 +22,15 @@ export const getListStatePE = async () => {
   const { data } = await response.json()
   return data
 }
+
+export const getListofPaymentsbyAgreement = async ()=>{
+  const response = await fetch('http://localhost:3000/api/servicios/pagos/pendiente')
+  const {data} = await response.json()
+  return data
+}
+
+export const getCompanyAgreement = async ()=>{
+  const response = await fetch('http://localhost:3000/api/servicios/empresa/convenios')
+  const {data} = await response.json()  
+  return data
+}
