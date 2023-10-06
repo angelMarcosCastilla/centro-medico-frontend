@@ -21,20 +21,15 @@ export function initialAxios() {
     }
   )
   
-  /*  axios.interceptors.response.use(response => {
-      // failed load response data
-      if (response.data === "") {
-          response.data = { "message": "failed to load response data" }
-      }
+  axios.interceptors.response.use(response => {
       return response;
   }, error => {
-      console.log(error);
-      const { statusCode } = error.response.data;
-      if (statusCode == '10003') {
+      const { status } = error.response;
+      if (status === 401) {
         const event = new CustomEvent('invalidToken', { detail: true });
         window.dispatchEvent(event);
       }
 
-      return Promise.reject(error);
-  }); */
+     /*  return Promise.reject(error); */
+  }); 
 }

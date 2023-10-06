@@ -16,18 +16,16 @@ export const getServicesByArea = async (idArea) => {
 }
 
 export const getAllPersonal = async (idArea) => {
-  const response = await fetch(
-    `http://localhost:3000/api/servicios/personal/${idArea}`
-  )
-  const { data } = await response.json()
+  const {
+    data: { data }
+  } = await axios.get(`/servicios/personal/${idArea}`)
   return data
 }
 
 export const getListStatePE = async () => {
-  const response = await fetch(
-    'http://localhost:3000/api/servicios/pendiente/results'
-  )
-  const { data } = await response.json()
+  const {
+    data: { data }
+  } = await axios.get('/servicios/pendiente/results')
   return data
 }
 

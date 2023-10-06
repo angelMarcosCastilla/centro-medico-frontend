@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import Sidebar, { SidebarItem } from '../components/Sidebar'
 import {
   Brain,
@@ -16,9 +16,7 @@ import { DataProvider } from './Admision/components/DataContext'
 import { Card } from '@nextui-org/react'
 
 export default function Dashboard() {
-  const { isAuthenticated, userInfo } = useAuth()
-
-  if (!isAuthenticated) return <Navigate to='/' />
+  const { userInfo } = useAuth()
 
   return (
     <div className='flex h-screen'>

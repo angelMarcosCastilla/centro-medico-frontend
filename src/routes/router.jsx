@@ -17,6 +17,7 @@ import ExternalModule from '../pages/externalModule/index.jsx'
 import ReportEditor from '../pages/Informes/ReportEditor.jsx'
 import Plantillas from '../pages/Plantillas/index.jsx'
 import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
+import PrivateRoute from './privateRoute.jsx'
 
 const router = createBrowserRouter([
   {
@@ -24,114 +25,119 @@ const router = createBrowserRouter([
     element: <Login />
   },
   {
-    path: '/externalmodule',
-    element: <ExternalModule />
-  },
-  {
-    element: <Dashboard />,
+    element: <PrivateRoute />,
     children: [
       {
-        path: 'admision',
-        element: (
-          <RoleGard listRoles={listRoles.admision}>
-            <Admision />
-          </RoleGard>
-        ),
-        index: true
+        path: '/externalmodule',
+        element: <ExternalModule />
       },
       {
-        path: 'reportes',
-        element: (
-          <RoleGard listRoles={listRoles.admision}>
-            <Reportes />
-          </RoleGard>
-        ),
-        index: true
-      },
-      {
-        path: 'servicios',
-        element: (
-          <RoleGard listRoles={listRoles.admision}>
-            <Servicios />
-          </RoleGard>
-        )
-      },
-      {
-        path: 'tomografia',
-        element: (
-          <RoleGard listRoles={listRoles.tomografia}>
-            <Tomografia />
-          </RoleGard>
-        )
-      },
-      {
-        path: 'rayosx',
-        element: (
-          <RoleGard listRoles={listRoles.radiologia}>
-            <Rayosx />
-          </RoleGard>
-        )
-      },
-      {
-        path: 'laboratorio',
-        element: (
-          <RoleGard listRoles={listRoles.laboratorio}>
-            <Laboratorio />
-          </RoleGard>
-        )
-      },
-      {
-        path: 'informes',
-        element: (
-          <RoleGard listRoles={listRoles.informes}>
-            <Informes />
-          </RoleGard>
-        )
-      },
-      {
-        path: 'informes/:id',
-        element: (
-          <RoleGard listRoles={listRoles.informes}>
-            <ReportEditor />
-          </RoleGard>
-        )
-      },
-      {
-        path: 'plantillas',
-        element: (
-          <RoleGard listRoles={listRoles.plantillas}>
-            <Plantillas />
-          </RoleGard>
-        )
-      },
-      {
-        path: 'plantillas/:id',
-        element: (
-          <RoleGard listRoles={listRoles.plantillas}>
-            <TemplateEditor />
-          </RoleGard>
-        )
-      },
-      {
-        path: 'triaje',
-        element: (
-          <RoleGard listRoles={listRoles.triaje}>
-            <Triaje />
-          </RoleGard>
-        )
-      },
-      {
-        path: '/triaje/:id',
-        element: (
-          <RoleGard listRoles={listRoles.triaje}>
-            <FormTriaje />
-          </RoleGard>
-        )
-      },
+        element: <Dashboard />,
+        children: [
+          {
+            path: 'admision',
+            element: (
+              <RoleGard listRoles={listRoles.admision}>
+                <Admision />
+              </RoleGard>
+            ),
+            index: true
+          },
+          {
+            path: 'reportes',
+            element: (
+              <RoleGard listRoles={listRoles.admision}>
+                <Reportes />
+              </RoleGard>
+            ),
+            index: true
+          },
+          {
+            path: 'servicios',
+            element: (
+              <RoleGard listRoles={listRoles.admision}>
+                <Servicios />
+              </RoleGard>
+            )
+          },
+          {
+            path: 'tomografia',
+            element: (
+              <RoleGard listRoles={listRoles.tomografia}>
+                <Tomografia />
+              </RoleGard>
+            )
+          },
+          {
+            path: 'rayosx',
+            element: (
+              <RoleGard listRoles={listRoles.radiologia}>
+                <Rayosx />
+              </RoleGard>
+            )
+          },
+          {
+            path: 'laboratorio',
+            element: (
+              <RoleGard listRoles={listRoles.laboratorio}>
+                <Laboratorio />
+              </RoleGard>
+            )
+          },
+          {
+            path: 'informes',
+            element: (
+              <RoleGard listRoles={listRoles.informes}>
+                <Informes />
+              </RoleGard>
+            )
+          },
+          {
+            path: 'informes/:id',
+            element: (
+              <RoleGard listRoles={listRoles.informes}>
+                <ReportEditor />
+              </RoleGard>
+            )
+          },
+          {
+            path: 'plantillas',
+            element: (
+              <RoleGard listRoles={listRoles.plantillas}>
+                <Plantillas />
+              </RoleGard>
+            )
+          },
+          {
+            path: 'plantillas/:id',
+            element: (
+              <RoleGard listRoles={listRoles.plantillas}>
+                <TemplateEditor />
+              </RoleGard>
+            )
+          },
+          {
+            path: 'triaje',
+            element: (
+              <RoleGard listRoles={listRoles.triaje}>
+                <Triaje />
+              </RoleGard>
+            )
+          },
+          {
+            path: '/triaje/:id',
+            element: (
+              <RoleGard listRoles={listRoles.triaje}>
+                <FormTriaje />
+              </RoleGard>
+            )
+          },
 
-      {
-        path: '*',
-        element: <h1>404</h1>
+          {
+            path: '*',
+            element: <h1>404</h1>
+          }
+        ]
       }
     ]
   },

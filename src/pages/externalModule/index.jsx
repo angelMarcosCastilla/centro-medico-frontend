@@ -23,7 +23,6 @@ import {
 } from '@nextui-org/react'
 import Editor from '../../components/Editor'
 import { useAuth } from '../../context/AuthContext'
-import { Navigate } from 'react-router-dom'
 import { mapRoles } from '../../constants/auth.constant'
 import { useFetcher } from '../../hook/useFetcher'
 import { changeStatus, getServiciesByDoctor } from '../../services/admission'
@@ -43,13 +42,11 @@ export default function ExternalModule() {
 
   const [json, setjson] = React.useState({ titulo: '', contenido: '' })
 
-  const { isAuthenticated, userInfo, logout } = useAuth()
+  const { userInfo, logout } = useAuth()
 
   const { data, loading, mutate } = useFetcher(() =>
     getServiciesByDoctor(userInfo.idpersona)
   )
-
-  if (!isAuthenticated) return <Navigate to='/' />
 
   const handleSubmit = async () => {
     const template = {
