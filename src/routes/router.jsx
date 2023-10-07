@@ -33,6 +33,22 @@ const router = createBrowserRouter([
         element: <ExternalModule />
       },
       {
+        path: 'triaje',
+        element: (
+          <RoleGard listRoles={listRoles.triaje}>
+            <Triaje />
+          </RoleGard>
+        )
+      },
+      {
+        path: '/triaje/:id',
+        element: (
+          <RoleGard listRoles={listRoles.triaje}>
+            <FormTriaje />
+          </RoleGard>
+        )
+      },  
+      {
         element: <Dashboard />,
         children: [
           {
@@ -123,24 +139,7 @@ const router = createBrowserRouter([
                 <TemplateEditor />
               </RoleGard>
             )
-          },
-          {
-            path: 'triaje',
-            element: (
-              <RoleGard listRoles={listRoles.triaje}>
-                <Triaje />
-              </RoleGard>
-            )
-          },
-          {
-            path: '/triaje/:id',
-            element: (
-              <RoleGard listRoles={listRoles.triaje}>
-                <FormTriaje />
-              </RoleGard>
-            )
-          },
-
+          },          
           {
             path: '*',
             element: <h1>404</h1>

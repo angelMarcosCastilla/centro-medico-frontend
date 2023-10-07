@@ -7,7 +7,7 @@ export const addResult = async (body) => {
 
 export const updateResult = async (data) => {
   const {
-    data: { data: result }
+    data:result
   } = await axios.put('/resultados', data)
   return result
 }
