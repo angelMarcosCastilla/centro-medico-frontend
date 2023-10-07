@@ -71,7 +71,7 @@ const router = createBrowserRouter([
           {
             path: 'pagos',
             element:(
-              <RoleGard listRoles={listRoles.admisión}>
+              <RoleGard listRoles={listRoles.admision}>
                 <Pagos/>
               </RoleGard>
             )
