@@ -36,7 +36,7 @@ export default function Dashboard() {
             route='reportes'
           />
         </HasRole>
-        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admisión}>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
             icon={<HelpingHand size={20}/>}
             text= 'Pagos'

@@ -11,7 +11,7 @@ export function initialAxios() {
   axios.interceptors.request.use(
     (request) => {
       const token = getToken()
-      if (token) {
+      if (token) {        
         request.headers.Authorization = `Bearer ${token}`
       }
       return request
