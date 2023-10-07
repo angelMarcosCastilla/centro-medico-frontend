@@ -2,9 +2,7 @@
 import { listarTriajeService } from '../../services/triaje'
 import {
   Button,
-  CardBody,
   Chip,
-  Input,
   Table,
   TableBody,
   TableCell,
@@ -13,23 +11,16 @@ import {
   TableRow
 } from '@nextui-org/react'
 import { useFetcher } from '../../hook/useFetcher'
-import { SearchIcon, Stethoscope } from 'lucide-react'
+import { Stethoscope } from 'lucide-react'
 import { statusColorMap } from '../../constants/state'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Header from '../../components/Header'
 
 export default function TriajePage() {
-  const [search, setSearch] = useState('')
   const { data } = useFetcher(listarTriajeService)
   const navigate = useNavigate()
 
-  const filteredData = useMemo(() => {
-    if (!search) return data?.data || []
-    return data?.data?.filter((triaje) => {
-      const fullName = `${triaje.nombres} ${triaje.apellidos}`
-      return fullName.toLowerCase().includes(search.toLowerCase())
-    })
-  }, [search, data])
   const handleNavigate = (triajeData) => {
     const {
       apellidos,
@@ -69,49 +60,43 @@ export default function TriajePage() {
   }
 
   return (
-    <CardBody>
-      <h1 className='text-2xl mb-5'>Lista Triaje</h1>
-      <Input
-        isClearable
-        className='w-full sm:max-w-[44%]'
-        placeholder='Buscar por nombre...'
-        startContent={<SearchIcon />}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <Table shadow='none'>
-        <TableHeader>
-          <TableColumn>N°</TableColumn>
-          <TableColumn>Paciente</TableColumn>
-          <TableColumn>Cantidad Servicio</TableColumn>
-          <TableColumn>Estado</TableColumn>
-          <TableColumn>acciones</TableColumn>
-        </TableHeader>
-        <TableBody emptyContent={'No Hay pacientes para triaje'}>
-          {filteredData.map((triaje, index) => (
-            <TableRow key={triaje.idatencion}>
-              <TableCell>{index + 1}</TableCell>
-              <TableCell>
-                {triaje.nombres} {triaje.apellidos}
-              </TableCell>
-              <TableCell>{triaje.total_servicios}</TableCell>
-              <TableCell>
-                <Chip className={statusColorMap.PT}>Pendiente Triaje</Chip>
-              </TableCell>
-              <TableCell>
-                <Button
-                  isIconOnly
-                  color='primary'
-                  variant='flat'
-                  onClick={() => handleNavigate(triaje)}
-                >
-                  <Stethoscope />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </CardBody>
+    <div className='px-3 py-4 bg-slate-100 h-screen flex flex-col gap-y-4'>
+      <Header title='Triaje' />
+      <section className='px-4 py-3 bg-[white] shadow h-full'>
+        <Table shadow='none'>
+          <TableHeader>
+            <TableColumn>N°</TableColumn>
+            <TableColumn>Paciente</TableColumn>
+            <TableColumn>Cantidad Servicio</TableColumn>
+            <TableColumn>Estado</TableColumn>
+            <TableColumn>acciones</TableColumn>
+          </TableHeader>
+          <TableBody emptyContent={'No Hay pacientes para triaje'}>
+            {data.map((triaje, index) => (
+              <TableRow key={triaje.idatencion}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>
+                  {triaje.nombres} {triaje.apellidos}
+                </TableCell>
+                <TableCell>{triaje.total_servicios}</TableCell>
+                <TableCell>
+                  <Chip className={statusColorMap.PT}>Pendiente Triaje</Chip>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    isIconOnly
+                    color='primary'
+                    variant='flat'
+                    onClick={() => handleNavigate(triaje)}
+                  >
+                    <Stethoscope />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </section>
+    </div>
   )
 }

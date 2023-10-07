@@ -31,6 +31,7 @@ import { addResult, updateResult } from '../../services/result'
 import { toast } from 'sonner'
 import { Eye, FileEdit } from 'lucide-react'
 import { redirectToResult } from '../../config'
+import Header from '../../components/Header'
 
 export default function ExternalModule() {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -84,7 +85,7 @@ export default function ExternalModule() {
       }
     } else {
       const result = await updateResult(data)
-      if (result.isSuccess) {
+      if (result.isSuccess) {        
         mutate((prev) =>
           prev.map((el) =>
             el.iddetatencion === idDet.current
@@ -98,46 +99,13 @@ export default function ExternalModule() {
         onClose()
         toast.success(result.message)
       }
+      console.log(result)
     }
   }
   return (
     <>
       <div className='px-3 py-4 bg-slate-100 h-screen flex flex-col gap-y-4'>
-        <header className='shadow bg-[white] flex justify-between items-center sticky top-4 px-4 py-5 rounded-lg'>
-          <h1>Informes</h1>
-          <Dropdown placement='bottom-start'>
-            <DropdownTrigger>
-              <User
-                as='button'
-                avatarProps={{
-                  className: 'ml-2',
-                  isBordered: true,
-                  src: `https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true&name=${userInfo.nombres}`
-                }}
-                description={mapRoles[userInfo.nivel_acceso]}
-                classNames={{
-                  base: 'flex-row-reverse',
-                  wrapper: 'items-end'
-                }}
-                name={`${userInfo.nombres} ${userInfo.apellidos}`}
-              />
-            </DropdownTrigger>
-            <DropdownMenu aria-label='User Actions' variant='flat'>
-              <DropdownItem key='profile'>Perfil</DropdownItem>
-              <DropdownItem key='profile'>Firma</DropdownItem>
-              <DropdownItem
-                key='logout'
-                color='danger'
-                onClick={() => {
-                  localStorage.removeItem('sidebarExpanded')
-                  logout()
-                }}
-              >
-                Cerrar sesión
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        </header>
+       <Header/>
         <section className='px-4 py-3 bg-[white] shadow h-full'>
           <div className='mb-3'>filtros</div>
           <div>
@@ -146,6 +114,7 @@ export default function ExternalModule() {
                 <TableColumn>n°</TableColumn>
                 <TableColumn>Dni</TableColumn>
                 <TableColumn>Paciente</TableColumn>
+                <TableColumn>Area</TableColumn>
                 <TableColumn>Categoria</TableColumn>
                 <TableColumn>Servicio</TableColumn>
                 <TableColumn>Estado</TableColumn>
@@ -158,6 +127,9 @@ export default function ExternalModule() {
                     <TableCell>{el.num_documento}</TableCell>
                     <TableCell>
                       {el.nombres} {el.apellidos}
+                    </TableCell>
+                    <TableCell>
+                      {el.nombre_area}
                     </TableCell>
                     <TableCell>{el.nombre_categoria}</TableCell>
                     <TableCell>{el.nombre_servicio}</TableCell>

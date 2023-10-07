@@ -18,6 +18,7 @@ import DateTimeClock from '../../components/DateTimeClock'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { registrarTriajeService } from '../../services/triaje'
 import { toast } from 'sonner'
+import Header from '../../components/Header'
 
 const listInvestigators = [
   { name: 'Alejandro Torres', signature: 'https://i.imgur.com/IvNkEE0.png' },
@@ -92,12 +93,9 @@ export default function FormTriaje() {
   }
 
   return (
-    <>
-      <CardHeader className='flex justify-between'>
-        <h2 className='text-2xl'>Identificación del paciente en Triaje</h2>
-        <DateTimeClock />
-      </CardHeader>
-      <Divider />
+   <section className='px-3 py-4 bg-slate-100 h-screen flex flex-col gap-y-4' >
+    <Header title='Identificación del paciente en Triaje'/>
+     <Card className='flex-1'>
       <CardBody>
         <div className='lg:flex'>
           <Card shadow='none' className='flex-1'>
@@ -309,7 +307,6 @@ export default function FormTriaje() {
           </Card>
         </div>
       </CardBody>
-      <Divider />
       <CardFooter className='flex justify-end gap-5'>
         <Button
           onClick={() => navigate(-1, { replace: true })}
@@ -323,6 +320,7 @@ export default function FormTriaje() {
           Guardar
         </Button>
       </CardFooter>
-    </>
+    </Card>
+   </section>
   )
 }
