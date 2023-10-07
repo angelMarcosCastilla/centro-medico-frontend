@@ -121,7 +121,11 @@ export default function PaymentDetails({
           className='flex-shrink-0'
           color='primary'
           variant='light'
-          isDisabled={!!dataCliente.convenio || disableButton}
+          isDisabled={
+            !Object.keys(dataCliente).length ||
+            !!dataCliente.convenio ||
+            disableButton
+          }
           startContent={<Plus />}
           onClick={handleAgregarPago}
         >

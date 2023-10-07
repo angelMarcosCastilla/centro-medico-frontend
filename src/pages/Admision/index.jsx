@@ -277,6 +277,10 @@ export default function Admision() {
     setIsSamePatient(false)
   }, [dataToSend.pagoData.tipoComprobante])
 
+  useEffect(() => {
+    setResetTable(crypto.randomUUID())
+  }, [dataCliente])
+
   // si cambia de pestaña el pago se resetea
   useEffect(() => {
     if (selected === 'informacion-paciente') {

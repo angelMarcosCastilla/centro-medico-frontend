@@ -8,7 +8,7 @@ export const DataProvider = ({ children }) => {
   const [dataToSend, setDataToSend] = useState({
     pagoData: {
       idUsuario: JSON.parse(localStorage.getItem('userInfo')).idusuario,
-      tipoComprobante: 'S'
+      tipoComprobante: 'B'
     }
   })
 
@@ -16,7 +16,7 @@ export const DataProvider = ({ children }) => {
     setDataToSend({
       pagoData: {
         idUsuario: JSON.parse(localStorage.getItem('userInfo')).idusuario,
-        tipoComprobante: 'S'
+        tipoComprobante: 'B'
       }
     })
   }, [])

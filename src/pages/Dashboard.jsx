@@ -31,7 +31,7 @@ export default function Dashboard() {
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
-            icon={<FileText size={20} />}
+            icon={<Folders size={20} />}
             text='Reportes'
             route='reportes'
           />
