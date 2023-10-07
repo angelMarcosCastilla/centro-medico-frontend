@@ -13,7 +13,7 @@ import {
   CardFooter
 } from '@nextui-org/react'
 import CustomRadio from '../../components/CustomRadio'
-import { Newspaper, Plus, ScrollText, Search } from 'lucide-react'
+import { Newspaper, Plus, ScrollText, Search, Ticket } from 'lucide-react'
 import DateTimeClock from '../../components/DateTimeClock'
 import { getAllServices } from '../../services/service'
 import { ModalServicios } from './components/ModalServicios'
@@ -209,6 +209,27 @@ export default function Admision() {
     }
   }
 
+  const handlePayment = (detPago) => {
+    const detallePago = detPago.map((pago) => ({
+      tipoPago: pago.idtipopago,
+      montoPagado: pago.cantidad
+    }))
+
+    setDataToSend({
+      ...dataToSend,
+      detallePago
+    })
+  }
+
+  const isDisableButton = validateFieldsFormAdmision(
+    dataToSend,
+    dataCliente.convenio
+  )
+
+  const isPaymentValid =
+    dataToSend.detallePago?.reduce((acc, curr) => acc + curr.montoPagado, 0) ===
+      parseFloat(montoTotal) || Boolean(dataCliente.convenio)
+
   useEffect(() => {
     const hasTriaje = detService.some((el) => Boolean(el.triaje))
 
@@ -230,18 +251,6 @@ export default function Admision() {
       detalleAtencion
     })
   }, [detService])
-
-  const handlePayment = (detPago) => {
-    const detallePago = detPago.map((pago) => ({
-      tipoPago: pago.idtipopago,
-      montoPagado: pago.cantidad
-    }))
-
-    setDataToSend({
-      ...dataToSend,
-      detallePago
-    })
-  }
 
   useEffect(() => {
     if (isSamePatient) {
@@ -277,15 +286,6 @@ export default function Admision() {
       })
     }
   }, [selected])
-
-  const isDisableButton = validateFieldsFormAdmision(
-    dataToSend,
-    dataCliente.convenio
-  )
-
-  const isPaymentValid =
-    dataToSend.detallePago?.reduce((acc, curr) => acc + curr.montoPagado, 0) ===
-      parseFloat(montoTotal) || Boolean(dataCliente.convenio)
 
   return (
     <>
@@ -367,7 +367,7 @@ export default function Admision() {
                   <div className='flex items-end gap-x-4'>
                     <Input
                       label={
-                        dataToSend.pagoData.tipoComprobante === 'B'
+                        dataToSend.pagoData.tipoComprobante !== 'F'
                           ? 'Número documento'
                           : 'Número RUC'
                       }
@@ -399,7 +399,11 @@ export default function Admision() {
                       })
                     }}
                   >
-                    <div className='flex gap-6'>
+                    <div className='flex gap-4'>
+                      <CustomRadio value='S'>
+                        <Ticket />
+                        Simple
+                      </CustomRadio>
                       <CustomRadio value='B'>
                         <ScrollText />
                         Boleta
@@ -415,7 +419,7 @@ export default function Admision() {
                   <Input
                     className='col-start-1 col-end-3'
                     label={
-                      dataToSend.pagoData.tipoComprobante === 'B'
+                      dataToSend.pagoData.tipoComprobante !== 'F'
                         ? 'Apellidos y nombres'
                         : 'Razón social'
                     }
@@ -429,7 +433,7 @@ export default function Admision() {
                     readOnly
                   />
                 </div>
-                {dataToSend.pagoData.tipoComprobante === 'B' &&
+                {dataToSend.pagoData.tipoComprobante !== 'F' &&
                   calculateAgePerson(dataPaciente.fechaNacimiento) && (
                     <div className='justify-items-start'>
                       <Checkbox
