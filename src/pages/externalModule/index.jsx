@@ -14,16 +14,10 @@ import {
   ModalBody,
   ModalFooter,
   Input,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  User,
   Chip
 } from '@nextui-org/react'
 import Editor from '../../components/Editor'
 import { useAuth } from '../../context/AuthContext'
-import { mapRoles } from '../../constants/auth.constant'
 import { useFetcher } from '../../hook/useFetcher'
 import { changeStatus, getServiciesByDoctor } from '../../services/admission'
 import { listState, statusColorMap } from '../../constants/state'
@@ -85,7 +79,7 @@ export default function ExternalModule() {
       }
     } else {
       const result = await updateResult(data)
-      if (result.isSuccess) {        
+      if (result.isSuccess) {
         mutate((prev) =>
           prev.map((el) =>
             el.iddetatencion === idDet.current
@@ -105,7 +99,7 @@ export default function ExternalModule() {
   return (
     <>
       <div className='px-3 py-4 bg-slate-100 h-screen flex flex-col gap-y-4'>
-       <Header/>
+        <Header />
         <section className='px-4 py-3 bg-[white] shadow h-full'>
           <div className='mb-3'>filtros</div>
           <div>
@@ -128,9 +122,7 @@ export default function ExternalModule() {
                     <TableCell>
                       {el.nombres} {el.apellidos}
                     </TableCell>
-                    <TableCell>
-                      {el.nombre_area}
-                    </TableCell>
+                    <TableCell>{el.nombre_area}</TableCell>
                     <TableCell>{el.nombre_categoria}</TableCell>
                     <TableCell>{el.nombre_servicio}</TableCell>
                     <TableCell>
@@ -181,7 +173,13 @@ export default function ExternalModule() {
           </div>
         </section>
       </div>
-      <Modal backdrop='blur' size='5xl' isOpen={isOpen} onClose={onClose}>
+      <Modal
+        backdrop='blur'
+        size='5xl'
+        isOpen={isOpen}
+        onClose={onClose}
+        isDismissable={false}
+      >
         <ModalContent>
           {(onClose) => (
             <>
