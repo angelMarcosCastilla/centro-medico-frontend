@@ -6,9 +6,12 @@ export const addResult = async (body) => {
 }
 
 export const updateResult = async (data) => {
-  const {
-    data:result
-  } = await axios.put('/resultados', data)
+  const { data: result } = await axios.put('/resultados', data)
+  return result
+}
+
+export const updateResultForCorrection = async (data) => {
+  const { data: result } = await axios.put('/resultados/correciones', data)
   return result
 }
 

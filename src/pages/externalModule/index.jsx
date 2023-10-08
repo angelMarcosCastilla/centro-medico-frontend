@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Table,
   TableHeader,
@@ -14,7 +14,8 @@ import {
   ModalBody,
   ModalFooter,
   Input,
-  Chip
+  Chip,
+  Tooltip
 } from '@nextui-org/react'
 import Editor from '../../components/Editor'
 import { useAuth } from '../../context/AuthContext'
@@ -23,12 +24,23 @@ import { changeStatus, getServiciesByDoctor } from '../../services/admission'
 import { listState, statusColorMap } from '../../constants/state'
 import { addResult, updateResult } from '../../services/result'
 import { toast } from 'sonner'
-import { Eye, FileEdit } from 'lucide-react'
+import { AlertCircle, Eye, FileEdit } from 'lucide-react'
 import { redirectToResult } from '../../config'
 import Header from '../../components/Header'
 
 export default function ExternalModule() {
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const {
+    isOpen: isOpenEditor,
+    onOpen: onOpenEditor,
+    onClose: onCloseEditor
+  } = useDisclosure()
+
+  const {
+    isOpen: isOpenInfo,
+    onOpen: onOpenInfo,
+    onClose: onCloseInfo
+  } = useDisclosure()
+
   const ref = React.useRef()
   const refTitulo = React.useRef()
   const idDet = React.useRef()
@@ -36,6 +48,7 @@ export default function ExternalModule() {
   const detailCurrent = React.useRef()
 
   const [json, setjson] = React.useState({ titulo: '', contenido: '' })
+  const [information, setInformation] = React.useState('')
 
   const { userInfo, logout } = useAuth()
 
@@ -96,6 +109,7 @@ export default function ExternalModule() {
       console.log(result)
     }
   }
+
   return (
     <>
       <div className='px-3 py-4 bg-slate-100 h-screen flex flex-col gap-y-4'>
@@ -105,14 +119,14 @@ export default function ExternalModule() {
           <div>
             <Table aria-label='Example static collection table' shadow='none'>
               <TableHeader>
-                <TableColumn>n°</TableColumn>
-                <TableColumn>Dni</TableColumn>
-                <TableColumn>Paciente</TableColumn>
-                <TableColumn>Area</TableColumn>
-                <TableColumn>Categoria</TableColumn>
-                <TableColumn>Servicio</TableColumn>
-                <TableColumn>Estado</TableColumn>
-                <TableColumn>Acciones</TableColumn>
+                <TableColumn>N°</TableColumn>
+                <TableColumn>DNI</TableColumn>
+                <TableColumn>PACIENTE</TableColumn>
+                <TableColumn>ÁREA</TableColumn>
+                <TableColumn>CATEGORÍA</TableColumn>
+                <TableColumn>SERVICIO</TableColumn>
+                <TableColumn>ESTADO</TableColumn>
+                <TableColumn>ACCIONES</TableColumn>
               </TableHeader>
               <TableBody isLoading={loading} loadingContent='cargando'>
                 {data?.map((el, index) => (
@@ -135,34 +149,63 @@ export default function ExternalModule() {
                       </Chip>
                     </TableCell>
                     <TableCell>
-                      <div className='flex items-center gap-x-2'>
-                        <Button
-                          isIconOnly
-                          variant='light'
+                      <div className='relative flex items-center gap-2'>
+                        <Tooltip
+                          content={
+                            el.estado === 'PI'
+                              ? 'Redactar'
+                              : el.estado === 'PE'
+                              ? 'Editar'
+                              : 'Corregir'
+                          }
                           color='primary'
-                          onPress={() => {
-                            if (el.idresultado) {
-                              setjson(JSON.parse(el.diagnostico))
-                            } else {
-                              setjson({ titulo: '', contenido: '' })
-                            }
-                            idDet.current = el.iddetatencion
-                            resultId.current = el.idresultado
-                            detailCurrent.current = el
-                            onOpen()
-                          }}
+                          closeDelay={0}
                         >
-                          <FileEdit size={20} />
-                        </Button>
-                        {el.idresultado && (
-                          <a
-                            target='_blank'
-                            href={redirectToResult(el.iddetatencion)}
-                            className='text-gray-400'
-                            rel='noreferrer'
+                          <span
+                            className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+                            onClick={() => {
+                              if (el.idresultado) {
+                                setjson(JSON.parse(el.diagnostico))
+                              } else {
+                                setjson({ titulo: '', contenido: '' })
+                              }
+                              idDet.current = el.iddetatencion
+                              resultId.current = el.idresultado
+                              detailCurrent.current = el
+                              onOpenEditor()
+                            }}
                           >
-                            <Eye size={20} />
-                          </a>
+                            <FileEdit size={20} />
+                          </span>
+                        </Tooltip>
+                        {el.idresultado && (
+                          <Tooltip content='Ver' color='primary' closeDelay={0}>
+                            <a
+                              className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+                              href={redirectToResult(el.iddetatencion)}
+                              target='_blank'
+                              rel='noreferrer'
+                            >
+                              <Eye size={20} />
+                            </a>
+                          </Tooltip>
+                        )}
+                        {el.estado === 'PC' && (
+                          <Tooltip
+                            content='Información'
+                            color='warning'
+                            closeDelay={0}
+                          >
+                            <span
+                              className='text-lg text-warning-400 cursor-pointer active:opacity-50'
+                              onClick={() => {
+                                setInformation(el.observacion)
+                                onOpenInfo()
+                              }}
+                            >
+                              <AlertCircle size={20} />
+                            </span>
+                          </Tooltip>
                         )}
                       </div>
                     </TableCell>
@@ -173,11 +216,12 @@ export default function ExternalModule() {
           </div>
         </section>
       </div>
+
       <Modal
         backdrop='blur'
         size='5xl'
-        isOpen={isOpen}
-        onClose={onClose}
+        isOpen={isOpenEditor}
+        onClose={onCloseEditor}
         isDismissable={false}
       >
         <ModalContent>
@@ -214,6 +258,24 @@ export default function ExternalModule() {
                 <Button color='primary' onPress={() => handleSubmit(onClose)}>
                   {resultId.current ? 'Actualizar informe' : 'Redactar informe'}
                 </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      <Modal size='md' isOpen={isOpenInfo} onClose={onCloseInfo}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className='flex flex-col gap-1'>
+                Detalles de la correción
+              </ModalHeader>
+              <ModalBody>
+                <p>{information}</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button onPress={onClose}>Cerrar</Button>
               </ModalFooter>
             </>
           )}

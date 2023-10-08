@@ -9,6 +9,7 @@ import {
   Textarea
 } from '@nextui-org/react'
 import { changeStatus } from '../../../../services/admission'
+import { updateResultForCorrection } from '../../../../services/result'
 
 export default function ModalCorrection({
   isOpen,
@@ -19,20 +20,27 @@ export default function ModalCorrection({
   const [correction, setCorrection] = useState('')
 
   const handleClose = () => {
+    setCorrection('')
     onOpenChange(false)
   }
 
   const handleSaveCorrection = async (onClose) => {
-    const result = await changeStatus(idDetAttention, 'PC')
+    const [statusChangeRes, updateResultRes] = await Promise.all([
+      changeStatus(idDetAttention, 'PC'),
+      updateResultForCorrection({
+        idDetAtencion: idDetAttention,
+        observacion: correction
+      })
+    ])
 
-    if (result) {
+    if (statusChangeRes && updateResultRes) {
       refreshTable()
       onClose()
     }
   }
 
   return (
-    <Modal size='lg' isOpen={isOpen} onOpenChange={handleClose}>
+    <Modal size='md' isOpen={isOpen} onOpenChange={handleClose}>
       <ModalContent>
         {(onClose) => (
           <>
@@ -41,6 +49,7 @@ export default function ModalCorrection({
             </ModalHeader>
             <ModalBody>
               <Textarea
+                minRows={5}
                 maxRows={5}
                 label='Motivo'
                 labelPlacement='outside'
