@@ -8,7 +8,14 @@ import {
   DropdownMenu,
   DropdownTrigger,
   Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
   Pagination,
+  Select,
+  SelectItem,
   Table,
   TableBody,
   TableCell,
@@ -28,7 +35,8 @@ import { useFetcher } from '../hook/useFetcher'
 import { usePagination } from '../hook/usePagination'
 import { capitalize } from '../utils'
 import { listState, statusColorMap } from '../constants/state'
-import { changeStatus } from '../services/admission'
+import { changeStatus, updateMedicoByDetatencion } from '../services/admission'
+import { useAuth } from '../context/AuthContext'
 
 const columns = [
   { name: 'ID', uid: 'iddetatencion', sortable: true },
@@ -47,7 +55,10 @@ const INITIAL_VISIBLE_COLUMNS = [
   'acciones'
 ]
 
-export default function AttentionProcessTable({ useFecherFunction }) {
+export default function AttentionProcessTable({
+  useFecherFunction,
+  getDoctorByAreaFunction
+}) {
   const [filterValue, setFilterValue] = useState('')
   const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
@@ -56,9 +67,14 @@ export default function AttentionProcessTable({ useFecherFunction }) {
     column: 'id',
     direction: 'ascending'
   })
+  const [idDetAttention, setIdDetAttention] = useState(null)
+  const { userInfo } = useAuth()
+  const [medicoId, setMedicoId] = useState(new Set([]))
   const { data, mutate } = useFetcher(useFecherFunction)
+  const { data: doctorData } = useFetcher(getDoctorByAreaFunction)
 
   const hasSearchFilter = Boolean(filterValue)
+  const selectMedico = Array.from(medicoId)[0]
 
   const headerColumns = useMemo(() => {
     if (visibleColumns === 'all') return columns
@@ -122,9 +138,13 @@ export default function AttentionProcessTable({ useFecherFunction }) {
             >
               <span
                 className='text-lg text-primary-400 cursor-pointer active:opacity-50'
-                onClick={() =>
-                  handleChangeStatus(detail.iddetatencion, detail.estado)
-                }
+                onClick={() => {
+                  if (detail.estado === 'P') {
+                    handleChangeStatus(detail.iddetatencion, detail.estado)
+                  } else {
+                    setIdDetAttention(detail.iddetatencion)
+                  }
+                }}
               >
                 {detail.estado === 'P' ? (
                   <MonitorPause size={20} />
@@ -140,26 +160,17 @@ export default function AttentionProcessTable({ useFecherFunction }) {
     }
   }, [])
 
-  const handleChangeStatus = async (idDetAttention, status) => {
-    const newStatus = status === 'P' ? 'A' : 'PI'
-    const result = await changeStatus(idDetAttention, newStatus)
+  const handleChangeStatus = async (idDetAttention) => {
+    const result = await changeStatus(idDetAttention, 'A')
 
     if (result) {
       mutate((prevData) => {
-        if (status === 'A') {
-          // Si el estado actual es "A", elimina la fila de la tabla
-          return prevData.filter(
-            (item) => item.iddetatencion !== idDetAttention
-          )
-        } else {
-          // Si el estado actual no es "A", simplemente actualiza la fila localmente
-          return prevData.map((item) => {
-            if (item.iddetatencion === idDetAttention) {
-              return { ...item, estado: newStatus }
-            }
-            return item
-          })
-        }
+        return prevData.map((item) => {
+          if (item.iddetatencion === idDetAttention) {
+            return { ...item, estado: 'A' }
+          }
+          return item
+        })
       })
     } else {
       toast.error('Error al cambiar el estado')
@@ -177,6 +188,21 @@ export default function AttentionProcessTable({ useFecherFunction }) {
   const onClear = useCallback(() => {
     setFilterValue('')
   }, [])
+
+  const handleSuccess = async (onClose) => {
+    const data = {
+      idmedicoatendiente: userInfo.idpersonalmedico,
+      idmedicoinformante: parseInt(selectMedico)
+    }
+    mutate((prevData) => {
+      return prevData.filter((item) => item.iddetatencion !== idDetAttention)
+    })
+
+    handleCancel()
+    onClose()
+
+    await updateMedicoByDetatencion(data, idDetAttention)
+  }
 
   const topContent = useMemo(() => {
     return (
@@ -277,46 +303,100 @@ export default function AttentionProcessTable({ useFecherFunction }) {
     )
   }, [items.length, page, pages, hasSearchFilter])
 
+  const handleCancel = () => {
+    setIdDetAttention(null)
+    setMedicoId(new Set([]))
+  }
+
   return (
-    <CardBody>
-      <Table
-        aria-label='Example table with custom cells, pagination and sorting'
-        isHeaderSticky
-        bottomContent={bottomContent}
-        bottomContentPlacement='outside'
-        classNames={{
-          wrapper: 'max-h-[600px]'
-        }}
-        sortDescriptor={sortDescriptor}
-        topContent={topContent}
-        topContentPlacement='outside'
-        shadow='none'
-        onSortChange={setSortDescriptor}
-      >
-        <TableHeader columns={headerColumns}>
-          {(column) => (
-            <TableColumn
-              key={column.uid}
-              align={column.uid === 'actions' ? 'center' : 'start'}
-              allowsSorting={column.sortable}
-            >
-              {column.name}
-            </TableColumn>
-          )}
-        </TableHeader>
-        <TableBody
-          emptyContent={'No se encontraron pacientes'}
-          items={sortedItems}
+    <>
+      <CardBody>
+        <Table
+          aria-label='Example table with custom cells, pagination and sorting'
+          isHeaderSticky
+          bottomContent={bottomContent}
+          bottomContentPlacement='outside'
+          classNames={{
+            wrapper: 'max-h-[600px]'
+          }}
+          sortDescriptor={sortDescriptor}
+          topContent={topContent}
+          topContentPlacement='outside'
+          shadow='none'
+          onSortChange={setSortDescriptor}
         >
-          {(item) => (
-            <TableRow key={crypto.randomUUID().toString()}>
-              {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
-              )}
-            </TableRow>
+          <TableHeader columns={headerColumns}>
+            {(column) => (
+              <TableColumn
+                key={column.uid}
+                align={column.uid === 'actions' ? 'center' : 'start'}
+                allowsSorting={column.sortable}
+              >
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            emptyContent={'No se encontraron pacientes'}
+            items={sortedItems}
+          >
+            {(item) => (
+              <TableRow key={crypto.randomUUID().toString()}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardBody>
+      <Modal
+        isOpen={Boolean(idDetAttention)}
+        onOpenChange={() => setIdDetAttention(null)}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className='flex flex-col gap-1'>
+                Asignar Médico
+              </ModalHeader>
+              <ModalBody>
+                <Select  placeholder='Médico a redactar el informe' selectedKeys={medicoId} onSelectionChange={setMedicoId}>
+                  {doctorData.map((doctor) => (
+                    <SelectItem
+                      key={doctor.idpersonalmedico}
+                      value={doctor.iddoctor}
+                    >
+                      {doctor.medico}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  color='danger'
+                  variant='light'
+                  onPress={() => {
+                    handleCancel()
+                    onClose()
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  color='primary'
+                  onPress={() => {
+                    handleSuccess(onClose)
+                  }}
+                  isDisabled={!selectMedico}
+                >
+                  Asignar
+                </Button>
+              </ModalFooter>
+            </>
           )}
-        </TableBody>
-      </Table>
-    </CardBody>
+        </ModalContent>
+      </Modal>
+    </>
   )
 }

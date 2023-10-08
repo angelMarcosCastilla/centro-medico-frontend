@@ -28,3 +28,11 @@ export const getServiciesByDoctor = async (idpersona) => {
   } = await axios.get(`/atenciones/externalModule/${idpersona}`)
   return data
 }
+
+export const updateMedicoByDetatencion = async (data, iddetatencion) => {
+  const { data: dataResponse } = await axios.put(
+    `/atenciones/detalle/doctor/${iddetatencion}`,
+    data
+  )
+  return dataResponse
+}

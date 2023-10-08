@@ -14,3 +14,10 @@ export const searchPersonById = async (idPersona) => {
   const { data } = await axios.get(`/personas/${idPersona}`)
   return data
 }
+
+export const getDoctorByAreaFunction = async (idarea) => {
+  const {
+    data: { data }
+  } = await axios.get(`/personalesmedicos/areas/${idarea}`)
+  return data
+}
