@@ -138,7 +138,7 @@ export default function ReportSendTable({ useFecherFunction }) {
                   className='text-lg text-warning-400 cursor-pointer active:opacity-50'
                   onClick={() => onOpenModal(detail.iddetatencion)}
                 >
-                  <FileX size={20} /> 
+                  <FileX size={20} />
                 </span>
               </Tooltip>
             )}
@@ -250,7 +250,7 @@ export default function ReportSendTable({ useFecherFunction }) {
             Filas por página:
             <select
               className='bg-transparent outline-none text-default-400 text-small'
-              value={rowsPerPage}
+              defaultValue={rowsPerPage}
               onChange={onRowsPerPageChange}
             >
               <option value='5'>5</option>

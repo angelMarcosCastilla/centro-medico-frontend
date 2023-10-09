@@ -6,7 +6,7 @@ import { getTemplateLatestVersionByService } from '../../services/template'
 import { toast } from 'sonner'
 import {
   addResult,
-  searchByDetAttention,
+  searchResultByDetAttention,
   updateResult
 } from '../../services/result'
 import { changeStatus } from '../../services/admission'
@@ -72,7 +72,7 @@ export default function ReportEditor() {
     getTemplateLatestVersionByService(state.idService)
   )
   const { data: searchData } = useFetcher(() =>
-    searchByDetAttention(state.idDetAttention)
+    searchResultByDetAttention(state.idDetAttention)
   )
 
   const [template, setTemplate] = useState({})

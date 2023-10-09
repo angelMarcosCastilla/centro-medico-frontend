@@ -229,7 +229,7 @@ export default function AttentionProcessTable({ useFecherFunction }) {
             Filas por página:
             <select
               className='bg-transparent outline-none text-default-400 text-small'
-              value={rowsPerPage}
+              defaultValue={rowsPerPage}
               onChange={onRowsPerPageChange}
             >
               <option value='5'>5</option>

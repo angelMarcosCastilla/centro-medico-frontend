@@ -4,6 +4,8 @@ import { getInProcessAttentionsByArea } from '../../services/admission'
 
 export default function Laboratorio() {
   return (
-    <AttentionProcessTable useFecherFunction={() => getInProcessAttentionsByArea(LABORATORIO_ID)} />
+    <AttentionProcessTable
+      useFecherFunction={() => getInProcessAttentionsByArea(LABORATORIO_ID)}
+    />
   )
 }

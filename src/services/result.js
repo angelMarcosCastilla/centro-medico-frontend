@@ -20,7 +20,7 @@ export const removeResult = async (idDetAttention) => {
   return result
 }
 
-export const searchByDetAttention = async (idDetAttention) => {
+export const searchResultByDetAttention = async (idDetAttention) => {
   const { data } = await axios.get(
     `/resultados/detatenciones/${idDetAttention}`
   )
