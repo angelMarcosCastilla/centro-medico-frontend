@@ -14,15 +14,24 @@ import {
   TableCell,
   TableColumn,
   TableHeader,
-  TableRow
+  TableRow,
+  Tooltip,
+  useDisclosure
 } from '@nextui-org/react'
-import { ChevronDownIcon, SearchIcon, FileDown } from 'lucide-react'
+import {
+  ChevronDownIcon,
+  SearchIcon,
+  FileDown,
+  FileCheck,
+  FileX
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { useFetcher } from '../hook/useFetcher'
 import { usePagination } from '../hook/usePagination'
 import { capitalize } from '../utils'
 import { listState, statusColorMap } from '../constants/state'
 import { changeStatus } from '../services/admission'
+import ModalCorrection from '../pages/Admision/Reportes/components/ModalCorrection'
 
 const columns = [
   { name: 'ID', uid: 'iddetatencion', sortable: true },
@@ -50,7 +59,9 @@ export default function ReportSendTable({ useFecherFunction }) {
     column: 'id',
     direction: 'ascending'
   })
-  const { data, mutate } = useFetcher(useFecherFunction)
+  const { isOpen, onOpen, onOpenChange } = useDisclosure()
+  const [selectedDetAttentionId, setSelectedDetAttentionId] = useState(null)
+  const { data, mutate, refresh } = useFetcher(useFecherFunction)
 
   const hasSearchFilter = Boolean(filterValue)
 
@@ -110,18 +121,37 @@ export default function ReportSendTable({ useFecherFunction }) {
         return (
           <div className='relative flex items-center gap-2'>
             {detail.estado === 'PE' && (
-              <Button
-                color='primary'
-                onClick={() =>
-                  handleChangeStatus(detail.iddetatencion, detail.estado)
-                }
-              >
-                Entregar
-              </Button>
+              <Tooltip content='Entregar' color='success' closeDelay={0}>
+                <span
+                  className='text-lg text-success-400 cursor-pointer active:opacity-50'
+                  onClick={() =>
+                    handleChangeStatus(detail.iddetatencion, detail.estado)
+                  }
+                >
+                  <FileCheck size={20} />
+                </span>
+              </Tooltip>
             )}
-            <a target='_blank' rel='noreferrer' href={`http://localhost:3000/api/resultados/${detail.iddetatencion}/report`}>
-              <FileDown size={20} />
-            </a>
+            {detail.estado === 'F' && (
+              <Tooltip content='Corregir' color='warning' closeDelay={0}>
+                <span
+                  className='text-lg text-warning-400 cursor-pointer active:opacity-50'
+                  onClick={() => onOpenModal(detail.iddetatencion)}
+                >
+                  <FileX size={20} />
+                </span>
+              </Tooltip>
+            )}
+            <Tooltip content='Descargar' color='primary' closeDelay={0}>
+              <a
+                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+                href={`http://localhost:3000/api/resultados/${detail.iddetatencion}/report`}
+                target='_blank'
+                rel='noreferrer'
+              >
+                {<FileDown size={20} />}
+              </a>
+            </Tooltip>
           </div>
         )
       default:
@@ -150,6 +180,11 @@ export default function ReportSendTable({ useFecherFunction }) {
     } else {
       toast.error('Error al cambiar el estado')
     }
+  }
+
+  const onOpenModal = (idDetAttention) => {
+    setSelectedDetAttentionId(idDetAttention)
+    onOpen()
   }
 
   const onSearchChange = useCallback((value) => {
@@ -215,7 +250,7 @@ export default function ReportSendTable({ useFecherFunction }) {
             Filas por página:
             <select
               className='bg-transparent outline-none text-default-400 text-small'
-              value={rowsPerPage}
+              defaultValue={rowsPerPage}
               onChange={onRowsPerPageChange}
             >
               <option value='5'>5</option>
@@ -264,45 +299,55 @@ export default function ReportSendTable({ useFecherFunction }) {
   }, [items.length, page, pages, hasSearchFilter])
 
   return (
-    <CardBody>
-      <Table
-        aria-label='Example table with custom cells, pagination and sorting'
-        isHeaderSticky
-        bottomContent={bottomContent}
-        bottomContentPlacement='outside'
-        classNames={{
-          wrapper: 'max-h-[600px]'
-        }}
-        sortDescriptor={sortDescriptor}
-        topContent={topContent}
-        topContentPlacement='outside'
-        shadow='none'
-        onSortChange={setSortDescriptor}
-      >
-        <TableHeader columns={headerColumns}>
-          {(column) => (
-            <TableColumn
-              key={column.uid}
-              align={column.uid === 'actions' ? 'center' : 'start'}
-              allowsSorting={column.sortable}
-            >
-              {column.name}
-            </TableColumn>
-          )}
-        </TableHeader>
-        <TableBody
-          emptyContent={'No se encontraron pacientes'}
-          items={sortedItems}
+    <>
+      <CardBody>
+        <Table
+          isHeaderSticky
+          isStriped
+          aria-label='Example table with custom cells, pagination and sorting'
+          bottomContent={bottomContent}
+          bottomContentPlacement='outside'
+          classNames={{
+            wrapper: 'max-h-[600px]'
+          }}
+          sortDescriptor={sortDescriptor}
+          topContent={topContent}
+          topContentPlacement='outside'
+          shadow='none'
+          onSortChange={setSortDescriptor}
         >
-          {(item) => (
-            <TableRow key={crypto.randomUUID().toString()}>
-              {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
-              )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </CardBody>
+          <TableHeader columns={headerColumns}>
+            {(column) => (
+              <TableColumn
+                key={column.uid}
+                align={column.uid === 'actions' ? 'center' : 'start'}
+                allowsSorting={column.sortable}
+              >
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            emptyContent={'No se encontraron pacientes'}
+            items={sortedItems}
+          >
+            {(item) => (
+              <TableRow key={crypto.randomUUID().toString()}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardBody>
+
+      <ModalCorrection
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        idDetAttention={selectedDetAttentionId}
+        refreshTable={refresh}
+      />
+    </>
   )
 }

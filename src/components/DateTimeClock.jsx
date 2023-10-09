@@ -3,6 +3,17 @@ import { useEffect, useState } from 'react'
 export default function DateTimeClock() {
   const [currentDateTime, setCurrentDateTime] = useState(new Date())
 
+  const formattedTime = currentDateTime.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+
+  const formattedDate = currentDateTime.toLocaleDateString('es', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short'
+  })
+
   const updateDateTime = () => {
     const dateTimeNow = new Date()
     setCurrentDateTime(dateTimeNow)
@@ -15,15 +26,10 @@ export default function DateTimeClock() {
   }, [])
 
   return (
-    <h2 className='text-lg'>
-      {currentDateTime.toLocaleDateString('es', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      })}
-    </h2>
+    <div className='text-[17px] text-gray-500 select-none'>
+      <span>{formattedTime}</span>
+      <span> • </span>
+      <span>{formattedDate}</span>
+    </div>
   )
 }
