@@ -91,8 +91,7 @@ export default function ModalNewCompany({ isOpen, onOpenChange }) {
                   <Button
                     color='primary'
                     type='submit'
-                    isLoading={loading}
-                    onPress={onClose}
+                    isLoading={loading}                    
                   >
                     Registrar
                   </Button>

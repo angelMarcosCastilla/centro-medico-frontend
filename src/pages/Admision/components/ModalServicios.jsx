@@ -9,7 +9,7 @@ import {
   SelectItem
 } from '@nextui-org/react'
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useDataContext } from './DataContext'
 import { toast } from 'sonner'
 
@@ -17,6 +17,15 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
   const [area, setArea] = useState(new Set([]))
   const [categoria, setCategoria] = useState(new Set([]))
   const [servicio, setServicio] = useState(new Set([]))
+  const [isButtonDisabled, setButtonDisable] = useState(true)
+
+  useEffect(()=>{
+    if(area.size >0 && categoria.size >0 && servicio.size >0){
+      setButtonDisable(false)
+    }else{
+      setButtonDisable(true)
+    }
+  }, [area, categoria, servicio])
 
   const { dataToSend } = useDataContext()
 
@@ -185,7 +194,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                 <Button color='danger' variant='light' onPress={onClose}>
                   Cerrar
                 </Button>
-                <Button color='primary' onPress={handleAddServices}>
+                <Button color='primary' onPress={handleAddServices} isDisabled={isButtonDisabled}>
                   Agregar
                 </Button>
               </ModalFooter>
