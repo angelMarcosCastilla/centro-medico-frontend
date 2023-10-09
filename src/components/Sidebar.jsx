@@ -7,7 +7,13 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-  User
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  User,
+  useDisclosure
 } from '@nextui-org/react'
 import { useAuth } from '../context/AuthContext'
 import { mapRoles } from '../constants/auth.constant'
@@ -24,6 +30,7 @@ export default function Sidebar({ children }) {
   })
 
   const { logout, userInfo } = useAuth()
+  const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
   useEffect(() => {
     localStorage.setItem('sidebarExpanded', expanded.toString())
@@ -71,7 +78,35 @@ export default function Sidebar({ children }) {
               />
             </DropdownTrigger>
             <DropdownMenu aria-label='User Actions' variant='flat'>
-              <DropdownItem key='profile'>Perfil</DropdownItem>
+              <DropdownItem key='profile' onPress={onOpen}>
+                Perfil
+                <Modal isOpen={isOpen}  onOpenChange={onOpenChange}>
+                  <ModalContent>
+                    {(onClose) => (
+                      <>
+                        <ModalHeader className='flex flex-col gap-1'>
+                          Modal Title
+                        </ModalHeader>
+                        <ModalBody>
+                          <p>perfil</p>
+                        </ModalBody>
+                        <ModalFooter>
+                          <Button
+                            color='danger'
+                            variant='light'
+                            onPress={onClose}
+                          >
+                            Close
+                          </Button>
+                          <Button color='primary' onPress={onClose}>
+                            Action
+                          </Button>
+                        </ModalFooter>
+                      </>
+                    )}
+                  </ModalContent>
+                </Modal>
+              </DropdownItem>
               <DropdownItem
                 key='logout'
                 color='danger'
