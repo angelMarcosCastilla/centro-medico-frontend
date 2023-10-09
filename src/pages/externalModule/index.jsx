@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
   Table,
   TableHeader,
@@ -22,7 +22,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useFetcher } from '../../hook/useFetcher'
 import { changeStatus, getServiciesByDoctor } from '../../services/admission'
 import { listState, statusColorMap } from '../../constants/state'
-import { addResult, updateResult } from '../../services/result'
+import { addResult, removeResult, updateResult } from '../../services/result'
 import { toast } from 'sonner'
 import { AlertCircle, Eye, FileEdit } from 'lucide-react'
 import { redirectToResult } from '../../config'
@@ -45,68 +45,83 @@ export default function ExternalModule() {
   const refTitulo = React.useRef()
   const idDet = React.useRef()
   const resultId = React.useRef()
+  const status = React.useRef()
   const detailCurrent = React.useRef()
 
   const [json, setjson] = React.useState({ titulo: '', contenido: '' })
   const [information, setInformation] = React.useState('')
 
+  // eslint-disable-next-line no-unused-vars
   const { userInfo, logout } = useAuth()
 
-  const { data, loading, mutate } = useFetcher(() =>
+  const { data, loading, mutate, refresh } = useFetcher(() =>
     getServiciesByDoctor(userInfo.idpersona)
   )
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (onClose) => {
     const template = {
       titulo: refTitulo.current,
       contenido: ref.current.getHtml()
     }
 
-    const data = {
+    let data = {
       idDetAtencion: idDet.current,
-      diagnostico: JSON.stringify(template)
+      diagnostico: JSON.stringify(template),
+      idReferencia: 0
     }
 
-    if (!resultId.current) {
-      const result = await addResult(data)
-      const idresultado = result.data
+    if (status.current !== 'PC') {
+      if (!resultId.current) {
+        const result = await addResult(data)
+        const idresultado = result.data
 
-      if (result.isSuccess) {
-        await changeStatus(idDet.current, 'PE')
-        mutate((prev) =>
-          prev.map((el) =>
-            el.iddetatencion === idDet.current
-              ? {
-                  ...el,
-                  estado: 'PE',
-                  idresultado,
-                  diagnostico: data.diagnostico
-                }
-              : el
+        if (result.isSuccess) {
+          await changeStatus(idDet.current, 'PE')
+          mutate((prev) =>
+            prev.map((el) =>
+              el.iddetatencion === idDet.current
+                ? {
+                    ...el,
+                    estado: 'PE',
+                    idresultado,
+                    diagnostico: data.diagnostico
+                  }
+                : el
+            )
           )
-        )
-        onClose()
-        toast.success(result.message)
+          onClose()
+          toast.success(result.message)
+        } else {
+          toast.error(result.message)
+        }
       } else {
-        toast.error(result.message)
+        const result = await updateResult(data)
+        if (result.isSuccess) {
+          mutate((prev) =>
+            prev.map((el) =>
+              el.iddetatencion === idDet.current
+                ? {
+                    ...el,
+                    diagnostico: data.diagnostico
+                  }
+                : el
+            )
+          )
+          onClose()
+          toast.success(result.message)
+        }
       }
     } else {
-      const result = await updateResult(data)
+      data = { ...data, idReferencia: resultId.current }
+      const result = await removeResult(idDet.current)
+
       if (result.isSuccess) {
-        mutate((prev) =>
-          prev.map((el) =>
-            el.iddetatencion === idDet.current
-              ? {
-                  ...el,
-                  diagnostico: data.diagnostico
-                }
-              : el
-          )
-        )
+        addResult(data)
+        changeStatus(idDet.current, 'PE')
         onClose()
         toast.success(result.message)
+        refresh()
       }
-      console.log(result)
     }
   }
 
@@ -171,6 +186,7 @@ export default function ExternalModule() {
                               }
                               idDet.current = el.iddetatencion
                               resultId.current = el.idresultado
+                              status.current = el.estado
                               detailCurrent.current = el
                               onOpenEditor()
                             }}

@@ -131,7 +131,8 @@ export default function ReportEditor() {
   const handleAddResult = async () => {
     const data = {
       idDetAtencion: state.idDetAttention,
-      diagnostico: JSON.stringify(template)
+      diagnostico: JSON.stringify(template),
+      idReferencia: 0
     }
 
     setLoading(true)

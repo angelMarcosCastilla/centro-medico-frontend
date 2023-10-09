@@ -138,7 +138,7 @@ export default function ReportSendTable({ useFecherFunction }) {
                   className='text-lg text-warning-400 cursor-pointer active:opacity-50'
                   onClick={() => onOpenModal(detail.iddetatencion)}
                 >
-                  <FileX size={20} />
+                  <FileX size={20} /> 
                 </span>
               </Tooltip>
             )}
