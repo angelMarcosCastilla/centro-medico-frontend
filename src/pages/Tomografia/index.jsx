@@ -7,7 +7,7 @@ export default function Tomografia() {
   return (
     <AttentionProcessTable
       useFecherFunction={() => getInProcessAttentionsByArea(TOMOGRAFIA_ID)}
-      getDoctorByAreaFunction={()=>getDoctorByAreaFunction(TOMOGRAFIA_ID)}
+      getDoctorByAreaFunction={() => getDoctorByAreaFunction(TOMOGRAFIA_ID)}
     />
   )
 }

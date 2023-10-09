@@ -19,7 +19,7 @@ const useDebaunce = (value, delay = 500) => {
   return debouncedValue
 }
 
-function InputTable({ value, onChange }) {
+function InputTable({ value, onChange, isEditable }) {
   const [newValue, setNewValue] = useState(value)
   const debouncedValue = useDebaunce(newValue)
 
@@ -29,6 +29,7 @@ function InputTable({ value, onChange }) {
 
   return (
     <Input
+      isReadOnly={isEditable}
       type='text'
       value={newValue}
       onChange={(e) => setNewValue(e.target.value)}
@@ -93,6 +94,7 @@ export default function ColumnTemplate({
                     className='p-3 text-slate-700'
                   >
                     <InputTable
+                      isEditable={column.editable}
                       value={row[column.uid]}
                       onChange={(value) =>
                         onInputChange(section.uid, row.uid, column.uid, value)

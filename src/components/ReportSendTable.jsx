@@ -132,6 +132,7 @@ export default function ReportSendTable({ useFecherFunction }) {
                 </span>
               </Tooltip>
             )}
+            {console.log(detail)}
             {detail.estado === 'F' && (
               <Tooltip content='Corregir' color='warning' closeDelay={0}>
                 <span
