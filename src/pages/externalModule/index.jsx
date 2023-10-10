@@ -51,6 +51,8 @@ export default function ExternalModule() {
   const [json, setjson] = React.useState({ titulo: '', contenido: '' })
   const [information, setInformation] = React.useState('')
 
+
+
   // eslint-disable-next-line no-unused-vars
   const { userInfo, logout } = useAuth()
 
@@ -182,15 +184,16 @@ export default function ExternalModule() {
                               if (el.idresultado) {
                                 setjson(JSON.parse(el.diagnostico))
                               } else {
-                                setjson({ titulo: '', contenido: '' })
+                                setjson({ titulo: 'informe de '+ el.nombre_area , contenido: '' })
                               }
                               idDet.current = el.iddetatencion
                               resultId.current = el.idresultado
                               status.current = el.estado
-                              detailCurrent.current = el
-                              onOpenEditor()
+                              detailCurrent.current = el                                                                                         
+                              refTitulo.current=el.nombre_area
+                              onOpenEditor()                                                      
                             }}
-                          >
+                            >
                             <FileEdit size={20} />
                           </span>
                         </Tooltip>
@@ -263,7 +266,8 @@ export default function ExternalModule() {
                   defaultValue={json.titulo}
                   onChange={(e) => {
                     refTitulo.current = e.target.value
-                  }}
+                  }}                  
+                  key={json.titulo}
                 />
                 <Editor ref={ref} content={json.contenido} />
               </ModalBody>
