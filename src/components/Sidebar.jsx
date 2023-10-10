@@ -39,13 +39,17 @@ export default function Sidebar({ children }) {
   return (
     <aside className='h-screen'>
       <nav className='h-full flex flex-col bg-white border-r shadow-sm'>
-        <div className='flex justify-around items-center p-4 pb-5'>
+        <div
+          className={`flex justify-around items-center py-8 ${
+            expanded ? 'p-3.5' : 'p-4'
+          }`}
+        >
           <img
             className={`overflow-hidden transition-all ${
-              expanded ? 'w-[200px]' : 'w-0'
+              expanded ? 'w-[220px] h-[44px]' : 'w-0'
             }`}
             alt='Centro Médico Melchorita'
-            src='https://i.imgur.com/jZHyOL1.jpg'
+            src='../../public/logo.png'
           />
           <Button
             className='text-gray-600'
@@ -80,7 +84,7 @@ export default function Sidebar({ children }) {
             <DropdownMenu aria-label='User Actions' variant='flat'>
               <DropdownItem key='profile' onPress={onOpen}>
                 Perfil
-                <Modal isOpen={isOpen}  onOpenChange={onOpenChange}>
+                <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
                   <ModalContent>
                     {(onClose) => (
                       <>
@@ -148,7 +152,7 @@ export function SidebarItem({ icon, text, route }) {
         {icon}
         <span
           className={`overflow-hidden h-5 text-[15px] transition-all ${
-            expanded ? 'w-52 ml-3' : 'w-0'
+            expanded ? 'w-[200px] ml-3' : 'w-0'
           }`}
         >
           {text}

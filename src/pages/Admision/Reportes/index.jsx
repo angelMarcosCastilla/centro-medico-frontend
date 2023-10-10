@@ -1,6 +1,10 @@
 import ReportSendTable from '../../../components/ReportSendTable'
-import { getListStatePE } from '../../../services/service'
+import { getInProcessReportsPendingAndFinished } from '../../../services/admission'
 
 export default function Reportes() {
-  return <ReportSendTable useFecherFunction={() => getListStatePE()} />
+  return (
+    <ReportSendTable
+      useFecherFunction={() => getInProcessReportsPendingAndFinished()}
+    />
+  )
 }

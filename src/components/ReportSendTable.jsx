@@ -9,6 +9,7 @@ import {
   DropdownTrigger,
   Input,
   Pagination,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -36,14 +37,16 @@ import ModalCorrection from '../pages/Admision/Reportes/components/ModalCorrecti
 const columns = [
   { name: 'ID', uid: 'iddetatencion', sortable: true },
   { name: 'PACIENTE', uid: 'paciente', sortable: true },
-  { name: 'CATEGORIA', uid: 'nombre_categoria', sortable: true },
-  { name: 'TIPO DE SERVICIO', uid: 'nombre_servicio', sortable: true },
+  { name: 'ÁREA', uid: 'nombre_area', sortable: true },
+  { name: 'CATEGORÍA', uid: 'nombre_categoria', sortable: true },
+  { name: 'SERVICIO', uid: 'nombre_servicio', sortable: true },
   { name: 'ESTADO', uid: 'estado', sortable: true },
   { name: 'ACCIONES', uid: 'acciones' }
 ]
 
 const INITIAL_VISIBLE_COLUMNS = [
   'paciente',
+  'nombre_area',
   'nombre_categoria',
   'nombre_servicio',
   'estado',
@@ -55,13 +58,35 @@ export default function ReportSendTable({ useFecherFunction }) {
   const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   )
+  const [areasFilter, setAreasFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [sortDescriptor, setSortDescriptor] = useState({
     column: 'id',
     direction: 'ascending'
   })
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const [selectedDetAttentionId, setSelectedDetAttentionId] = useState(null)
-  const { data, mutate, refresh } = useFetcher(useFecherFunction)
+  const { data, loading, refresh } = useFetcher(useFecherFunction)
+
+  const areasOptions = data
+    .reduce((result, current) => {
+      const areaName = current.nombre_area
+      if (!result.some((area) => area.name === areaName)) {
+        result.push({ name: areaName, uid: areaName })
+      }
+      return result
+    }, [])
+    .sort((a, b) => a.name.localeCompare(b.name))
+
+  const statusOptions = data
+    .reduce((result, current) => {
+      const statusName = current.estado
+      if (!result.some((status) => status.name === statusName)) {
+        result.push({ name: statusName, uid: statusName })
+      }
+      return result
+    }, [])
+    .sort((a, b) => a.name.localeCompare(b.name))
 
   const hasSearchFilter = Boolean(filterValue)
 
@@ -81,8 +106,26 @@ export default function ReportSendTable({ useFecherFunction }) {
         detail.paciente.toLowerCase().includes(filterValue.toLowerCase())
       )
     }
+    if (
+      areasFilter !== 'all' &&
+      Array.from(areasFilter).length !== areasOptions.length
+    ) {
+      filteredPatients = filteredPatients.filter((detail) =>
+        Array.from(areasFilter).includes(detail.nombre_area)
+      )
+    }
+
+    if (
+      statusFilter !== 'all' &&
+      Array.from(statusFilter).length !== statusOptions.length
+    ) {
+      filteredPatients = filteredPatients.filter((detail) =>
+        Array.from(statusFilter).includes(detail.estado)
+      )
+    }
+
     return filteredPatients
-  }, [data, filterValue])
+  }, [data, filterValue, areasFilter, statusFilter])
 
   const {
     items,
@@ -132,8 +175,7 @@ export default function ReportSendTable({ useFecherFunction }) {
                 </span>
               </Tooltip>
             )}
-            {console.log(detail)}
-            {detail.estado === 'F' && (
+            {detail.nombre_area !== 'Laboratorio' && detail.estado === 'F' && (
               <Tooltip content='Corregir' color='warning' closeDelay={0}>
                 <span
                   className='text-lg text-warning-400 cursor-pointer active:opacity-50'
@@ -165,19 +207,7 @@ export default function ReportSendTable({ useFecherFunction }) {
     const result = await changeStatus(idDetAttention, newStatus)
 
     if (result) {
-      mutate((prevData) => {
-        // Actualizar la fila localmente solo si el estado actual es 'PE' y el nuevo estado es 'F'
-        if (status === 'PE' && newStatus === 'F') {
-          return prevData.map((item) => {
-            if (item.iddetatencion === idDetAttention) {
-              return { ...item, estado: newStatus }
-            }
-            return item
-          })
-        } else {
-          return prevData
-        }
-      })
+      refresh()
     } else {
       toast.error('Error al cambiar el estado')
     }
@@ -220,6 +250,54 @@ export default function ReportSendTable({ useFecherFunction }) {
                   endContent={<ChevronDownIcon className='text-small' />}
                   variant='flat'
                 >
+                  Áreas
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label='Table Columns'
+                closeOnSelect={false}
+                selectedKeys={areasFilter}
+                selectionMode='multiple'
+                onSelectionChange={setAreasFilter}
+              >
+                {areasOptions.map((area) => (
+                  <DropdownItem key={area.uid} className='capitalaze'>
+                    {capitalize(area.name)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+            <Dropdown>
+              <DropdownTrigger className='hidden sm:flex'>
+                <Button
+                  endContent={<ChevronDownIcon className='text-small' />}
+                  variant='flat'
+                >
+                  Estado
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label='Table Columns'
+                closeOnSelect={false}
+                selectedKeys={statusFilter}
+                selectionMode='multiple'
+                onSelectionChange={setStatusFilter}
+              >
+                {statusOptions.map((status) => (
+                  <DropdownItem key={status.uid} className='capitalaze'>
+                    {capitalize(listState[status.name])}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+            <Dropdown>
+              <DropdownTrigger className='hidden sm:flex'>
+                <Button
+                  endContent={<ChevronDownIcon className='text-small' />}
+                  variant='flat'
+                >
                   Columnas
                 </Button>
               </DropdownTrigger>
@@ -245,7 +323,7 @@ export default function ReportSendTable({ useFecherFunction }) {
         </div>
         <div className='flex justify-between items-center'>
           <span className='text-default-400 text-small'>
-            Total: {data.length} pacientes
+            Total: {data.length} informes
           </span>
           <label className='flex items-center text-default-400 text-small'>
             Filas por página:
@@ -264,6 +342,8 @@ export default function ReportSendTable({ useFecherFunction }) {
     )
   }, [
     filterValue,
+    areasFilter,
+    statusFilter,
     visibleColumns,
     onRowsPerPageChange,
     data.length,
@@ -329,7 +409,9 @@ export default function ReportSendTable({ useFecherFunction }) {
             )}
           </TableHeader>
           <TableBody
-            emptyContent={'No se encontraron pacientes'}
+            emptyContent={'No se encontraron informes'}
+            isLoading={loading}
+            loadingContent={<Spinner />}
             items={sortedItems}
           >
             {(item) => (
