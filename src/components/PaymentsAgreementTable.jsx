@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   Button,
   CardBody,
@@ -11,6 +11,7 @@ import {
   Pagination,
   Select,
   SelectItem,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -24,6 +25,8 @@ import { usePagination } from '../hook/usePagination'
 import { capitalize } from '../utils'
 import { listState, statusColorMap } from '../constants/state'
 import { getCompanyAgreement } from '../services/service'
+import { toast } from 'sonner'
+import { paymentConvenios } from '../services/pay'
 
 const columns = [
   { name: 'ID', uid: 'idpago', sortable: true },
@@ -49,10 +52,11 @@ export default function PaymentsAgreementTable({ useFecherFunction }) {
     column: 'id',
     direction: 'ascending'
   })
-  const { data } = useFetcher(useFecherFunction)
+  const { data, refresh, loading } = useFetcher(useFecherFunction)
   const [selectedCompany, setSelectedCompany] = useState(new Set([]))
   const { data: companyData } = useFetcher(getCompanyAgreement)
-
+  const selectedPayments = useRef([])
+  const [loadingPayment, setLoadingPayment] = useState(false)
   const paymeentbyCompany = useMemo(() => {
     const idcompany = Array.from(selectedCompany)[0]
     if (!idcompany) return []
@@ -97,6 +101,8 @@ export default function PaymentsAgreementTable({ useFecherFunction }) {
     const classChip = statusColorMap[cellValue]
 
     switch (columnKey) {
+      case 'fecha_hora_emision': 
+        return new Date(cellValue).toLocaleDateString()
       case 'estado':
         return (
           <Chip className={`capitalize ${classChip}`} size='sm' variant='flat'>
@@ -219,9 +225,36 @@ export default function PaymentsAgreementTable({ useFecherFunction }) {
     )
   }, [items.length, page, pages, hasSearchFilter])
 
+  const handleCancelPayment = async () => {
+    if (selectedPayments.current.length === 0) {
+      toast.error('Debe seleccionar al menos un pago')
+      return null
+    }
+
+    // Cancelamos los pagos
+    try {
+      setLoadingPayment(true)
+      await paymentConvenios(selectedPayments.current)
+      refresh()
+      toast.success('Pagos cancelados correctamente')
+    } catch (error) {
+      toast.error('Ocurrio un error al cancelar los pagos')
+    } finally {
+      selectedCompany.current = []
+      setLoadingPayment(false)
+    }
+  }
+
+  const tableKey = useMemo(() => {
+    selectedPayments.current = []
+    return crypto.randomUUID()
+  }, [selectedCompany])
+
   return (
     <CardBody>
+      {topContent}
       <Table
+        key={tableKey}
         aria-label='Example table with custom cells, pagination and sorting'
         isHeaderSticky
         bottomContent={bottomContent}
@@ -231,10 +264,17 @@ export default function PaymentsAgreementTable({ useFecherFunction }) {
         }}
         sortDescriptor={sortDescriptor}
         selectionMode='multiple'
-        topContent={topContent}
-        topContentPlacement='outside'
         shadow='none'
         onSortChange={setSortDescriptor}
+        onSelectionChange={(value) => {
+          if (value === 'all') {
+            selectedPayments.current = paymeentbyCompany.map(
+              (item) => item.idpago
+            )
+          } else {
+            selectedPayments.current = Array.from(value)
+          }
+        }}
       >
         <TableHeader columns={headerColumns}>
           {(column) => (
@@ -250,9 +290,11 @@ export default function PaymentsAgreementTable({ useFecherFunction }) {
         <TableBody
           emptyContent={'No se encontraron pacientes'}
           items={paymeentbyCompany}
+          isLoading={loading}
+          loadingContent={<Spinner />}
         >
           {(item) => (
-            <TableRow key={crypto.randomUUID().toString()}>
+            <TableRow key={item.idpago}>
               {(columnKey) => (
                 <TableCell>{renderCell(item, columnKey)}</TableCell>
               )}
@@ -263,7 +305,12 @@ export default function PaymentsAgreementTable({ useFecherFunction }) {
 
       <div className='flex justify-end'>
         <CardFooter>
-          <Button style={{ marginLeft: 'auto' }} color='primary'>
+          <Button
+            isLoading={loadingPayment}
+            style={{ marginLeft: 'auto' }}
+            color='primary'
+            onClick={handleCancelPayment}
+          >
             Cancelar pagos
           </Button>
         </CardFooter>

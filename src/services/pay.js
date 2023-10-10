@@ -6,3 +6,10 @@ export const getPaymentTypes = async () => {
   } = await axios.get(`/pagos/tipos`)
   return data
 }
+
+export const paymentConvenios = async (data) => {
+  const {
+    data: { data: response }
+  } = await axios.post(`/pagos/convenio`, { payments: data })
+  return response
+}
