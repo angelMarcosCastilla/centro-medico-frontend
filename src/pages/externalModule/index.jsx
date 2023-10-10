@@ -77,7 +77,7 @@ export default function ExternalModule() {
 
         if (result.isSuccess) {
           await changeStatus(idDet.current, 'PE')
-          mutate((prev) =>
+          /* mutate((prev) =>
             prev.map((el) =>
               el.iddetatencion === idDet.current
                 ? {
@@ -88,7 +88,8 @@ export default function ExternalModule() {
                   }
                 : el
             )
-          )
+          ) */
+          refresh()
           onClose()
           toast.success(result.message)
         } else {
@@ -97,7 +98,7 @@ export default function ExternalModule() {
       } else {
         const result = await updateResult(data)
         if (result.isSuccess) {
-          mutate((prev) =>
+          /* mutate((prev) =>
             prev.map((el) =>
               el.iddetatencion === idDet.current
                 ? {
@@ -106,7 +107,8 @@ export default function ExternalModule() {
                   }
                 : el
             )
-          )
+          ) */
+          refresh()
           onClose()
           toast.success(result.message)
         }
@@ -132,7 +134,7 @@ export default function ExternalModule() {
         <section className='px-4 py-3 bg-[white] shadow h-full'>
           <div className='mb-3'>filtros</div>
           <div>
-            <Table aria-label='Example static collection table' shadow='none'>
+            <Table isStriped aria-label='Example static collection table' shadow='none'>
               <TableHeader>
                 <TableColumn>N°</TableColumn>
                 <TableColumn>DNI</TableColumn>
