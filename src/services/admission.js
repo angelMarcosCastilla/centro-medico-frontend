@@ -11,7 +11,14 @@ export const getInProcessAttentionsByArea = async (idArea) => {
 }
 
 export const getInProcessReportAttentionsByArea = async (idArea) => {
-  const { data } = await axios.get(`/atenciones/informes/${idArea}`)
+  const { data } = await axios.get(`/atenciones/informes/area/${idArea}`)
+  return data
+}
+
+export const getInProcessReportsPendingAndFinished = async () => {
+  const {
+    data: { data }
+  } = await axios.get('/atenciones/informes/pendientes')
   return data
 }
 

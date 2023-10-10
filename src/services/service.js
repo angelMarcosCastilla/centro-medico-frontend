@@ -22,13 +22,6 @@ export const getAllPersonal = async (idArea) => {
   return data
 }
 
-export const getListStatePE = async () => {
-  const {
-    data: { data }
-  } = await axios.get('/servicios/pendiente/results')
-  return data
-}
-
 export const createService = async (serviceData) => {
   const { data } = await axios.post('/servicios', serviceData)
   return data
