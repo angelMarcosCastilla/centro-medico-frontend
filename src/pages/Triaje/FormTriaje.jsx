@@ -71,6 +71,7 @@ export default function FormTriaje() {
     // Validar que el valor sea menor o igual al máximo permitido
     return Math.min(parsedValue, max)
   }
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false)
 
   const handleChange = (e, key) => {
     const { value, name } = e.target
@@ -91,6 +92,17 @@ export default function FormTriaje() {
       // Para otros campos, simplemente mantener el valor ingresado
       validatedValue = value
     }
+
+    const areAllFieldsFilled =
+      values.detalleTriaje.talla &&
+      values.detalleTriaje.peso &&
+      values.detalleTriaje.temperatura &&
+      values.detalleTriaje.presion_arterial &&
+      values.detalleTriaje.frecuencia_cardiaca &&
+      values.detalleTriaje.frecuencia_respiratoria &&
+      investigator
+
+    setIsButtonEnabled(areAllFieldsFilled)
 
     setValues((prev) => {
       return {
@@ -349,6 +361,7 @@ export default function FormTriaje() {
             size='lg'
             radius='lg'
             onClick={handleAddTriaje}
+            isDisabled={!isButtonEnabled}
           >
             Guardar
           </Button>

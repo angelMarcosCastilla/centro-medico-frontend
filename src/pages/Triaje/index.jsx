@@ -13,7 +13,7 @@ import {
 import { useFetcher } from '../../hook/useFetcher'
 import { Stethoscope } from 'lucide-react'
 import { statusColorMap } from '../../constants/state'
-import { useMemo, useState } from 'react'
+// import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../../components/Header'
 
@@ -72,28 +72,29 @@ export default function TriajePage() {
             <TableColumn>acciones</TableColumn>
           </TableHeader>
           <TableBody emptyContent={'No Hay pacientes para triaje'}>
-            {data.map((triaje, index) => (
-              <TableRow key={triaje.idatencion}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>
-                  {triaje.nombres} {triaje.apellidos}
-                </TableCell>
-                <TableCell>{triaje.total_servicios}</TableCell>
-                <TableCell>
-                  <Chip className={statusColorMap.PT}>Pendiente Triaje</Chip>
-                </TableCell>
-                <TableCell>
-                  <Button
-                    isIconOnly
-                    color='primary'
-                    variant='flat'
-                    onClick={() => handleNavigate(triaje)}
-                  >
-                    <Stethoscope />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {Array.isArray(data) &&
+              data.map((triaje, index) => (
+                <TableRow key={triaje.idatencion}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>
+                    {triaje.nombres} {triaje.apellidos}
+                  </TableCell>
+                  <TableCell>{triaje.total_servicios}</TableCell>
+                  <TableCell>
+                    <Chip className={statusColorMap.PT}>Pendiente Triaje</Chip>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      isIconOnly
+                      color='primary'
+                      variant='flat'
+                      onClick={() => handleNavigate(triaje)}
+                    >
+                      <Stethoscope />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </section>

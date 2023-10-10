@@ -162,15 +162,16 @@ export default function ExternalModule() {
                               if (el.idresultado) {
                                 setjson(JSON.parse(el.diagnostico))
                               } else {
-                                setjson({ titulo: '', contenido: '' })
+                                setjson({ titulo: 'Informe de '+ el.nombre_area , contenido: '' })
                               }
                               idDet.current = el.iddetatencion
                               resultId.current = el.idresultado
                               status.current = el.estado
-                              detailCurrent.current = el
-                              onOpenEditor()
+                              detailCurrent.current = el                                                                                         
+                              refTitulo.current=el.nombre_area
+                              onOpenEditor()                                                      
                             }}
-                          >
+                            >
                             <FileEdit size={20} />
                           </span>
                         </Tooltip>
@@ -243,7 +244,8 @@ export default function ExternalModule() {
                   defaultValue={json.titulo}
                   onChange={(e) => {
                     refTitulo.current = e.target.value
-                  }}
+                  }}                  
+                  key={json.titulo}
                 />
                 <Editor ref={ref} content={json.contenido} />
               </ModalBody>
