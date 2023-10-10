@@ -32,14 +32,16 @@ export const updateService = async (idService, serviceData) => {
   return data
 }
 
-export const getListofPaymentsbyAgreement = async ()=>{
-  const response = await fetch('http://localhost:3000/api/servicios/pagos/pendiente')
-  const {data} = await response.json()
+export const getListofPaymentsbyAgreement = async () => {
+  const {
+    data: { data }
+  } = await axios.get('/servicios/pagos/pendiente')
   return data
 }
 
-export const getCompanyAgreement = async ()=>{
-  const response = await fetch('http://localhost:3000/api/servicios/empresa/convenios')
-  const {data} = await response.json()  
+export const getCompanyAgreement = async () => {
+  const {
+    data: { data }
+  } = await axios.get('/servicios/empresa/convenios')
   return data
 }
