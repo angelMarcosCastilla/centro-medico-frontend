@@ -9,6 +9,7 @@ import {
   DropdownTrigger,
   Input,
   Pagination,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -65,7 +66,7 @@ export default function ReportSendTable({ useFecherFunction }) {
   })
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const [selectedDetAttentionId, setSelectedDetAttentionId] = useState(null)
-  const { data, mutate, refresh } = useFetcher(useFecherFunction)
+  const { data, loading, refresh } = useFetcher(useFecherFunction)
 
   const areasOptions = data
     .reduce((result, current) => {
@@ -206,19 +207,6 @@ export default function ReportSendTable({ useFecherFunction }) {
     const result = await changeStatus(idDetAttention, newStatus)
 
     if (result) {
-      /* mutate((prevData) => {
-        // Actualizar la fila localmente solo si el estado actual es 'PE' y el nuevo estado es 'F'
-        if (status === 'PE' && newStatus === 'F') {
-          return prevData.map((item) => {
-            if (item.iddetatencion === idDetAttention) {
-              return { ...item, estado: newStatus }
-            }
-            return item
-          })
-        } else {
-          return prevData
-        }
-      }) */
       refresh()
     } else {
       toast.error('Error al cambiar el estado')
@@ -422,6 +410,8 @@ export default function ReportSendTable({ useFecherFunction }) {
           </TableHeader>
           <TableBody
             emptyContent={'No se encontraron informes'}
+            isLoading={loading}
+            loadingContent={<Spinner />}
             items={sortedItems}
           >
             {(item) => (

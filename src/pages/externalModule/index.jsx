@@ -51,10 +51,9 @@ export default function ExternalModule() {
   const [json, setjson] = React.useState({ titulo: '', contenido: '' })
   const [information, setInformation] = React.useState('')
 
-  // eslint-disable-next-line no-unused-vars
-  const { userInfo, logout } = useAuth()
+  const { userInfo } = useAuth()
 
-  const { data, loading, mutate, refresh } = useFetcher(() =>
+  const { data, loading, refresh } = useFetcher(() =>
     getServiciesByDoctor(userInfo.idpersona)
   )
 
@@ -73,22 +72,9 @@ export default function ExternalModule() {
     if (status.current !== 'PC') {
       if (!resultId.current) {
         const result = await addResult(data)
-        const idresultado = result.data
 
         if (result.isSuccess) {
           await changeStatus(idDet.current, 'PE')
-          /* mutate((prev) =>
-            prev.map((el) =>
-              el.iddetatencion === idDet.current
-                ? {
-                    ...el,
-                    estado: 'PE',
-                    idresultado,
-                    diagnostico: data.diagnostico
-                  }
-                : el
-            )
-          ) */
           refresh()
           onClose()
           toast.success(result.message)
@@ -98,16 +84,6 @@ export default function ExternalModule() {
       } else {
         const result = await updateResult(data)
         if (result.isSuccess) {
-          /* mutate((prev) =>
-            prev.map((el) =>
-              el.iddetatencion === idDet.current
-                ? {
-                    ...el,
-                    diagnostico: data.diagnostico
-                  }
-                : el
-            )
-          ) */
           refresh()
           onClose()
           toast.success(result.message)
@@ -134,9 +110,13 @@ export default function ExternalModule() {
         <section className='px-4 py-3 bg-[white] shadow h-full'>
           <div className='mb-3'>filtros</div>
           <div>
-            <Table isStriped aria-label='Example static collection table' shadow='none'>
+            <Table
+              isStriped
+              aria-label='Example static collection table'
+              shadow='none'
+            >
               <TableHeader>
-                <TableColumn>N°</TableColumn>
+                <TableColumn>#</TableColumn>
                 <TableColumn>DNI</TableColumn>
                 <TableColumn>PACIENTE</TableColumn>
                 <TableColumn>ÁREA</TableColumn>
@@ -150,9 +130,7 @@ export default function ExternalModule() {
                   <TableRow key={index}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{el.num_documento}</TableCell>
-                    <TableCell>
-                      {el.nombres} {el.apellidos}
-                    </TableCell>
+                    <TableCell>{el.apellidos + ', ' + el.nombres}</TableCell>
                     <TableCell>{el.nombre_area}</TableCell>
                     <TableCell>{el.nombre_categoria}</TableCell>
                     <TableCell>{el.nombre_servicio}</TableCell>
