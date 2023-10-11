@@ -49,7 +49,7 @@ export default function Sidebar({ children }) {
               expanded ? 'w-[220px] h-[44px]' : 'w-0 h-0'
             }`}
             alt='Centro Médico Melchorita'
-            src='../../public/logo.png'
+            src='logo.png'
           />
           <Button
             className='text-gray-600'
