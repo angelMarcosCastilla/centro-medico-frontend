@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   Button,
   Card,
@@ -25,11 +25,13 @@ import {
   SearchIcon,
   Trash2
 } from 'lucide-react'
-import { getAllServices } from '../../services/service'
+import { getAllServices, removeService } from '../../services/service'
 import { usePagination } from '../../hook/usePagination'
 import { useFetcher } from '../../hook/useFetcher'
 import { capitalize } from '../../utils'
 import ModalFormService from './components/ModalFormService'
+import { QuestionModal } from '../../components/QuestionModal'
+import { toast } from 'sonner'
 
 const columns = [
   { name: 'ÁREA', uid: 'area', sortable: true },
@@ -59,8 +61,14 @@ export default function Servicios() {
     direction: 'descending'
   })
   const [editService, setEditService] = useState(null)
+  const serviceId = useRef(null)
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
+  const {
+    isOpen: isOpenQuestionDelete,
+    onOpen: onOpenQuestionDelete,
+    onOpenChange: onOpenChangeQuestionDelete
+  } = useDisclosure()
 
   const { data, refresh } = useFetcher(getAllServices)
 
@@ -143,6 +151,17 @@ export default function Servicios() {
     onOpen()
   }
 
+  const confirmDelete = async () => {
+    const result = await removeService(serviceId.current)
+
+    if (result.isSuccess) {
+      toast.success(result.message)
+      refresh()
+    } else {
+      toast.error(result.message)
+    }
+  }
+
   const renderCell = useCallback((service, columnKey) => {
     const cellValue = service[columnKey]
 
@@ -159,7 +178,13 @@ export default function Servicios() {
               </span>
             </Tooltip>
             <Tooltip color='danger' content='Eliminar' closeDelay={0}>
-              <span className='text-lg text-danger cursor-pointer active:opacity-50'>
+              <span
+                className='text-lg text-danger cursor-pointer active:opacity-50'
+                onClick={() => {
+                  serviceId.current = service.idservicio
+                  onOpenQuestionDelete()
+                }}
+              >
                 <Trash2 size={20} />
               </span>
             </Tooltip>
@@ -321,8 +346,9 @@ export default function Servicios() {
       <Card shadow='none'>
         <CardBody>
           <Table
-            aria-label='Example table with custom cells, pagination and sorting'
             isHeaderSticky
+            isStriped
+            aria-label='Example table with custom cells, pagination and sorting'
             bottomContent={bottomContent}
             bottomContentPlacement='outside'
             classNames={{
@@ -367,6 +393,14 @@ export default function Servicios() {
         operation={editService ? 'edit' : 'new'}
         serviceToEdit={editService}
         refreshTable={refresh}
+      />
+
+      <QuestionModal
+        textContent='¿Seguro de eliminar?'
+        isOpen={isOpenQuestionDelete}
+        onOpenChange={onOpenChangeQuestionDelete}
+        data={serviceId}
+        onConfirm={confirmDelete}
       />
     </>
   )

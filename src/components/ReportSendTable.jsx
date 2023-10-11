@@ -245,7 +245,10 @@ export default function ReportSendTable({ useFecherFunction }) {
           />
           <div className='flex gap-3'>
             <Dropdown>
-              <DropdownTrigger className='hidden sm:flex'>
+              <DropdownTrigger
+                className='hidden sm:flex'
+                isDisabled={!areasOptions.length}
+              >
                 <Button
                   endContent={<ChevronDownIcon className='text-small' />}
                   variant='flat'
@@ -269,7 +272,10 @@ export default function ReportSendTable({ useFecherFunction }) {
               </DropdownMenu>
             </Dropdown>
             <Dropdown>
-              <DropdownTrigger className='hidden sm:flex'>
+              <DropdownTrigger
+                className='hidden sm:flex'
+                isDisabled={!statusOptions.length}
+              >
                 <Button
                   endContent={<ChevronDownIcon className='text-small' />}
                   variant='flat'

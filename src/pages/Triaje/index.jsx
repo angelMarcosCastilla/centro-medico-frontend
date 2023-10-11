@@ -75,7 +75,7 @@ export default function TriajePage() {
             <TableColumn>ESTADO</TableColumn>
             <TableColumn>ACCIONES</TableColumn>
           </TableHeader>
-          <TableBody emptyContent={'No Hay pacientes para triaje'}>
+          <TableBody emptyContent={'No hay pacientes para triaje'}>
             {Array.isArray(data) &&
               data.map((el, index) => (
                 <TableRow key={el.idatencion}>
