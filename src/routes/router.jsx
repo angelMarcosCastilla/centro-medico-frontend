@@ -4,7 +4,7 @@ import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Admision from '../pages/Admision'
 import Reportes from '../pages/Admision/Reportes'
-import Pagos  from '../pages/Admision/Pagos'
+import Pagos from '../pages/Admision/Pagos'
 import Tomografia from '../pages/Tomografia'
 import Rayosx from '../pages/Rayosx'
 import Triaje from '../pages/Triaje'
@@ -19,6 +19,7 @@ import ReportEditor from '../pages/Informes/ReportEditor.jsx'
 import Plantillas from '../pages/Plantillas/index.jsx'
 import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
 import PrivateRoute from './privateRoute.jsx'
+import ReporteTest from '../pages/ReporteTest/index.jsx'
 
 const router = createBrowserRouter([
   {
@@ -47,7 +48,7 @@ const router = createBrowserRouter([
             <FormTriaje />
           </RoleGard>
         )
-      },  
+      },
       {
         element: <Dashboard />,
         children: [
@@ -66,16 +67,24 @@ const router = createBrowserRouter([
               <RoleGard listRoles={listRoles.admision}>
                 <Reportes />
               </RoleGard>
-            ),            
+            )
           },
           {
             path: 'pagos',
-            element:(
+            element: (
               <RoleGard listRoles={listRoles.admision}>
-                <Pagos/>
+                <Pagos />
               </RoleGard>
             )
-          },              
+          },
+          {
+            path: 'reportestest',
+            element: (
+              <RoleGard listRoles={listRoles.admision}>
+                <ReporteTest />
+              </RoleGard>
+            )
+          },
           {
             path: 'servicios',
             element: (
@@ -139,7 +148,7 @@ const router = createBrowserRouter([
                 <TemplateEditor />
               </RoleGard>
             )
-          },          
+          },
           {
             path: '*',
             element: <h1>404</h1>
