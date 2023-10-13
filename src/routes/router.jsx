@@ -20,6 +20,7 @@ import Plantillas from '../pages/Plantillas/index.jsx'
 import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
 import PrivateRoute from './privateRoute.jsx'
 import ReporteTest from '../pages/ReporteTest/index.jsx'
+import Graficos from '../pages/Reportes/Graficos/index.jsx'
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,7 @@ const router = createBrowserRouter([
         path: '/externalmodule',
         element: <ExternalModule />
       },
+
       {
         path: 'triaje',
         element: (
@@ -152,6 +154,14 @@ const router = createBrowserRouter([
           {
             path: '*',
             element: <h1>404</h1>
+          },
+          {
+            path: '/report/graficos',
+            element: (
+              <RoleGard listRoles={["A"]}>
+                <Graficos />
+              </RoleGard>
+            )
           }
         ]
       }

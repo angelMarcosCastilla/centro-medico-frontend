@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 import Sidebar, { SidebarItem } from '../components/Sidebar'
 import {
   Brain,
@@ -8,13 +8,20 @@ import {
   LayoutTemplate,
   HeartHandshake,
   Folders,
-  HelpingHand
+  HelpingHand,
+  BarChart
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import HasRole from '../components/HasRole'
 import { listRoles } from '../constants/auth.constant'
 import { DataProvider } from './Admision/components/DataContext'
-import { Card } from '@nextui-org/react'
+import {
+  Card,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger
+} from '@nextui-org/react'
 
 export default function Dashboard() {
   const { userInfo } = useAuth()
@@ -38,10 +45,10 @@ export default function Dashboard() {
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
-            icon={<HelpingHand size={20}/>}
-            text= 'Pagos'
-            route = 'pagos'
-         />
+            icon={<HelpingHand size={20} />}
+            text='Pagos'
+            route='pagos'
+          />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
@@ -92,6 +99,27 @@ export default function Dashboard() {
             route='triaje'
           />
         </HasRole>
+        {userInfo.nivel_acceso === 'A' && (
+          <Dropdown placement='left'>
+            <DropdownTrigger>
+              <BarChart size={20} />
+            </DropdownTrigger>
+            <DropdownMenu
+              variant='flat'
+              aria-label='Example with disabled actions'
+              disabledKeys={['edit', 'delete']}
+            >
+              <DropdownItem key='graficos'>
+                <Link to="/report/graficos">Graficos</Link>
+              </DropdownItem>
+              <DropdownItem key='copy'>Copy link</DropdownItem>
+              <DropdownItem key='edit'>Edit file</DropdownItem>
+              <DropdownItem key='delete' className='text-danger' color='danger'>
+                Delete file
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        )}
       </Sidebar>
       <div className='bg-slate-100 flex-1 px-5 py-3 overflow-y-auto'>
         <DataProvider>

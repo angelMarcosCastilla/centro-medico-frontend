@@ -17,7 +17,7 @@ import {
   TableRow,
   Tooltip
 } from '@nextui-org/react'
-import { ChevronDownIcon, FileEdit, FileLock2, SearchIcon } from 'lucide-react'
+import { ChevronDownIcon, Eye, FileEdit, FileLock2, SearchIcon } from 'lucide-react'
 import { useFetcher } from '../../hook/useFetcher'
 import { usePagination } from '../../hook/usePagination'
 import { listState, statusColorMap } from '../../constants/state'
@@ -25,6 +25,7 @@ import { capitalize } from '../../utils'
 import { useNavigate } from 'react-router-dom'
 import { getInProcessReportAttentionsByArea } from '../../services/admission'
 import { LABORATORIO_ID } from '../../constants/areas'
+import { redirectToResult } from '../../config'
 
 const columns = [
   { name: 'ID', uid: 'iddetatencion', sortable: true },
@@ -135,10 +136,15 @@ export default function Informes() {
               </span>
             </Tooltip>
             {detail.estado === 'PE' && (
-              <Tooltip content='Finalizar' color='danger'>
-                <span className='text-lg text-danger-400 cursor-pointer active:opacity-50'>
-                  <FileLock2 size={20} />
-                </span>
+              <Tooltip content='Ver' color='primary' closeDelay={0}>
+                <a
+                  className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+                  href={redirectToResult(detail.iddetatencion)}
+                  target='_blank'
+                  rel='noreferrer'
+                >
+                  <Eye size={20} />
+                </a>
               </Tooltip>
             )}
           </div>
