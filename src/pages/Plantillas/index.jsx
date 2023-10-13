@@ -253,6 +253,7 @@ export default function Plantillas() {
     <CardBody>
       <Table
         isHeaderSticky
+        isStriped
         aria-label='Tabla de servicios de laboratorio para la creación o edición de plantillas personalizadas'
         bottomContent={bottomContent}
         bottomContentPlacement='outside'

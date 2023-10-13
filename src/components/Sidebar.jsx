@@ -49,7 +49,7 @@ export default function Sidebar({ children }) {
               expanded ? 'w-[220px] h-[44px]' : 'w-0 h-0'
             }`}
             alt='Centro Médico Melchorita'
-            src='logo.png'
+            src='/logo.png'
           />
           <Button
             className='text-gray-600'
@@ -133,7 +133,8 @@ export function SidebarItem({ icon, text, route }) {
   const { expanded } = useContext(SidebarContext)
   const location = useLocation()
 
-  const isActive = location.pathname.endsWith(route)
+  // console.log(location)
+  const isActive = location.pathname.includes(route)
 
   return (
     <Link to={route}>
