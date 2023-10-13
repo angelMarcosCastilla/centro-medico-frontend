@@ -1,19 +1,18 @@
 /* eslint-disable camelcase */
 import { listarTriajeService } from '../../services/triaje'
 import {
-  Button,
   Chip,
   Table,
   TableBody,
   TableCell,
   TableColumn,
   TableHeader,
-  TableRow
+  TableRow,
+  Tooltip
 } from '@nextui-org/react'
 import { useFetcher } from '../../hook/useFetcher'
 import { Stethoscope } from 'lucide-react'
 import { statusColorMap } from '../../constants/state'
-// import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../../components/Header'
 
@@ -62,36 +61,46 @@ export default function TriajePage() {
   return (
     <div className='px-3 py-4 bg-slate-100 h-screen flex flex-col gap-y-4'>
       <Header title='Triaje' />
-      <section className='px-4 py-3 bg-[white] shadow h-full'>
-        <Table shadow='none'>
+      <section className='px-4 py-3 bg-[white] shadow h-full rounded-lg'>
+        <Table
+          isStriped
+          aria-label='Tabla de Pacientes Derivados a Triaje'
+          shadow='none'
+        >
           <TableHeader>
-            <TableColumn>N°</TableColumn>
-            <TableColumn>Paciente</TableColumn>
-            <TableColumn>Cantidad Servicio</TableColumn>
-            <TableColumn>Estado</TableColumn>
-            <TableColumn>acciones</TableColumn>
+            <TableColumn>#</TableColumn>
+            <TableColumn>DNI</TableColumn>
+            <TableColumn>PACIENTE</TableColumn>
+            <TableColumn>CANTIDAD SERVICIOS</TableColumn>
+            <TableColumn>ESTADO</TableColumn>
+            <TableColumn>ACCIONES</TableColumn>
           </TableHeader>
-          <TableBody emptyContent={'No Hay pacientes para triaje'}>
+          <TableBody emptyContent={'No hay pacientes para triaje'}>
             {Array.isArray(data) &&
-              data.map((triaje, index) => (
-                <TableRow key={triaje.idatencion}>
+              data.map((el, index) => (
+                <TableRow key={el.idatencion}>
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>
-                    {triaje.nombres} {triaje.apellidos}
-                  </TableCell>
-                  <TableCell>{triaje.total_servicios}</TableCell>
+                  <TableCell>{el.num_documento}</TableCell>
+                  <TableCell>{el.apellidos + ', ' + el.nombres}</TableCell>
+                  <TableCell>{el.total_servicios}</TableCell>
                   <TableCell>
                     <Chip className={statusColorMap.PT}>Pendiente Triaje</Chip>
                   </TableCell>
                   <TableCell>
-                    <Button
-                      isIconOnly
-                      color='primary'
-                      variant='flat'
-                      onClick={() => handleNavigate(triaje)}
-                    >
-                      <Stethoscope />
-                    </Button>
+                    <div className='relative flex items-center gap-2'>
+                      <Tooltip
+                        content='Realizar triaje'
+                        color='primary'
+                        closeDelay={0}
+                      >
+                        <span
+                          className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+                          onClick={() => handleNavigate(el)}
+                        >
+                          <Stethoscope size={20} />
+                        </span>
+                      </Tooltip>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
