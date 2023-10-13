@@ -1,7 +1,9 @@
 import {
   Button,
   CardBody,
+  Chip,
   Input,
+  Pagination,
   Select,
   SelectItem,
   Table,
@@ -9,14 +11,16 @@ import {
   TableCell,
   TableColumn,
   TableHeader,
-  TableRow
+  TableRow,
+  getKeyValue
 } from '@nextui-org/react'
 import { getAttentionsByAreaAndDateRange } from '../../services/report'
 import { useFetcher } from '../../hook/useFetcher'
 import { getAllAreas } from '../../services/area'
 import { Search, SearchX } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
+import { listState, statusColorMap } from '../../constants/state'
 
 export default function ReporteTest() {
   const { data: areasData } = useFetcher(getAllAreas)
@@ -32,6 +36,18 @@ export default function ReporteTest() {
 
   const [isSearchEnabled, setIsSearchEnabled] = useState(false)
 
+  const [page, setPage] = useState(1)
+  const rowsPerPage = 15
+
+  const pages = Math.ceil(dataTable.length / rowsPerPage) || 1
+
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage
+    const end = start + rowsPerPage
+
+    return dataTable.slice(start, end)
+  }, [page, dataTable])
+
   const handleSearch = async () => {
     const result = await getAttentionsByAreaAndDateRange(
       selectedArea.currentKey,
@@ -42,6 +58,7 @@ export default function ReporteTest() {
     if (result.length) {
       setDataTable(result)
     } else {
+      setDataTable([])
       toast.error('No se encontraron resultados')
     }
   }
@@ -60,6 +77,7 @@ export default function ReporteTest() {
     <CardBody>
       <div className='grid grid-cols-4 items-center gap-4 mb-4'>
         <Select
+          disallowEmptySelection
           label='Área'
           selectedKeys={selectedArea}
           onSelectionChange={setSelectedArea}
@@ -108,30 +126,70 @@ export default function ReporteTest() {
         isStriped
         removeWrapper
         aria-label='Tabla de atención realizadas de un área en un intervalo de fechas'
+        bottomContent={
+          <div className='flex w-full justify-center'>
+            <Pagination
+              isCompact
+              showControls
+              showShadow
+              color='primary'
+              page={page}
+              total={pages}
+              onChange={(page) => setPage(page)}
+            />
+          </div>
+        }
+        classNames={{
+          wrapper: 'min-h-[222px]'
+        }}
       >
         <TableHeader>
-          <TableColumn>#</TableColumn>
-          <TableColumn>PACIENTE</TableColumn>
-          <TableColumn>ÁREA</TableColumn>
-          <TableColumn>CATEGORÍA</TableColumn>
-          <TableColumn>SERVICIO</TableColumn>
-          <TableColumn>MONTO PAGADO</TableColumn>
-          <TableColumn>DESCUENTO</TableColumn>
-          <TableColumn>ESTADO</TableColumn>
+          <TableColumn key='num_documento'>N° DOCUMENTO</TableColumn>
+          <TableColumn key='paciente'>PACIENTE</TableColumn>
+          <TableColumn key='nombre_area'>ÁREA</TableColumn>
+          <TableColumn key='nombre_categoria'>CATEGORÍA</TableColumn>
+          <TableColumn key='nombre_servicio'>SERVICIO</TableColumn>
+          <TableColumn key='precio_pagado'>MONTO PAGADO</TableColumn>
+          <TableColumn key='descuento'>DESCUENTO</TableColumn>
+          <TableColumn key='create_at'>FECHA Y HORA</TableColumn>
+          <TableColumn key='estado'>ESTADO</TableColumn>
         </TableHeader>
-        <TableBody emptyContent='Realiza una búsqueda para ver los resultados'>
-          {dataTable.map((el, index) => (
-            <TableRow key={el.iddetatencion}>
-              <TableCell>{index + 1}</TableCell>
-              <TableCell>{el.paciente}</TableCell>
-              <TableCell>{el.nombre_area}</TableCell>
-              <TableCell>{el.nombre_categoria}</TableCell>
-              <TableCell>{el.nombre_servicio}</TableCell>
-              <TableCell>{el.precio_pagado}</TableCell>
-              <TableCell>{el.descuento || '---'}</TableCell>
-              <TableCell>{el.estado}</TableCell>
+        <TableBody
+          emptyContent='Realiza una búsqueda para ver los resultados'
+          items={items}
+        >
+          {(item) => (
+            <TableRow key={item?.iddetatencion}>
+              {(columnKey) => {
+                let columnValue
+                switch (columnKey) {
+                  case 'descuento':
+                    columnValue = getKeyValue(item, columnKey) || '---'
+                    break
+                  case 'create_at':
+                    columnValue = getKeyValue(item, columnKey)
+                      .replace('T', ' ')
+                      .substring(0, 16)
+                    break
+                  case 'estado':
+                    columnValue = (
+                      <Chip
+                        className={`capitalize ${
+                          statusColorMap[getKeyValue(item, columnKey)]
+                        }`}
+                      >
+                        {listState[getKeyValue(item, columnKey)]}
+                      </Chip>
+                    )
+                    break
+                  default:
+                    columnValue = getKeyValue(item, columnKey)
+                }
+
+                return <TableCell>{columnValue}</TableCell>
+              }}
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </CardBody>
