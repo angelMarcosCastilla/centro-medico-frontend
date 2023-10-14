@@ -21,6 +21,7 @@ export default function ReportP() {
     .split('/')
     .reverse()
     .join('-')
+
   const [documentNumber, setDocumentNumber] = useState('')
   const [startDate, setStartDate] = useState(currentDate)
   const [endDate, setEndDate] = useState(currentDate)
@@ -28,12 +29,12 @@ export default function ReportP() {
 
   const [isSearchEnabled, setIsSearchEnabled] = useState(false)
   const handleSearch = async () => {
-    if (!documentNumber || !startDate || !endDate) {
+    if ( !startDate || !endDate) {
       toast.error('Por favor, complete todos los campos.')
       return
     }
 
-    const result = await listClientforDate(documentNumber, startDate, endDate)
+    const result = await listClientforDate( startDate, endDate,documentNumber)
 
     if (result.length) {
       setDataTable(result)
@@ -82,8 +83,8 @@ export default function ReportP() {
         />
         <div className='flex justify-center gap-4'>
           <Button
-            isDisabled={!isSearchEnabled}
-            color='primary'
+           //  isDisabled={!isSearchEnabled}
+            
             startContent={<Search size={20} />}
             onPress={handleSearch}
           >
@@ -91,7 +92,7 @@ export default function ReportP() {
           </Button>
           <Button
             isDisabled={!dataTable.length}
-            color='danger'
+            
             startContent={<SearchX size={20} />}
             onPress={handleReset}
           >
@@ -123,7 +124,7 @@ export default function ReportP() {
                 {el.tipo_comprobante === 'F' ? 'Factura' : 'Boleta'}
               </TableCell>
               <TableCell>
-                {documentNumber === el.num_documento
+                {el.tipo_comprobante === 'B'
                   ? el.num_documento
                   : el.ruc}
               </TableCell>

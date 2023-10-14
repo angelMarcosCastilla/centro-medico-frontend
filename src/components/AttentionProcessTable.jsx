@@ -3,17 +3,11 @@ import {
   Button,
   CardBody,
   Chip,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  Input,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
-  Pagination,
   Select,
   SelectItem,
   Table,
@@ -24,22 +18,15 @@ import {
   TableRow,
   Tooltip
 } from '@nextui-org/react'
-import {
-  ChevronDownIcon,
-  MonitorPause,
-  SearchIcon,
-  UserCheck
-} from 'lucide-react'
+import { ArrowDownWideNarrow, MonitorPause, UserCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { useFetcher } from '../hook/useFetcher'
-import { usePagination } from '../hook/usePagination'
-import { capitalize } from '../utils'
 import { listState, statusColorMap } from '../constants/state'
 import { changeStatus, updateMedicoByDetatencion } from '../services/admission'
 import { useAuth } from '../context/AuthContext'
 
 const columns = [
-  { name: 'ID', uid: 'iddetatencion', sortable: true },
+  { name: '#', uid: 'index' },
   { name: 'PACIENTE', uid: 'paciente', sortable: true },
   { name: 'CATEGORIA', uid: 'nombre_categoria', sortable: true },
   { name: 'TIPO DE SERVICIO', uid: 'nombre_servicio', sortable: true },
@@ -48,6 +35,7 @@ const columns = [
 ]
 
 const INITIAL_VISIBLE_COLUMNS = [
+  'index',
   'paciente',
   'nombre_categoria',
   'nombre_servicio',
@@ -59,22 +47,16 @@ export default function AttentionProcessTable({
   useFecherFunction,
   getDoctorByAreaFunction
 }) {
-  const [filterValue, setFilterValue] = useState('')
+  const [idDetAttention, setIdDetAttention] = useState(null)
   const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   )
-  const [sortDescriptor, setSortDescriptor] = useState({
-    column: 'id',
-    direction: 'ascending'
-  })
-  const [idDetAttention, setIdDetAttention] = useState(null)
   const { userInfo } = useAuth()
   const [medicoId, setMedicoId] = useState(new Set([]))
   const { data, mutate } = useFetcher(useFecherFunction)
   const { data: doctorData } = useFetcher(getDoctorByAreaFunction)
-
-  const hasSearchFilter = Boolean(filterValue)
-  const selectMedico = Array.from(medicoId)[0]
+  
+  const [dataAt, setAt] = useState(dataAt)
 
   const headerColumns = useMemo(() => {
     if (visibleColumns === 'all') return columns
@@ -84,81 +66,71 @@ export default function AttentionProcessTable({
     )
   }, [visibleColumns])
 
-  const filteredItems = useMemo(() => {
-    let filteredPatients = [...data]
-
-    if (hasSearchFilter) {
-      filteredPatients = filteredPatients.filter((detail) =>
-        detail.paciente.toLowerCase().includes(filterValue.toLowerCase())
-      )
-    }
-    return filteredPatients
-  }, [data, filterValue])
-
-  const {
-    items,
-    page,
-    pages,
-    rowsPerPage,
-    onNextPage,
-    onPreviousPage,
-    onRowsPerPageChange,
-    setPage
-  } = usePagination(filteredItems)
-
-  const sortedItems = useMemo(() => {
-    return [...items].sort((a, b) => {
-      const first = a[sortDescriptor.column]
-      const second = b[sortDescriptor.column]
-      const cmp = first < second ? -1 : first > second ? 1 : 0
-
-      return sortDescriptor.direction === 'descending' ? -cmp : cmp
-    })
-  }, [sortDescriptor, items])
-
   const renderCell = useCallback((detail, columnKey) => {
     const cellValue = detail[columnKey]
     const estadoTexto = listState[cellValue]
     const classChip = statusColorMap[cellValue]
-
+    const index = detail.index
     switch (columnKey) {
       case 'estado':
         return (
           <Chip className={`capitalize ${classChip}`} size='sm' variant='flat'>
-            {capitalize(estadoTexto)}
+            {estadoTexto}
           </Chip>
         )
       case 'acciones':
         return (
           <div className='relative flex items-center gap-2'>
-            <Tooltip
-              content={detail.estado === 'P' ? 'Atender' : 'Confirmar Atencion'}
-              color='primary'
-              closeDelay={0}
-            >
-              <span
-                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
-                onClick={() => {
-                  if (detail.estado === 'P') {
-                    handleChangeStatus(detail.iddetatencion, detail.estado)
-                  } else {
-                    setIdDetAttention(detail.iddetatencion)
+            {index === 1 && (
+              <div className='flex  items-center'>
+                <Tooltip
+                  content={
+                    detail.estado === 'P' ? 'Atender' : 'Confirmar Atencion'
                   }
-                }}
-              >
-                {detail.estado === 'P' ? (
-                  <MonitorPause size={20} />
-                ) : (
-                  <UserCheck size={20} />
+                  color='primary'
+                  closeDelay={0}
+                >
+                  <Button
+                    isIconOnly
+                    color='primary'
+                    variant='light'
+                    onClick={() => {
+                      if (detail.estado === 'P') {
+                        handleChangeStatus(detail.iddetatencion, detail.estado)
+                      } else {
+                        setIdDetAttention(detail.iddetatencion)
+                      }
+                    }}
+                  >
+                    {detail.estado === 'P' ? (
+                      <MonitorPause size={20} />
+                    ) : (
+                      <UserCheck size={20} />
+                    )}
+                  </Button>
+                </Tooltip>
+                {detail.estado === 'P' && (
+                  <Tooltip content='Posponer' color='danger' closeDelay={0}>
+                    <Button
+                      isIconOnly
+                      color='danger'
+                      variant='light'
+                      onClick={handleReorder}
+                    >
+                      <ArrowDownWideNarrow size={20} />
+                    </Button>
+                  </Tooltip>
                 )}
-              </span>
-            </Tooltip>
+              </div>
+            )}
           </div>
         )
       default:
         return cellValue
     }
   }, [])
+
+  const selectMedico = Array.from(medicoId)[0]
 
   const handleChangeStatus = async (idDetAttention) => {
     const result = await changeStatus(idDetAttention, 'A')
@@ -177,18 +149,6 @@ export default function AttentionProcessTable({
     }
   }
 
-  const onSearchChange = useCallback((value) => {
-    if (value) {
-      setFilterValue(value)
-    } else {
-      setFilterValue('')
-    }
-  }, [])
-
-  const onClear = useCallback(() => {
-    setFilterValue('')
-  }, [])
-
   const handleSuccess = async (onClose) => {
     const data = {
       idmedicoatendiente: userInfo.idpersonalmedico,
@@ -204,126 +164,43 @@ export default function AttentionProcessTable({
     await updateMedicoByDetatencion(data, idDetAttention)
   }
 
-  const topContent = useMemo(() => {
-    return (
-      <div className='flex flex-col gap-4'>
-        <div className='flex justify-between gap-3 items-end'>
-          <Input
-            isClearable
-            className='w-full sm:max-w-[44%]'
-            placeholder='Buscar por nombre...'
-            startContent={<SearchIcon />}
-            value={filterValue}
-            onClear={() => onClear()}
-            onValueChange={onSearchChange}
-          />
-          <div className='flex gap-3'>
-            <Dropdown>
-              <DropdownTrigger className='hidden sm:flex'>
-                <Button
-                  endContent={<ChevronDownIcon className='text-small' />}
-                  variant='flat'
-                >
-                  Columnas
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label='Table Columns'
-                closeOnSelect={false}
-                selectedKeys={visibleColumns}
-                selectionMode='multiple'
-                onSelectionChange={setVisibleColumns}
-              >
-                {columns.map((column) => {
-                  if (column.uid === 'estado') return null
-                  return (
-                    <DropdownItem key={column.uid} className='capitalize'>
-                      {capitalize(column.name)}
-                    </DropdownItem>
-                  )
-                })}
-              </DropdownMenu>
-            </Dropdown>
-          </div>
-        </div>
-        <div className='flex justify-between items-center'>
-          <span className='text-default-400 text-small'>
-            Total: {data.length} pacientes
-          </span>
-          <label className='flex items-center text-default-400 text-small'>
-            Filas por página:
-            <select
-              className='bg-transparent outline-none text-default-400 text-small'
-              defaultValue={rowsPerPage}
-              onChange={onRowsPerPageChange}
-            >
-              <option value='5'>5</option>
-              <option value='10'>10</option>
-              <option value='15'>15</option>
-            </select>
-          </label>
-        </div>
-      </div>
-    )
-  }, [
-    filterValue,
-    visibleColumns,
-    onRowsPerPageChange,
-    data.length,
-    onSearchChange,
-    hasSearchFilter
-  ])
-
-  const bottomContent = useMemo(() => {
-    return (
-      <div className='py-2 px-2 flex justify-between items-center'>
-        <Pagination
-          isCompact
-          showControls
-          showShadow
-          color='primary'
-          page={page}
-          total={pages}
-          onChange={setPage}
-        />
-        <div className='hidden sm:flex w-[30%] justify-end gap-2'>
-          <Button
-            isDisabled={pages === 1}
-            variant='flat'
-            onPress={onPreviousPage}
-          >
-            Anterior
-          </Button>
-          <Button isDisabled={pages === 1} variant='flat' onPress={onNextPage}>
-            Siguiente
-          </Button>
-        </div>
-      </div>
-    )
-  }, [items.length, page, pages, hasSearchFilter])
-
   const handleCancel = () => {
     setIdDetAttention(null)
     setMedicoId(new Set([]))
   }
 
+  const items = useMemo(() => {
+    return data.map((el, index) => ({ ...el, index: index + 1 }))
+  }, [data])
+
+  const handleReorder = () => {
+    if (items.length > 1) {
+      const firstValue = items[0]
+      const SecondValue = items[1]
+      const newData = [...items]
+      newData[0] = SecondValue
+      newData[1] = firstValue
+      mutate(newData)
+    }
+  }
+
+  console.log(items)
   return (
     <>
       <CardBody>
+        <div>
+          <h1>en cola</h1>
+        </div>
         <Table
           aria-label='Example table with custom cells, pagination and sorting'
           isHeaderSticky
-          bottomContent={bottomContent}
+          isStriped
           bottomContentPlacement='outside'
           classNames={{
             wrapper: 'max-h-[600px]'
           }}
-          sortDescriptor={sortDescriptor}
-          topContent={topContent}
           topContentPlacement='outside'
           shadow='none'
-          onSortChange={setSortDescriptor}
         >
           <TableHeader columns={headerColumns}>
             {(column) => (
@@ -336,10 +213,7 @@ export default function AttentionProcessTable({
               </TableColumn>
             )}
           </TableHeader>
-          <TableBody
-            emptyContent={'No se encontraron pacientes'}
-            items={sortedItems}
-          >
+          <TableBody emptyContent={'No se encontraron pacientes'} items={items}>
             {(item) => (
               <TableRow key={crypto.randomUUID().toString()}>
                 {(columnKey) => (
@@ -361,7 +235,11 @@ export default function AttentionProcessTable({
                 Asignar Médico
               </ModalHeader>
               <ModalBody>
-                <Select  placeholder='Médico a redactar el informe' selectedKeys={medicoId} onSelectionChange={setMedicoId}>
+                <Select
+                  placeholder='Médico a redactar el informe'
+                  selectedKeys={medicoId}
+                  onSelectionChange={setMedicoId}
+                >
                   {doctorData.map((doctor) => (
                     <SelectItem
                       key={doctor.idpersonalmedico}

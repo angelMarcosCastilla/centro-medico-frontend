@@ -1,5 +1,5 @@
 export const listState = {
-  PT: 'Pendiente triaje',
+  PT: 'Pendiente Triaje',
   P: 'Pendiente',
   A: 'Atendiendo',
   PI: 'Pendiente Informe',
