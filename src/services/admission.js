@@ -43,3 +43,12 @@ export const updateMedicoByDetatencion = async (data, iddetatencion) => {
   )
   return dataResponse
 }
+
+export const listClientforDate = async (documento,fechaInicio, fechaFin) => {
+  const {
+    data: { data }
+  } = await axios.get(
+    `/atenciones/reporte/pagosclientes/${documento}/intervalo/${fechaInicio}/${fechaFin}`
+  )
+  return data
+}

@@ -8,7 +8,9 @@ import {
   LayoutTemplate,
   HeartHandshake,
   Folders,
-  HelpingHand
+  HelpingHand,
+  AreaChart,
+  
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import HasRole from '../components/HasRole'
@@ -38,10 +40,10 @@ export default function Dashboard() {
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
-            icon={<HelpingHand size={20}/>}
-            text= 'Pagos'
-            route = 'pagos'
-         />
+            icon={<HelpingHand size={20} />}
+            text='Pagos'
+            route='pagos'
+          />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
@@ -49,6 +51,13 @@ export default function Dashboard() {
             text='Servicios'
             route='servicios'
           />
+        </HasRole>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
+          <SidebarItem 
+            icon={<AreaChart size={20}/>}
+            text='Reporte Personalizado' 
+            route='reporte personalizado'
+          />  
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.tomografia}>
           <SidebarItem
