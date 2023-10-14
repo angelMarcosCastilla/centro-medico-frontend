@@ -39,8 +39,8 @@ export default function Dashboard() {
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
             icon={<Folders size={20} />}
-            text='Reportes'
-            route='reportes'
+            text='Informes'
+            route='informes'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
@@ -82,7 +82,7 @@ export default function Dashboard() {
           <SidebarItem
             icon={<Folders size={20} />}
             text='Informes'
-            route='informes'
+            route='informeslaboratorio'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.plantillas}>
@@ -110,9 +110,11 @@ export default function Dashboard() {
               disabledKeys={['edit', 'delete']}
             >
               <DropdownItem key='graficos'>
-                <Link to="/report/graficos">Graficos</Link>
+                <Link to='/report/graficos'>Graficos</Link>
               </DropdownItem>
-              <DropdownItem key='copy'>Copy link</DropdownItem>
+              <DropdownItem key='reportestest'>
+                <Link to='/reportestest'>Reporte test</Link>
+              </DropdownItem>
               <DropdownItem key='edit'>Edit file</DropdownItem>
               <DropdownItem key='delete' className='text-danger' color='danger'>
                 Delete file

@@ -142,7 +142,7 @@ export default function ReportEditor() {
     if (result.isSuccess) {
       await changeStatus(state.idDetAttention, 'PE')
       toast.success(result.message)
-      navigate('/informes')
+      navigate('/informeslaboratorio')
     } else {
       toast.error(result.message)
     }
@@ -160,7 +160,7 @@ export default function ReportEditor() {
 
     if (result.isSuccess) {
       toast.success(result.message)
-      navigate('/informes')
+      navigate('/informeslaboratorio')
     } else {
       toast.error(result.message)
     }
@@ -179,7 +179,7 @@ export default function ReportEditor() {
       setTemplate(loadedTemplate)
     } else if (templateData.isSuccess && !templateData.data) {
       toast.error('Sin plantilla para este servicio. Por favor, cree una.')
-      navigate('/informes')
+      navigate('/informeslaboratorio')
     }
   }, [searchData])
 
@@ -308,7 +308,7 @@ export default function ReportEditor() {
         <Button
           color='danger'
           variant='light'
-          onPress={() => navigate('/informes')}
+          onPress={() => navigate('/informeslaboratorio')}
         >
           Cancelar
         </Button>
