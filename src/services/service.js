@@ -32,6 +32,11 @@ export const updateService = async (idService, serviceData) => {
   return data
 }
 
+export const removeService = async (idService) => {
+  const { data } = await axios.delete(`/servicios/${idService}`)
+  return data
+}
+
 export const getListofPaymentsbyAgreement = async () => {
   const {
     data: { data }

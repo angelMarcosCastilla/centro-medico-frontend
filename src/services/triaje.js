@@ -3,11 +3,11 @@ import axios from 'axios'
 export const listarTriajeService = async () => {
   const {
     data: { data }
-  } = await axios.get(`/triaje/all`)
+  } = await axios.get(`/triajes`)
   return data
 }
 
-export const registrarTriajeService = async (data) => {
-  const { data: result } = await axios.post(`/triaje/register`, data)
+export const createTriage = async (data) => {
+  const { data: result } = await axios.post(`/triajes`, data)
   return result
 }

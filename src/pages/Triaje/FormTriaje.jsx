@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   Button,
   Card,
@@ -8,33 +8,24 @@ import {
   Checkbox,
   Image,
   Input,
-  Select,
-  SelectItem,
   Tab,
   Tabs
 } from '@nextui-org/react'
 
 import { useLocation, useNavigate } from 'react-router-dom'
-import { registrarTriajeService } from '../../services/triaje'
+import { createTriage } from '../../services/triaje'
 import { toast } from 'sonner'
 import Header from '../../components/Header'
-
-const listInvestigators = [
-  { name: 'Alejandro Torres', signature: 'https://i.imgur.com/IvNkEE0.png' },
-  { name: 'Valentina Martínez', signature: 'https://i.imgur.com/mmXcrf0.png' },
-  { name: 'Andrés García', signature: 'https://i.imgur.com/SDsnYbJ.png' },
-  { name: 'Gabriela López', signature: 'https://i.imgur.com/SDsnYbJ.png' },
-  { name: 'Sebastián Rodríguez', signature: 'https://i.imgur.com/nim2HOX.png' }
-]
+import { capitalize } from '../../utils'
 
 export default function FormTriaje() {
-  const [investigator, setInvestigator] = useState('')
-  const [signature, setSignature] = useState('')
   const { state } = useLocation()
   const navigate = useNavigate()
   const [values, setValues] = useState({
-    complicaciones: state.complicaciones,
-    detalleTriaje: {
+    complicacionesMedicas: state.complicaciones,
+    triajeAtencion: {
+      idPersonalMedico: JSON.parse(localStorage.getItem('userInfo'))
+        .idpersonalmedico,
       temperatura: '',
       peso: '',
       talla: '',
@@ -43,19 +34,7 @@ export default function FormTriaje() {
       frecuencia_respiratoria: ''
     }
   })
-
-  const handleSelectedInvestigator = (e) => {
-    const { value } = e.target
-    setInvestigator(value)
-  }
-
-  useEffect(() => {
-    const investigatorFound = listInvestigators.find(
-      ({ name }) => name === investigator
-    )
-    if (investigatorFound) setSignature(investigatorFound.signature)
-    else setSignature(null)
-  }, [investigator])
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false)
 
   const currentAge =
     new Date().getFullYear() -
@@ -71,13 +50,11 @@ export default function FormTriaje() {
     // Validar que el valor sea menor o igual al máximo permitido
     return Math.min(parsedValue, max)
   }
-  const [isButtonEnabled, setIsButtonEnabled] = useState(false)
 
-  const handleChange = (e, key) => {
+  const handleChange = (e) => {
     const { value, name } = e.target
 
     let validatedValue
-    // Validamos  el campo según su nombre
     if (name === 'talla') {
       validatedValue = validateInput(name, value, 230)
     } else if (name === 'peso') {
@@ -89,26 +66,24 @@ export default function FormTriaje() {
     } else if (name === 'frecuencia_respiratoria') {
       validatedValue = validateInput(name, value, 30)
     } else {
-      // Para otros campos, simplemente mantener el valor ingresado
       validatedValue = value
     }
 
     const areAllFieldsFilled =
-      values.detalleTriaje.talla &&
-      values.detalleTriaje.peso &&
-      values.detalleTriaje.temperatura &&
-      values.detalleTriaje.presion_arterial &&
-      values.detalleTriaje.frecuencia_cardiaca &&
-      values.detalleTriaje.frecuencia_respiratoria &&
-      investigator
+      values.triajeAtencion.talla &&
+      values.triajeAtencion.peso &&
+      values.triajeAtencion.temperatura &&
+      values.triajeAtencion.presion_arterial &&
+      values.triajeAtencion.frecuencia_cardiaca &&
+      values.triajeAtencion.frecuencia_respiratoria
 
     setIsButtonEnabled(areAllFieldsFilled)
 
     setValues((prev) => {
       return {
         ...prev,
-        detalleTriaje: {
-          ...prev.detalleTriaje,
+        triajeAtencion: {
+          ...prev.triajeAtencion,
           [e.target.name]: validatedValue
         }
       }
@@ -119,10 +94,17 @@ export default function FormTriaje() {
     try {
       const data = {
         ...values,
-        idcompliacionmed: state.datosPaciente.idcompliacionmed,
-        idatencion: state.datosPaciente.idatencion
+        complicacionesMedicas: {
+          ...values.complicacionesMedicas,
+          idcompliacionmed: state.datosPaciente.idcompliacionmed
+        },
+        triajeAtencion: {
+          ...values.triajeAtencion,
+          idatencion: state.datosPaciente.idatencion
+        }
       }
-      const result = await registrarTriajeService(data)
+
+      const result = await createTriage(data)
       if (result.isSuccess) {
         toast.success('Triaje registrado correctamente')
         navigate('/triaje', { replace: true })
@@ -137,229 +119,201 @@ export default function FormTriaje() {
       <Header title='Identificación del paciente en Triaje' />
       <Card className='flex-1'>
         <CardBody>
-          <div className='lg:flex'>
-            <Card shadow='none' className='flex-1'>
-              <CardHeader>Datos generales del paciente</CardHeader>
-              <CardBody>
-                <div className='flex gap-3 mb-4'>
-                  <Input
-                    label='Nombres'
-                    value={state.datosPaciente.nombres}
-                    size='lg'
-                    maxLength={60}
-                    isRequired
-                  />
-                  <Input
-                    label='Apellidos'
-                    value={state.datosPaciente.apellidos}
-                    size='lg'
-                    maxLength={60}
-                    isRequired
-                  />
-                </div>
-                <div className='flex gap-3 mb-4'>
-                  <Input
-                    label='DNI'
-                    size='lg'
-                    maxLength={20}
-                    value={state.datosPaciente.num_documento}
-                    isRequired
-                  />
-                  <Input
-                    label='Fecha de nacimiento'
-                    value={new Date(
-                      state.datosPaciente.fecha_nacimiento
-                    ).toLocaleDateString('es')}
-                    size='lg'
-                    isRequired
-                  />
-                </div>
-                <div className='flex gap-3 mb-4'>
-                  <Input
-                    label='Número celular'
-                    value={state.datosPaciente.celular}
-                    size='lg'
-                    maxLength={9}
-                  />
-                  <Input
-                    label='Correo electrónico'
-                    value={state.datosPaciente.correo}
-                    size='lg'
-                    maxLength={100}
-                  />
-                </div>
-                <div className='flex gap-3 mb-4'>
-                  <Input
-                    label='Dirección'
-                    size='lg'
-                    maxLength={150}
-                    value={state.datosPaciente.direccion}
-                  />
-                </div>
-                <div className='flex gap-3 mb-4'>
-                  <Input
-                    label='Edad'
-                    type='number'
-                    value={currentAge}
-                    size='lg'
-                    disabled
-                    isRequired
-                  />
-                  <Input
-                    label='Talla (cm)'
-                    type='number'
-                    size='lg'
-                    min={0}
-                    name='talla'
-                    value={values.detalleTriaje.talla}
-                    onChange={handleChange}
-                    max={250}
-                    isRequired
-                  />
-                  <Input
-                    label='Peso (kg)'
-                    type='number'
-                    size='lg'
-                    min={0}
-                    max={500}
-                    onChange={handleChange}
-                    name='peso'
-                    value={values.detalleTriaje.peso}
-                    isRequired
-                  />
-                </div>
-              </CardBody>
-            </Card>
-            <Card shadow='none' className='flex-1'>
-              <CardBody>
-                <Tabs
-                  color='primary'
-                  aria-label='Tabs colors'
-                  size='lg'
-                  variant='underlined'
-                >
-                  <Tab
-                    key='factores-riesgo'
-                    title='Factores de riesgo o comorbilidad'
+          <form autoComplete='off'>
+            <div className='lg:flex'>
+              <Card shadow='none' className='flex-1'>
+                <CardHeader>Datos generales del paciente</CardHeader>
+                <CardBody>
+                  <div className='flex gap-3 mb-4'>
+                    <Input
+                      label='Nombres'
+                      value={state.datosPaciente.nombres}
+                      maxLength={50}
+                      isRequired
+                      isReadOnly
+                    />
+                    <Input
+                      label='Apellidos'
+                      value={state.datosPaciente.apellidos}
+                      maxLength={50}
+                      isRequired
+                      isReadOnly
+                    />
+                  </div>
+                  <div className='flex gap-3 mb-4'>
+                    <Input
+                      label='DNI / Carnet de Extranjería'
+                      maxLength={20}
+                      value={state.datosPaciente.num_documento}
+                      isRequired
+                      isReadOnly
+                    />
+                    <Input
+                      label='Fecha de nacimiento'
+                      value={new Date(
+                        state.datosPaciente.fecha_nacimiento
+                      ).toLocaleDateString('es', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                      })}
+                      isRequired
+                      isReadOnly
+                    />
+                  </div>
+                  <div className='flex gap-3 mb-4'>
+                    <Input
+                      label='Número celular'
+                      value={state.datosPaciente.celular || ''}
+                      maxLength={9}
+                      isReadOnly
+                    />
+                    <Input
+                      label='Correo electrónico'
+                      value={state.datosPaciente.correo || ''}
+                      maxLength={40}
+                      isReadOnly
+                    />
+                  </div>
+                  <div className='flex gap-3 mb-4'>
+                    <Input
+                      label='Dirección'
+                      maxLength={150}
+                      value={state.datosPaciente.direccion || ''}
+                      isReadOnly
+                    />
+                  </div>
+                  <div className='flex gap-3 mb-4'>
+                    <Input
+                      label='Edad'
+                      type='number'
+                      value={currentAge}
+                      isRequired
+                      isReadOnly
+                    />
+                    <Input
+                      label='Talla (cm)'
+                      type='number'
+                      name='talla'
+                      min={0}
+                      max={230}
+                      value={values.triajeAtencion.talla}
+                      onChange={handleChange}
+                      isRequired
+                    />
+                    <Input
+                      label='Peso (kg)'
+                      type='number'
+                      min={0}
+                      max={200}
+                      onChange={handleChange}
+                      name='peso'
+                      value={values.triajeAtencion.peso}
+                      isRequired
+                    />
+                  </div>
+                </CardBody>
+              </Card>
+              <Card shadow='none' className='flex-1'>
+                <CardBody>
+                  <Tabs
+                    color='primary'
+                    aria-label='Tabs colors'
+                    variant='underlined'
                   >
-                    <div className='grid grid-cols-2 gap-6 px-4'>
-                      {Object.entries(values.complicaciones).map((item) => (
-                        <Checkbox
-                          isSelected={item[1]}
-                          onValueChange={() => {
-                            setValues((prev) => {
-                              return {
-                                ...prev,
-                                complicaciones: {
-                                  ...prev.complicaciones,
-                                  [item[0]]: !item[1]
-                                }
-                              }
-                            })
-                          }}
-                          key={item[0]}
-                        >
-                          {item[0]}
-                        </Checkbox>
-                      ))}
-                    </div>
-                  </Tab>
-                  <Tab
-                    key='control-funciones-vitales'
-                    title='Control de funciones vitales'
-                  >
-                    <div className='grid grid-cols-2 gap-6 px-4'>
-                      <Input
-                        label='Temperatura (°C)'
-                        name='temperatura'
-                        value={values.detalleTriaje.temperatura}
-                        onChange={handleChange}
-                        variant='bordered'
-                        size='lg'
-                        radius='lg'
-                        type='number'
-                      />
-                      <Input
-                        label='Presión arterial (mm Hg)'
-                        onChange={handleChange}
-                        variant='bordered'
-                        size='lg'
-                        name='presion_arterial'
-                        value={values.detalleTriaje.presion_arterial}
-                        radius='lg'
-                      />
-                      <Input
-                        label='Frecuencia Cardiaca (lpm)'
-                        variant='bordered'
-                        size='lg'
-                        onChange={handleChange}
-                        radius='lg'
-                        name='frecuencia_cardiaca'
-                        value={values.detalleTriaje.frecuencia_cardiaca}
-                      />
-                      <Input
-                        onChange={handleChange}
-                        label='Frecuencia Respiratoria (rpm)'
-                        variant='bordered'
-                        size='lg'
-                        radius='lg'
-                        name='frecuencia_respiratoria'
-                        value={values.detalleTriaje.frecuencia_respiratoria}
-                      />
-                    </div>
-                  </Tab>
-                </Tabs>
-                <Card shadow='none'>
-                  <CardHeader>Investigador (a)</CardHeader>
-                  <CardBody>
-                    <div className='flex flex-row gap-2'>
-                      <div className='basis-2/3 grid justify-items-center gap-y-2'>
-                        <Select
-                          label='Investigador a cargo'
-                          size='lg'
-                          onChange={handleSelectedInvestigator}
-                          isRequired
-                        >
-                          {listInvestigators.map(({ name }) => (
-                            <SelectItem key={name} value={name}>
-                              {name}
-                            </SelectItem>
-                          ))}
-                        </Select>
-                        <Image
-                          width={180}
-                          height={50}
-                          alt='Firma del investigador'
-                          src={signature}
+                    <Tab
+                      key='factores-riesgo'
+                      title='Factores de riesgo o comorbilidad'
+                    >
+                      <div className='grid grid-cols-2 gap-6 px-4'>
+                        {Object.entries(values.complicacionesMedicas).map(
+                          (item) => (
+                            <Checkbox
+                              isSelected={item[1]}
+                              onValueChange={() => {
+                                setValues((prev) => {
+                                  return {
+                                    ...prev,
+                                    complicacionesMedicas: {
+                                      ...prev.complicacionesMedicas,
+                                      [item[0]]: !item[1]
+                                    }
+                                  }
+                                })
+                              }}
+                              key={item[0]}
+                            >
+                              {capitalize(item[0].replace('_', ' '))}
+                            </Checkbox>
+                          )
+                        )}
+                      </div>
+                    </Tab>
+                    <Tab
+                      key='control-funciones-vitales'
+                      title='Control de funciones vitales'
+                    >
+                      <div className='grid grid-cols-2 gap-6 px-4'>
+                        <Input
+                          type='text'
+                          label='Temperatura (°C)'
+                          name='temperatura'
+                          value={values.triajeAtencion.temperatura}
+                          onChange={handleChange}
+                          variant='bordered'
+                          radius='lg'
+                        />
+                        <Input
+                          type='text'
+                          label='Presión arterial (mm Hg)'
+                          onChange={handleChange}
+                          variant='bordered'
+                          name='presion_arterial'
+                          value={values.triajeAtencion.presion_arterial}
+                          radius='lg'
+                        />
+                        <Input
+                          type='text'
+                          label='Frecuencia Cardiaca (lpm)'
+                          variant='bordered'
+                          onChange={handleChange}
+                          radius='lg'
+                          name='frecuencia_cardiaca'
+                          value={values.triajeAtencion.frecuencia_cardiaca}
+                        />
+                        <Input
+                          type='text'
+                          onChange={handleChange}
+                          label='Frecuencia Respiratoria (rpm)'
+                          variant='bordered'
+                          radius='lg'
+                          name='frecuencia_respiratoria'
+                          value={values.triajeAtencion.frecuencia_respiratoria}
                         />
                       </div>
-                      <div className='basis-1/3 flex items-center'>
-                        <Image
-                          width={250}
-                          alt='Sello'
-                          src='https://www.pngall.com/wp-content/uploads/2016/05/Certified-Stamp-Free-Download-PNG.png'
-                        />
-                      </div>
-                    </div>
-                  </CardBody>
-                </Card>
-              </CardBody>
-            </Card>
-          </div>
+                    </Tab>
+                  </Tabs>
+                </CardBody>
+              </Card>
+            </div>
+            <div className='flex justify-end'>
+              <Image
+                width={125}
+                alt='Sello'
+                src='../../../private/sello.png'
+              />
+            </div>
+          </form>
         </CardBody>
         <CardFooter className='flex justify-end gap-5'>
           <Button
             onClick={() => navigate(-1, { replace: true })}
-            size='lg'
-            radius='lg'
             className='hover:bg-danger hover:text-white'
           >
             Cancelar
           </Button>
           <Button
             color='primary'
-            size='lg'
-            radius='lg'
             onClick={handleAddTriaje}
             isDisabled={!isButtonEnabled}
           >
