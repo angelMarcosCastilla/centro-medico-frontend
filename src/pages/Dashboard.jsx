@@ -9,6 +9,7 @@ import {
   HeartHandshake,
   Folders,
   HelpingHand,
+  AreaChart,
   BarChart
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -56,6 +57,13 @@ export default function Dashboard() {
             text='Servicios'
             route='servicios'
           />
+        </HasRole>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
+          <SidebarItem 
+            icon={<AreaChart size={20}/>}
+            text='Reporte Personalizado' 
+            route='reporte personalizado'
+          />  
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.tomografia}>
           <SidebarItem
