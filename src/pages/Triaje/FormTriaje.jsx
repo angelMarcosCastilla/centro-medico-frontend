@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Button,
   Card,
@@ -34,21 +34,25 @@ export default function FormTriaje() {
       frecuencia_respiratoria: ''
     }
   })
+  const [disabledCheckboxes] = useState(
+    Object.entries(values.complicacionesMedicas).reduce((acc, [key, value]) => {
+      acc[key] = value === 1
+      return acc
+    }, {})
+  )
   const [isButtonEnabled, setIsButtonEnabled] = useState(false)
 
   const currentAge =
     new Date().getFullYear() -
     new Date(state.datosPaciente.fecha_nacimiento).getFullYear()
 
-  const validateInput = (name, value, max) => {
+  const validateInput = (value, max) => {
     const parsedValue = parseFloat(value)
-    if (isNaN(parsedValue) || parsedValue < 0) {
-      // Si el valor no es un número, devolver ''
+    if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > max) {
       return ''
     }
 
-    // Validar que el valor sea menor o igual al máximo permitido
-    return Math.min(parsedValue, max)
+    return parsedValue
   }
 
   const handleChange = (e) => {
@@ -56,28 +60,18 @@ export default function FormTriaje() {
 
     let validatedValue
     if (name === 'talla') {
-      validatedValue = validateInput(name, value, 230)
+      validatedValue = validateInput(value, 230)
     } else if (name === 'peso') {
-      validatedValue = validateInput(name, value, 200)
+      validatedValue = validateInput(value, 200)
     } else if (name === 'temperatura') {
-      validatedValue = validateInput(name, value, 40)
+      validatedValue = validateInput(value, 42)
     } else if (name === 'frecuencia_cardiaca') {
-      validatedValue = validateInput(name, value, 100)
+      validatedValue = validateInput(value, 200)
     } else if (name === 'frecuencia_respiratoria') {
-      validatedValue = validateInput(name, value, 30)
+      validatedValue = validateInput(value, 50)
     } else {
       validatedValue = value
     }
-
-    const areAllFieldsFilled =
-      values.triajeAtencion.talla &&
-      values.triajeAtencion.peso &&
-      values.triajeAtencion.temperatura &&
-      values.triajeAtencion.presion_arterial &&
-      values.triajeAtencion.frecuencia_cardiaca &&
-      values.triajeAtencion.frecuencia_respiratoria
-
-    setIsButtonEnabled(areAllFieldsFilled)
 
     setValues((prev) => {
       return {
@@ -113,6 +107,18 @@ export default function FormTriaje() {
       toast.error('Ocurrió un error al registrar el triaje')
     }
   }
+
+  useEffect(() => {
+    const areAllFieldsFilled =
+      values.triajeAtencion.talla &&
+      values.triajeAtencion.peso &&
+      values.triajeAtencion.temperatura &&
+      values.triajeAtencion.presion_arterial &&
+      values.triajeAtencion.frecuencia_cardiaca &&
+      values.triajeAtencion.frecuencia_respiratoria
+
+    setIsButtonEnabled(areAllFieldsFilled)
+  }, [values.triajeAtencion])
 
   return (
     <section className='px-3 py-4 bg-slate-100 h-screen flex flex-col gap-y-4'>
@@ -227,23 +233,24 @@ export default function FormTriaje() {
                     >
                       <div className='grid grid-cols-2 gap-6 px-4'>
                         {Object.entries(values.complicacionesMedicas).map(
-                          (item) => (
+                          ([complicacion, valor]) => (
                             <Checkbox
-                              isSelected={item[1]}
+                              isDisabled={disabledCheckboxes[complicacion]}
+                              isSelected={valor === 1}
                               onValueChange={() => {
                                 setValues((prev) => {
                                   return {
                                     ...prev,
                                     complicacionesMedicas: {
                                       ...prev.complicacionesMedicas,
-                                      [item[0]]: !item[1]
+                                      [complicacion]: valor === 1 ? 0 : 1
                                     }
                                   }
                                 })
                               }}
-                              key={item[0]}
+                              key={complicacion}
                             >
-                              {capitalize(item[0].replace('_', ' '))}
+                              {capitalize(complicacion.replace('_', ' '))}
                             </Checkbox>
                           )
                         )}
@@ -297,11 +304,7 @@ export default function FormTriaje() {
               </Card>
             </div>
             <div className='flex justify-end'>
-              <Image
-                width={125}
-                alt='Sello'
-                src='../../../private/sello.png'
-              />
+              <Image width={125} alt='Sello' src='../../../private/sello.png' />
             </div>
           </form>
         </CardBody>
