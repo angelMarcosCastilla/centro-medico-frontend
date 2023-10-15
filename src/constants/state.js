@@ -17,3 +17,8 @@ export const statusColorMap = {
   PE: 'bg-blue-100 text-blue-600',
   F: 'bg-green-100 text-green-600'
 }
+
+export const TIPO_COMPROBANTE = {
+  B: "Boleta",
+  F: "Factura"
+}

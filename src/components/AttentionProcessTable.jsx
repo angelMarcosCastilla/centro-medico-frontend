@@ -22,7 +22,11 @@ import { ArrowDownWideNarrow, MonitorPause, UserCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { useFetcher } from '../hook/useFetcher'
 import { listState, statusColorMap } from '../constants/state'
-import { changeStatus, updateMedicoByDetatencion } from '../services/admission'
+import {
+  changeOrder,
+  changeStatus,
+  updateMedicoByDetatencion
+} from '../services/admission'
 import { useAuth } from '../context/AuthContext'
 
 const columns = [
@@ -34,101 +38,92 @@ const columns = [
   { name: 'ACCIONES', uid: 'acciones' }
 ]
 
-const INITIAL_VISIBLE_COLUMNS = [
-  'index',
-  'paciente',
-  'nombre_categoria',
-  'nombre_servicio',
-  'estado',
-  'acciones'
-]
-
 export default function AttentionProcessTable({
   useFecherFunction,
   getDoctorByAreaFunction
 }) {
   const [idDetAttention, setIdDetAttention] = useState(null)
-  const [visibleColumns, setVisibleColumns] = useState(
-    new Set(INITIAL_VISIBLE_COLUMNS)
-  )
+
   const { userInfo } = useAuth()
   const [medicoId, setMedicoId] = useState(new Set([]))
   const { data, mutate } = useFetcher(useFecherFunction)
   const { data: doctorData } = useFetcher(getDoctorByAreaFunction)
-  
-  const [dataAt, setAt] = useState(dataAt)
 
-  const headerColumns = useMemo(() => {
-    if (visibleColumns === 'all') return columns
-
-    return columns.filter((column) =>
-      Array.from(visibleColumns).includes(column.uid)
-    )
-  }, [visibleColumns])
-
-  const renderCell = useCallback((detail, columnKey) => {
-    const cellValue = detail[columnKey]
-    const estadoTexto = listState[cellValue]
-    const classChip = statusColorMap[cellValue]
-    const index = detail.index
-    switch (columnKey) {
-      case 'estado':
-        return (
-          <Chip className={`capitalize ${classChip}`} size='sm' variant='flat'>
-            {estadoTexto}
-          </Chip>
-        )
-      case 'acciones':
-        return (
-          <div className='relative flex items-center gap-2'>
-            {index === 1 && (
-              <div className='flex  items-center'>
-                <Tooltip
-                  content={
-                    detail.estado === 'P' ? 'Atender' : 'Confirmar Atencion'
-                  }
-                  color='primary'
-                  closeDelay={0}
-                >
-                  <Button
-                    isIconOnly
+  const renderCell = useCallback(
+    (detail, columnKey) => {
+      const cellValue = detail[columnKey]
+      const estadoTexto = listState[cellValue]
+      const classChip = statusColorMap[cellValue]
+      const index = detail.index
+      switch (columnKey) {
+        case 'estado':
+          return (
+            <Chip
+              className={`capitalize ${classChip}`}
+              size='sm'
+              variant='flat'
+            >
+              {estadoTexto}
+            </Chip>
+          )
+        case 'acciones':
+          return (
+            <div className='relative flex items-center gap-x-2'>
+              {index === 1 && (
+                <div className='flex  items-center'>
+                  <Tooltip
+                    content={
+                      detail.estado === 'P' ? 'Atender' : 'Confirmar Atencion'
+                    }
                     color='primary'
-                    variant='light'
-                    onClick={() => {
-                      if (detail.estado === 'P') {
-                        handleChangeStatus(detail.iddetatencion, detail.estado)
-                      } else {
-                        setIdDetAttention(detail.iddetatencion)
-                      }
-                    }}
+                    closeDelay={0}
                   >
-                    {detail.estado === 'P' ? (
-                      <MonitorPause size={20} />
-                    ) : (
-                      <UserCheck size={20} />
-                    )}
-                  </Button>
-                </Tooltip>
-                {detail.estado === 'P' && (
-                  <Tooltip content='Posponer' color='danger' closeDelay={0}>
                     <Button
                       isIconOnly
-                      color='danger'
+                      color='primary'
+                      size='sm'
                       variant='light'
-                      onClick={handleReorder}
+                      onClick={() => {
+                        if (detail.estado === 'P') {
+                          handleChangeStatus(
+                            detail.iddetatencion,
+                            detail.estado
+                          )
+                        } else {
+                          setIdDetAttention(detail.iddetatencion)
+                        }
+                      }}
                     >
-                      <ArrowDownWideNarrow size={20} />
+                      {detail.estado === 'P' ? (
+                        <MonitorPause size={20} />
+                      ) : (
+                        <UserCheck size={20} />
+                      )}
                     </Button>
                   </Tooltip>
-                )}
-              </div>
-            )}
-          </div>
-        )
-      default:
-        return cellValue
-    }
-  }, [])
+                  {detail.estado === 'P' && (
+                    <Tooltip content='Posponer' color='danger' closeDelay={0}>
+                      <Button
+                        size='sm'
+                        isIconOnly
+                        color='danger'
+                        variant='light'
+                        onClick={handleReorder}
+                      >
+                        <ArrowDownWideNarrow size={20} />
+                      </Button>
+                    </Tooltip>
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        default:
+          return cellValue
+      }
+    },
+    [data]
+  )
 
   const selectMedico = Array.from(medicoId)[0]
 
@@ -173,23 +168,35 @@ export default function AttentionProcessTable({
     return data.map((el, index) => ({ ...el, index: index + 1 }))
   }, [data])
 
-  const handleReorder = () => {
-    if (items.length > 1) {
-      const firstValue = items[0]
-      const SecondValue = items[1]
-      const newData = [...items]
-      newData[0] = SecondValue
-      newData[1] = firstValue
-      mutate(newData)
+  const handleReorder = async () => {
+    if (data.length > 1) {
+      const firstValue = data[0]
+      const secondValue = data[1]
+
+      mutate((prevValue) => {
+        return prevValue.map((item, index) => {
+          if (index === 0)
+            return { ...secondValue, num_atencion: firstValue.num_atencion }
+          if (index === 1)
+            return { ...firstValue, num_atencion: secondValue.num_atencion }
+          return item
+        })
+      })
+
+      await changeOrder({
+        firstDetAtencion: secondValue.iddetatencion,
+        firstNumOrder: firstValue.num_atencion,
+        secondDetAtencion: firstValue.iddetatencion,
+        secondNumOrder: secondValue.num_atencion
+      })
     }
   }
 
-  console.log(items)
   return (
     <>
       <CardBody>
         <div>
-          <h1>en cola</h1>
+          <h1 className='text-2xl'>Lista atenciones</h1>
         </div>
         <Table
           aria-label='Example table with custom cells, pagination and sorting'
@@ -202,7 +209,7 @@ export default function AttentionProcessTable({
           topContentPlacement='outside'
           shadow='none'
         >
-          <TableHeader columns={headerColumns}>
+          <TableHeader columns={columns}>
             {(column) => (
               <TableColumn
                 key={column.uid}
