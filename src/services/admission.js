@@ -49,7 +49,7 @@ export const listClientforDate = async (fechaInicio, fechaFin, documento) => {
     data: { data }
   } = await axios.get(
     `/atenciones/reporte/pagosclientes/intervalo/${fechaInicio}/${fechaFin}`,
-    { documento }
+    { params: { documento } }
   )
   return data
 }

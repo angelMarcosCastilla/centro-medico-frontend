@@ -89,9 +89,17 @@ const router = createBrowserRouter([
             )
           },
           {
-            path: 'reportestest',
+            path: '/report/pagos',
             element: (
-              <RoleGard listRoles={listRoles.admision}>
+              <RoleGard listRoles={['A']}>
+                <ReportP />
+              </RoleGard>
+            )
+          },
+          {
+            path: '/report/servicios',
+            element: (
+              <RoleGard listRoles={['A']}>
                 <ReporteTest />
               </RoleGard>
             )
@@ -101,14 +109,6 @@ const router = createBrowserRouter([
             element: (
               <RoleGard listRoles={listRoles.admision}>
                 <Servicios />
-              </RoleGard>
-            )
-          },
-          {
-            path: 'reporte personalizado',
-            element: (
-              <RoleGard listRoles={listRoles.admision}>
-                <ReportP />
               </RoleGard>
             )
           },

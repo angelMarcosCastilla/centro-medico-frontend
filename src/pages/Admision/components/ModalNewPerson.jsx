@@ -45,7 +45,7 @@ export default function ModalNewPerson({
       setLoading(false)
 
       if (!result.isSuccess) {
-        toast.error('Error al al momento de registrar')
+        toast.error('Error al momento de registrar')
       } else {
         const dataPersona = await searchPersonById(result.data)
 
@@ -84,7 +84,7 @@ export default function ModalNewPerson({
       }
     } catch (error) {
       setLoading(false)
-      toast.error('Error al al momento de registrar')
+      toast.error('Error al momento de registrar')
     }
   }
 

@@ -62,7 +62,7 @@ export default function Graficos() {
             {!loading && (
               <>
                 <h1 className='text-xl mb-2 text-center'>
-                  s/. {total.toFixed(2)}
+                  S/. {total.toFixed(2)}
                 </h1>
                 {payment.map((el) => (
                   <h2 key={el.tipo_comprobante}>

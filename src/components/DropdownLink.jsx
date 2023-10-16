@@ -4,7 +4,7 @@ import {
   DropdownMenu,
   DropdownTrigger
 } from '@nextui-org/react'
-import { BarChart } from 'lucide-react'
+import { AreaChart } from 'lucide-react'
 import React, { useContext } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { SidebarContext } from './Sidebar'
@@ -31,7 +31,7 @@ export default function DropdownLink() {
         }
       `}
         >
-          <BarChart size={20} />
+          <AreaChart size={20} />
           <span
             className={`overflow-hidden h-5 text-[15px] transition-all ${
               expanded ? 'w-[200px] ml-3' : 'w-0'
@@ -41,20 +41,21 @@ export default function DropdownLink() {
           </span>
         </li>
       </DropdownTrigger>
-      <DropdownMenu
-        variant='flat'
-        aria-label='Example with disabled actions'
-        disabledKeys={['edit', 'delete']}
-      >
+      <DropdownMenu variant='flat' aria-label='Example with disabled actions'>
         <DropdownItem key='graficos' className='p-0'>
-          <Link to='/report/graficos' className='p-1 w-full  block'>
-            Graficos
+          <Link to='/report/graficos' className='p-2 w-full block'>
+            Gráficos
           </Link>
         </DropdownItem>
-        <DropdownItem key='copy'>Copy link</DropdownItem>
-        <DropdownItem key='edit'>Edit file</DropdownItem>
-        <DropdownItem key='delete' className='text-danger' color='danger'>
-          Delete file
+        <DropdownItem key='pagos' className='p-0'>
+          <Link to='/report/pagos' className='p-2 w-full block'>
+            Pagos
+          </Link>
+        </DropdownItem>
+        <DropdownItem key='servicios' className='p-0'>
+          <Link to='/report/servicios' className='p-2 w-full block'>
+            Servicios
+          </Link>
         </DropdownItem>
       </DropdownMenu>
     </Dropdown>

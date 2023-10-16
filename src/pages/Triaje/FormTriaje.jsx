@@ -308,10 +308,11 @@ export default function FormTriaje() {
             </div>
           </form>
         </CardBody>
-        <CardFooter className='flex justify-end gap-5'>
+        <CardFooter className='flex justify-end gap-3'>
           <Button
-            onClick={() => navigate(-1, { replace: true })}
-            className='hover:bg-danger hover:text-white'
+            color='danger'
+            variant='light'
+            onClick={() => navigate('/triaje', { replace: true })}
           >
             Cancelar
           </Button>
