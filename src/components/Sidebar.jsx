@@ -18,7 +18,7 @@ import {
 import { useAuth } from '../context/AuthContext'
 import { mapRoles } from '../constants/auth.constant'
 
-const SidebarContext = createContext()
+export const SidebarContext = createContext()
 
 export default function Sidebar({ children }) {
   const [expanded, setExpanded] = useState(() => {

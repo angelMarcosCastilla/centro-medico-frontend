@@ -4,6 +4,7 @@ import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Admision from '../pages/Admision'
 import Informes from '../pages/Informes'
+import ReportP from '../pages/Admision/ReportP'
 import Pagos from '../pages/Admision/Pagos'
 import Tomografia from '../pages/Tomografia'
 import Rayosx from '../pages/Rayosx'
@@ -100,6 +101,14 @@ const router = createBrowserRouter([
             element: (
               <RoleGard listRoles={listRoles.admision}>
                 <Servicios />
+              </RoleGard>
+            )
+          },
+          {
+            path: 'reporte personalizado',
+            element: (
+              <RoleGard listRoles={listRoles.admision}>
+                <ReportP />
               </RoleGard>
             )
           },

@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import Sidebar, { SidebarItem } from '../components/Sidebar'
 import {
   Brain,
@@ -9,19 +9,14 @@ import {
   HeartHandshake,
   Folders,
   HelpingHand,
-  BarChart
+  AreaChart
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import HasRole from '../components/HasRole'
 import { listRoles } from '../constants/auth.constant'
 import { DataProvider } from './Admision/components/DataContext'
-import {
-  Card,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger
-} from '@nextui-org/react'
+import { Card } from '@nextui-org/react'
+import DropdownLink from '../components/DropdownLink'
 
 export default function Dashboard() {
   const { userInfo } = useAuth()
@@ -55,6 +50,13 @@ export default function Dashboard() {
             icon={<HeartHandshake size={20} />}
             text='Servicios'
             route='servicios'
+          />
+        </HasRole>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
+          <SidebarItem
+            icon={<AreaChart size={20} />}
+            text='Reporte Personalizado'
+            route='reporte personalizado'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.tomografia}>
@@ -99,29 +101,7 @@ export default function Dashboard() {
             route='triaje'
           />
         </HasRole>
-        {userInfo.nivel_acceso === 'A' && (
-          <Dropdown placement='left'>
-            <DropdownTrigger>
-              <BarChart size={20} />
-            </DropdownTrigger>
-            <DropdownMenu
-              variant='flat'
-              aria-label='Example with disabled actions'
-              disabledKeys={['edit', 'delete']}
-            >
-              <DropdownItem key='graficos'>
-                <Link to='/report/graficos'>Graficos</Link>
-              </DropdownItem>
-              <DropdownItem key='reportestest'>
-                <Link to='/reportestest'>Reporte test</Link>
-              </DropdownItem>
-              <DropdownItem key='edit'>Edit file</DropdownItem>
-              <DropdownItem key='delete' className='text-danger' color='danger'>
-                Delete file
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        )}
+        {userInfo.nivel_acceso === 'A' && <DropdownLink />}
       </Sidebar>
       <div className='bg-slate-100 flex-1 px-5 py-3 overflow-y-auto'>
         <DataProvider>

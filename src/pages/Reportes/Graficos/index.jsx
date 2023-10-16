@@ -1,6 +1,7 @@
 import {
   Card,
   CardBody,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -12,6 +13,7 @@ import React from 'react'
 import { getAllGraficos } from '../../../services/reporte'
 import { useFetcher } from '../../../hook/useFetcher'
 import ChartLastAtenciones from '../components/ChartLastAtenciones'
+import { TIPO_COMPROBANTE } from '../../../constants/state'
 
 const classArea = {
   Tomografía: 'border-orange-300 [&_h2]:text-orange-500',
@@ -28,11 +30,14 @@ const classTop = [
 ]
 
 export default function Graficos() {
-  const { data } = useFetcher(getAllGraficos)
-  const { last7days, totalByarea = [], ranking = [] } = data
+  const { data, loading } = useFetcher(getAllGraficos)
+  const { last7days, totalByarea = [], ranking = [], payment = [] } = data
+  const total =
+    Number(payment[0]?.total ?? '0') + Number(payment[1]?.total ?? '0')
+
   return (
     <div className='p-8 overflow-y-auto'>
-      <h1 className='mb-3'>Información del mes</h1>
+      <h1 className='mb-5 text-xl '>Información del mes</h1>
       <div className='gap-2 grid grid-cols-[repeat(auto-fill,minmax(270px,1fr))]'>
         {totalByarea.map((item, index) => (
           <Card
@@ -48,6 +53,27 @@ export default function Graficos() {
             </CardBody>
           </Card>
         ))}
+        <Card
+          className={`h-[150px]  grid place-content-center border-l-4 border-primary-500`}
+          shadow='sm'
+        >
+          <CardBody className='overflow-visible p-0'>
+            {loading && <Spinner color='primary' />}
+            {!loading && (
+              <>
+                <h1 className='text-xl mb-2 text-center'>
+                  s/. {total.toFixed(2)}
+                </h1>
+                {payment.map((el) => (
+                  <h2 key={el.tipo_comprobante}>
+                    {TIPO_COMPROBANTE[el.tipo_comprobante]}:{' '}
+                    {el?.total ?? '00:0'}{' '}
+                  </h2>
+                ))}
+              </>
+            )}
+          </CardBody>
+        </Card>
       </div>
       <div className='flex flex-row gap-x-5 mt-11 flex-wrap'>
         <div>
