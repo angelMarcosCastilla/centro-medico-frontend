@@ -27,33 +27,35 @@ export default function ReportP() {
   const [endDate, setEndDate] = useState(currentDate)
   const [dataTable, setDataTable] = useState([])
 
-  const [isSearchEnabled, setIsSearchEnabled] = useState(false)
+  const [isSearchEnabled, setIsSearchEnabled] = useState(false) 
+  
   const handleSearch = async () => {
     if ( !startDate || !endDate) {
       toast.error('Por favor, complete todos los campos.')
       return
     }
-
-    const result = await listClientforDate( startDate, endDate,documentNumber)
+    
+    const result = await listClientforDate( startDate, endDate, documentNumber || null )
+    console.log(startDate, endDate, documentNumber)
 
     if (result.length) {
       setDataTable(result)
     } else {
       setDataTable([])
       toast.error('No se encontraron resultados.')
-    }
-    console.log(result)
+    }    
+   
   }
 
   const handleReset = () => setDataTable([])
 
   useEffect(() => {
-    if (!documentNumber || !startDate || !endDate) {
+    if ( !startDate || !endDate) {
       setIsSearchEnabled(false)
     } else {
       setIsSearchEnabled(true)
     }
-  }, [documentNumber, startDate, endDate])
+  }, [ startDate, endDate])
 
   return (
     <CardBody>
@@ -70,7 +72,7 @@ export default function ReportP() {
           label='Fecha de inicio'
           placeholder='dd/mm/aaaa'
           value={startDate}
-          onValueChange={setStartDate}
+          onValueChange={setStartDate}          
           max={currentDate}
         />
         <Input
@@ -83,10 +85,11 @@ export default function ReportP() {
         />
         <div className='flex justify-center gap-4'>
           <Button
-           //  isDisabled={!isSearchEnabled}
+            // isDisabled={!isSearchEnabled}
             
             startContent={<Search size={20} />}
             onPress={handleSearch}
+            
           >
             Buscar
           </Button>
@@ -113,7 +116,7 @@ export default function ReportP() {
           <TableColumn>Documento</TableColumn>
           <TableColumn>Fecha Emision</TableColumn>
           <TableColumn>Fecha Pago</TableColumn>
-          <TableColumn>MONTO Total</TableColumn>
+          <TableColumn>Monto Total</TableColumn>
         </TableHeader>
         <TableBody emptyContent='Realiza una búsqueda para ver los resultados'>
           {dataTable.map((el, index) => (
