@@ -3,7 +3,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Admision from '../pages/Admision'
-import Reportes from '../pages/Admision/Reportes'
+import Informes from '../pages/Informes'
 import ReportP from '../pages/Admision/ReportP'
 import Pagos from '../pages/Admision/Pagos'
 import Tomografia from '../pages/Tomografia'
@@ -14,9 +14,9 @@ import { listRoles } from '../constants/auth.constant.js'
 import Servicios from '../pages/Servicios'
 import FormTriaje from '../pages/Triaje/FormTriaje.jsx'
 import Laboratorio from '../pages/Laboratorio/index.jsx'
-import Informes from '../pages/Informes/index.jsx'
+import InformesLaboratorio from '../pages/InformesLaboratorio'
 import ExternalModule from '../pages/ExternalModule/index.jsx'
-import ReportEditor from '../pages/Informes/ReportEditor.jsx'
+import ReportEditor from '../pages/InformesLaboratorio/ReportEditor.jsx'
 import Plantillas from '../pages/Plantillas/index.jsx'
 import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
 import PrivateRoute from './privateRoute.jsx'
@@ -65,10 +65,10 @@ const router = createBrowserRouter([
             index: true
           },
           {
-            path: 'reportes',
+            path: 'informes',
             element: (
               <RoleGard listRoles={listRoles.admision}>
-                <Reportes />
+                <Informes />
               </RoleGard>
             )
           },
@@ -77,6 +77,14 @@ const router = createBrowserRouter([
             element: (
               <RoleGard listRoles={listRoles.admision}>
                 <Pagos />
+              </RoleGard>
+            )
+          },
+          {
+            path: '/report/graficos',
+            element: (
+              <RoleGard listRoles={['A']}>
+                <Graficos />
               </RoleGard>
             )
           },
@@ -129,15 +137,15 @@ const router = createBrowserRouter([
             )
           },
           {
-            path: 'informes',
+            path: 'informeslaboratorio',
             element: (
               <RoleGard listRoles={listRoles.informes}>
-                <Informes />
+                <InformesLaboratorio />
               </RoleGard>
             )
           },
           {
-            path: 'informes/:id',
+            path: 'informeslaboratorio/:id',
             element: (
               <RoleGard listRoles={listRoles.informes}>
                 <ReportEditor />
@@ -163,14 +171,6 @@ const router = createBrowserRouter([
           {
             path: '*',
             element: <h1>404</h1>
-          },
-          {
-            path: '/report/graficos',
-            element: (
-              <RoleGard listRoles={["A"]}>
-                <Graficos />
-              </RoleGard>
-            )
           }
         ]
       }

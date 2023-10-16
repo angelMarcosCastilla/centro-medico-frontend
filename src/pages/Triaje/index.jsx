@@ -64,7 +64,7 @@ export default function TriajePage() {
       <section className='px-4 py-3 bg-[white] shadow h-full rounded-lg'>
         <Table
           isStriped
-          aria-label='Tabla de Pacientes Derivados a Triaje'
+          aria-label='Tabla de pacientes derivados a triaje'
           shadow='none'
         >
           <TableHeader>
@@ -75,7 +75,7 @@ export default function TriajePage() {
             <TableColumn>ESTADO</TableColumn>
             <TableColumn>ACCIONES</TableColumn>
           </TableHeader>
-          <TableBody emptyContent={'No hay pacientes para triaje'}>
+          <TableBody emptyContent='No hay pacientes para triaje en este momento'>
             {Array.isArray(data) &&
               data.map((el, index) => (
                 <TableRow key={el.idatencion}>
