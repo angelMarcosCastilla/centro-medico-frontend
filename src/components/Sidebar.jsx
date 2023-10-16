@@ -133,8 +133,7 @@ export function SidebarItem({ icon, text, route }) {
   const { expanded } = useContext(SidebarContext)
   const location = useLocation()
 
-  // console.log(location)
-  const isActive = location.pathname.includes(route)
+  const isActive = location.pathname.substring(1).startsWith(route)
 
   return (
     <Link to={route}>

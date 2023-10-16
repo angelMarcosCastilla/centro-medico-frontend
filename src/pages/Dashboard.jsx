@@ -34,8 +34,8 @@ export default function Dashboard() {
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
             icon={<Folders size={20} />}
-            text='Reportes'
-            route='reportes'
+            text='Informes'
+            route='informes'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
@@ -84,7 +84,7 @@ export default function Dashboard() {
           <SidebarItem
             icon={<Folders size={20} />}
             text='Informes'
-            route='informes'
+            route='informeslaboratorio'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.plantillas}>

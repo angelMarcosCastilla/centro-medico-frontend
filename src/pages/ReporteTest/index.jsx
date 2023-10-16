@@ -1,8 +1,8 @@
 import {
   Button,
   CardBody,
-  Chip,
   Input,
+  Link,
   Pagination,
   Select,
   SelectItem,
@@ -17,10 +17,9 @@ import {
 import { getAttentionsByAreaAndDateRange } from '../../services/report'
 import { useFetcher } from '../../hook/useFetcher'
 import { getAllAreas } from '../../services/area'
-import { Search, SearchX } from 'lucide-react'
+import { Search, SearchX, Share } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
-import { listState, statusColorMap } from '../../constants/state'
 
 export default function ReporteTest() {
   const { data: areasData } = useFetcher(getAllAreas)
@@ -75,7 +74,7 @@ export default function ReporteTest() {
 
   return (
     <CardBody>
-      <div className='grid grid-cols-4 items-center gap-4 mb-4'>
+      <div className='grid grid-cols-5 items-center gap-4 mb-4'>
         <Select
           disallowEmptySelection
           label='Área'
@@ -102,7 +101,7 @@ export default function ReporteTest() {
           onValueChange={setEndDate}
           max={currentDate}
         />
-        <div className='flex justify-center gap-4'>
+        <div className='flex justify-center gap-4 col-span-2'>
           <Button
             isDisabled={!isSearchEnabled}
             color='primary'
@@ -118,6 +117,17 @@ export default function ReporteTest() {
             onPress={handleReset}
           >
             Limpiar
+          </Button>
+          <Button
+            href={`http://localhost:3000/api/reportes/exportar/area/${selectedArea.currentKey}/intervalo/${startDate}/${endDate}`}
+            target='_blank'
+            rel='noreferrer'
+            as={Link}
+            isDisabled={!dataTable.length}
+            color='primary'
+            startContent={<Share size={20} />}
+          >
+            Exportar
           </Button>
         </div>
       </div>
@@ -149,10 +159,7 @@ export default function ReporteTest() {
           <TableColumn key='nombre_area'>ÁREA</TableColumn>
           <TableColumn key='nombre_categoria'>CATEGORÍA</TableColumn>
           <TableColumn key='nombre_servicio'>SERVICIO</TableColumn>
-          <TableColumn key='precio_pagado'>MONTO PAGADO</TableColumn>
-          <TableColumn key='descuento'>DESCUENTO</TableColumn>
           <TableColumn key='create_at'>FECHA Y HORA</TableColumn>
-          <TableColumn key='estado'>ESTADO</TableColumn>
         </TableHeader>
         <TableBody
           emptyContent='Realiza una búsqueda para ver los resultados'
@@ -162,25 +169,12 @@ export default function ReporteTest() {
             <TableRow key={item?.iddetatencion}>
               {(columnKey) => {
                 let columnValue
+
                 switch (columnKey) {
-                  case 'descuento':
-                    columnValue = getKeyValue(item, columnKey) || '---'
-                    break
                   case 'create_at':
                     columnValue = getKeyValue(item, columnKey)
                       .replace('T', ' ')
                       .substring(0, 16)
-                    break
-                  case 'estado':
-                    columnValue = (
-                      <Chip
-                        className={`capitalize ${
-                          statusColorMap[getKeyValue(item, columnKey)]
-                        }`}
-                      >
-                        {listState[getKeyValue(item, columnKey)]}
-                      </Chip>
-                    )
                     break
                   default:
                     columnValue = getKeyValue(item, columnKey)

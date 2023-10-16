@@ -8,8 +8,8 @@ import {
   ModalHeader,
   Textarea
 } from '@nextui-org/react'
-import { changeStatus } from '../../../../services/admission'
-import { updateResultForCorrection } from '../../../../services/result'
+import { changeStatus } from '../../../services/admission'
+import { updateResultForCorrection } from '../../../services/result'
 
 export default function ModalCorrection({
   isOpen,

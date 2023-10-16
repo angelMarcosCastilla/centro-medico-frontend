@@ -32,7 +32,7 @@ import { usePagination } from '../hook/usePagination'
 import { capitalize } from '../utils'
 import { listState, statusColorMap } from '../constants/state'
 import { changeStatus } from '../services/admission'
-import ModalCorrection from '../pages/Admision/Reportes/components/ModalCorrection'
+import ModalCorrection from '../pages/Informes/components/ModalCorrection'
 
 const columns = [
   { name: 'ID', uid: 'iddetatencion', sortable: true },
