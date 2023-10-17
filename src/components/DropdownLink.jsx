@@ -43,17 +43,17 @@ export default function DropdownLink() {
       </DropdownTrigger>
       <DropdownMenu variant='flat' aria-label='Example with disabled actions'>
         <DropdownItem key='graficos' className='p-0'>
-          <Link to='/report/graficos' className='p-2 w-full block'>
+          <Link to='/reportes/graficos' className='p-2 w-full block'>
             Gráficos
           </Link>
         </DropdownItem>
         <DropdownItem key='pagos' className='p-0'>
-          <Link to='/report/pagos' className='p-2 w-full block'>
+          <Link to='/reportes/pagos' className='p-2 w-full block'>
             Pagos
           </Link>
         </DropdownItem>
         <DropdownItem key='servicios' className='p-0'>
-          <Link to='/report/servicios' className='p-2 w-full block'>
+          <Link to='/reportes/servicios' className='p-2 w-full block'>
             Servicios
           </Link>
         </DropdownItem>
