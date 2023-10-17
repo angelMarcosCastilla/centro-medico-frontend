@@ -13,15 +13,6 @@ export default {
   },
   darkMode: 'class',
   plugins: [
-    nextui({
-      layout: {
-        disabledOpacity: '0.3', // opacity-[0.3]
-        radius: {
-          small: '2px', 
-          medium: '4px', 
-          large: '6px'
-        }
-      }
-    })
+    nextui()
   ]
 }
