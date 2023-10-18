@@ -19,7 +19,7 @@ import ReportEditor from '../pages/InformesLaboratorio/ReportEditor.jsx'
 import Plantillas from '../pages/Plantillas/index.jsx'
 import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
 import PrivateRoute from './privateRoute.jsx'
-import ReporteServicios from '../pages/Reportes/ReporteServicios/index.jsx'
+import ReporteAtenciones from '../pages/Reportes/ReporteAtenciones'
 import Graficos from '../pages/Reportes/Graficos/index.jsx'
 import ReportePagos from '../pages/Reportes/ReportePagos/index.jsx'
 
@@ -97,10 +97,10 @@ const router = createBrowserRouter([
             )
           },
           {
-            path: '/reportes/servicios',
+            path: '/reportes/atenciones',
             element: (
               <RoleGard listRoles={['A']}>
-                <ReporteServicios />
+                <ReporteAtenciones />
               </RoleGard>
             )
           },

@@ -57,7 +57,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
       (item) => item.idservicio === currentServicio?.idservicio
     )
     if (!isExist) {
-      onChange({ ...currentServicio, descuento: ''})
+      onChange({ ...currentServicio, descuento: 0})
       onOpenChange(false)
       setArea(new Set([]))
       setCategoria(new Set([]))

@@ -35,6 +35,11 @@ export default function ReporteServicios() {
   const [dataTable, setDataTable] = useState([])
 
   const [isSearchEnabled, setIsSearchEnabled] = useState(false)
+  const [searchData, setSearchData] = useState({
+    selectedArea: null,
+    startDate: null,
+    endDate: null
+  })
 
   const [page, setPage] = useState(1)
   const rowsPerPage = 15
@@ -48,6 +53,14 @@ export default function ReporteServicios() {
     return dataTable.slice(start, end)
   }, [page, dataTable])
 
+  const saveSearchData = () => {
+    setSearchData({
+      selectedArea: selectedArea.currentKey,
+      startDate,
+      endDate
+    })
+  }
+
   const handleSearch = async () => {
     const result = await getAttentionsByAreaAndDateRange(
       selectedArea.currentKey,
@@ -57,6 +70,7 @@ export default function ReporteServicios() {
 
     if (result.length) {
       setDataTable(result)
+      saveSearchData()
     } else {
       setDataTable([])
       toast.error('No se encontraron resultados')
@@ -120,7 +134,7 @@ export default function ReporteServicios() {
             Limpiar
           </Button>
           <Button
-            href={`http://localhost:3000/api/reportes/exportar/atenciones/area/${selectedArea.currentKey}/intervalo/${startDate}/${endDate}`}
+            href={`http://localhost:3000/api/reportes/exportar/atenciones/area/${searchData.selectedArea}/intervalo/${searchData.startDate}/${searchData.endDate}`}
             target='_blank'
             rel='noreferrer'
             as={Link}

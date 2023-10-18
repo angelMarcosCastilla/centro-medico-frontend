@@ -52,9 +52,9 @@ export default function DropdownLink() {
             Pagos
           </Link>
         </DropdownItem>
-        <DropdownItem key='servicios' className='p-0'>
-          <Link to='/reportes/servicios' className='p-2 w-full block'>
-            Servicios
+        <DropdownItem key='atenciones' className='p-0'>
+          <Link to='/reportes/atenciones' className='p-2 w-full block'>
+            Atenciones
           </Link>
         </DropdownItem>
       </DropdownMenu>

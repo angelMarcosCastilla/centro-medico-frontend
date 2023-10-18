@@ -25,16 +25,20 @@ export default function ReportePagos() {
     .split('/')
     .reverse()
     .join('-')
-
   const [documentNumber, setDocumentNumber] = useState('')
   const [startDate, setStartDate] = useState(currentDate)
   const [endDate, setEndDate] = useState(currentDate)
   const [dataTable, setDataTable] = useState([])
 
   const [isSearchEnabled, setIsSearchEnabled] = useState(false)
+  const [searchData, setSearchData] = useState({
+    documentNumber: null,
+    startDate: null,
+    endDate: null
+  })
 
-  const baseURL = `http://localhost:3000/api/reportes/exportar/pagos/intervalo/${startDate}/${endDate}`
-  const [URL, setURL] = useState(baseURL)
+  const baseURL = 'http://localhost:3000/api/reportes/exportar/pagos/intervalo'
+  const [URL, setURL] = useState(`${baseURL}/${startDate}/${endDate}`)
 
   const [page, setPage] = useState(1)
   const rowsPerPage = 15
@@ -48,6 +52,14 @@ export default function ReportePagos() {
     return dataTable.slice(start, end)
   }, [page, dataTable])
 
+  const saveSearchData = () => {
+    setSearchData({
+      documentNumber,
+      startDate,
+      endDate
+    })
+  }
+
   const handleSearch = async () => {
     const result = await getPaymentsByDateRange(
       startDate,
@@ -57,6 +69,7 @@ export default function ReportePagos() {
 
     if (result.length) {
       setDataTable(result)
+      saveSearchData()
     } else {
       setDataTable([])
       toast.error('No se encontraron resultados.')
@@ -74,12 +87,14 @@ export default function ReportePagos() {
   }, [startDate, endDate])
 
   useEffect(() => {
-    setURL(
-      documentNumber.trim() !== ''
-        ? `${baseURL}?documento=${documentNumber}`
-        : baseURL
-    )
-  }, [documentNumber])
+    setURL(() => {
+      if (documentNumber.trim() !== '') {
+        return `${baseURL}/${searchData.startDate}/${searchData.endDate}?documento=${searchData.documentNumber}`
+      } else {
+        return `${baseURL}/${searchData.startDate}/${searchData.endDate}`
+      }
+    })
+  }, [searchData])
 
   return (
     <CardBody>
@@ -169,7 +184,7 @@ export default function ReportePagos() {
         <TableHeader>
           <TableColumn key='cliente'>CLIENTE</TableColumn>
           <TableColumn key='tipo_comprobante'>COMPROBANTE</TableColumn>
-          <TableColumn key='num_documento'>N° DOCUMENTO</TableColumn>
+          <TableColumn key='num_documento'>DOCUMENTO</TableColumn>
           <TableColumn key='fecha_hora_emision'>
             FECHA Y HORA EMISIÓN
           </TableColumn>
