@@ -4,7 +4,6 @@ import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Admision from '../pages/Admision'
 import Informes from '../pages/Informes'
-import ReportP from '../pages/Admision/ReportP'
 import Pagos from '../pages/Admision/Pagos'
 import Tomografia from '../pages/Tomografia'
 import Rayosx from '../pages/Rayosx'
@@ -20,8 +19,9 @@ import ReportEditor from '../pages/InformesLaboratorio/ReportEditor.jsx'
 import Plantillas from '../pages/Plantillas/index.jsx'
 import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
 import PrivateRoute from './privateRoute.jsx'
-import ReporteTest from '../pages/ReporteTest/index.jsx'
+import ReporteAtenciones from '../pages/Reportes/ReporteAtenciones'
 import Graficos from '../pages/Reportes/Graficos/index.jsx'
+import ReportePagos from '../pages/Reportes/ReportePagos/index.jsx'
 
 const router = createBrowserRouter([
   {
@@ -81,7 +81,7 @@ const router = createBrowserRouter([
             )
           },
           {
-            path: '/report/graficos',
+            path: '/reportes/graficos',
             element: (
               <RoleGard listRoles={['A']}>
                 <Graficos />
@@ -89,18 +89,18 @@ const router = createBrowserRouter([
             )
           },
           {
-            path: '/report/pagos',
+            path: '/reportes/pagos',
             element: (
               <RoleGard listRoles={['A']}>
-                <ReportP />
+                <ReportePagos />
               </RoleGard>
             )
           },
           {
-            path: '/report/servicios',
+            path: '/reportes/atenciones',
             element: (
               <RoleGard listRoles={['A']}>
-                <ReporteTest />
+                <ReporteAtenciones />
               </RoleGard>
             )
           },

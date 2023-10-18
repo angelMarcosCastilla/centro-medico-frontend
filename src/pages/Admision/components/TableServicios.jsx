@@ -36,7 +36,10 @@ export default function TableServicios({ detService, setDetService }) {
     )
   }
   return (
-    <Table removeWrapper>
+    <Table
+      removeWrapper
+      aria-label='Lista de Servicios Escogidos para el Paciente'
+    >
       <TableHeader>
         <TableColumn className='bg-blue-50'>SERVICIO</TableColumn>
         <TableColumn className='bg-blue-50'>DESCRIPCIÓN</TableColumn>

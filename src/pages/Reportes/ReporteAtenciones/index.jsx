@@ -14,14 +14,15 @@ import {
   TableRow,
   getKeyValue
 } from '@nextui-org/react'
-import { getAttentionsByAreaAndDateRange } from '../../services/report'
-import { useFetcher } from '../../hook/useFetcher'
-import { getAllAreas } from '../../services/area'
+import { getAttentionsByAreaAndDateRange } from '../../../services/report'
+import { useFetcher } from '../../../hook/useFetcher'
+import { getAllAreas } from '../../../services/area'
 import { Search, SearchX, Share } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
+import { formatDate } from '../../../utils/date'
 
-export default function ReporteTest() {
+export default function ReporteServicios() {
   const { data: areasData } = useFetcher(getAllAreas)
   const currentDate = new Date()
     .toLocaleDateString()
@@ -34,6 +35,11 @@ export default function ReporteTest() {
   const [dataTable, setDataTable] = useState([])
 
   const [isSearchEnabled, setIsSearchEnabled] = useState(false)
+  const [searchData, setSearchData] = useState({
+    selectedArea: null,
+    startDate: null,
+    endDate: null
+  })
 
   const [page, setPage] = useState(1)
   const rowsPerPage = 15
@@ -47,6 +53,14 @@ export default function ReporteTest() {
     return dataTable.slice(start, end)
   }, [page, dataTable])
 
+  const saveSearchData = () => {
+    setSearchData({
+      selectedArea: selectedArea.currentKey,
+      startDate,
+      endDate
+    })
+  }
+
   const handleSearch = async () => {
     const result = await getAttentionsByAreaAndDateRange(
       selectedArea.currentKey,
@@ -56,6 +70,7 @@ export default function ReporteTest() {
 
     if (result.length) {
       setDataTable(result)
+      saveSearchData()
     } else {
       setDataTable([])
       toast.error('No se encontraron resultados')
@@ -119,7 +134,7 @@ export default function ReporteTest() {
             Limpiar
           </Button>
           <Button
-            href={`http://localhost:3000/api/reportes/exportar/area/${selectedArea.currentKey}/intervalo/${startDate}/${endDate}`}
+            href={`http://localhost:3000/api/reportes/exportar/atenciones/area/${searchData.selectedArea}/intervalo/${searchData.startDate}/${searchData.endDate}`}
             target='_blank'
             rel='noreferrer'
             as={Link}
@@ -172,9 +187,7 @@ export default function ReporteTest() {
 
                 switch (columnKey) {
                   case 'create_at':
-                    columnValue = getKeyValue(item, columnKey)
-                      .replace('T', ' ')
-                      .substring(0, 16)
+                    columnValue = formatDate(getKeyValue(item, columnKey), true)
                     break
                   default:
                     columnValue = getKeyValue(item, columnKey)
