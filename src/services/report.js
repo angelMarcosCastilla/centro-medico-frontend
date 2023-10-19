@@ -1,5 +1,15 @@
 import axios from 'axios'
 
+export const getPaymentsByDateRange = async (startDate, endDate, numDocument) => {
+  const {
+    data: { data }
+  } = await axios.get(
+    `/reportes/pagos/intervalo/${startDate}/${endDate}`,
+    { params: { documento: numDocument } }
+  )
+  return data
+}
+
 export const getAttentionsByAreaAndDateRange = async (
   areaId,
   startDate,
@@ -8,7 +18,7 @@ export const getAttentionsByAreaAndDateRange = async (
   const {
     data: { data }
   } = await axios.get(
-    `/reportes/area/${areaId}/intervalo/${startDate}/${endDate}`
+    `/reportes/atenciones/area/${areaId}/intervalo/${startDate}/${endDate}`
   )
   return data
 }

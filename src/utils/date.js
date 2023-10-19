@@ -28,3 +28,19 @@ export const calculateAgePerson = (date) => {
     }
   }
 }
+
+export const formatDate = (dateString, includeTime = false) => {
+  const options = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  }
+
+  if (includeTime) {
+    options.hour = '2-digit'
+    options.minute = '2-digit'
+    options.hour12 = true
+  }
+
+  return new Date(dateString).toLocaleDateString('es-ES', options)
+}
