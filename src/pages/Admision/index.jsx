@@ -31,6 +31,7 @@ import { calculateAgePerson } from '../../utils/date'
 import TableServicios from './components/TableServicios'
 import { useFetcher } from '../../hook/useFetcher'
 import DetalleServiciosCard from './components/DetalleServiciosCard'
+import { AutocompleteProvider } from '../../components/AutocompleteProvider'
 
 export default function Admision() {
   const [detService, setDetService] = useState([])
@@ -475,12 +476,14 @@ export default function Admision() {
         </Button>
       </CardFooter>
 
-      <ModalServicios
-        data={services}
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        onChange={handleAddServices}
-      />
+      <AutocompleteProvider>
+        <ModalServicios
+          data={services}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          onChange={handleAddServices}
+        />
+      </AutocompleteProvider>
 
       <ModalNewPerson
         isPatient={isPatient.current}
