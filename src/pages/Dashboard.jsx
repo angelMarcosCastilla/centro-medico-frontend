@@ -16,6 +16,7 @@ import { listRoles } from '../constants/auth.constant'
 import { DataProvider } from './Admision/components/DataContext'
 import { Card } from '@nextui-org/react'
 import DropdownLink from '../components/DropdownLink'
+import DropdownLinkMantenimiento from '../components/DropdownLinkMantenimiento'
 
 export default function Dashboard() {
   const { userInfo } = useAuth()
@@ -94,6 +95,7 @@ export default function Dashboard() {
           />
         </HasRole>
         {userInfo.nivel_acceso === 'A' && <DropdownLink />}
+        {userInfo.nivel_acceso === 'A' && <DropdownLinkMantenimiento />}
       </Sidebar>
       <div className='bg-slate-100 flex-1 px-5 py-3 overflow-y-auto'>
         <DataProvider>

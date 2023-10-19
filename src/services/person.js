@@ -21,3 +21,21 @@ export const getDoctorByAreaFunction = async (idarea) => {
   } = await axios.get(`/personalesmedicos/areas/${idarea}`)
   return data
 }
+
+export const getPerson = async () => {
+  const {
+    data: { data }
+  } = await axios.get(`/personas`)
+  
+  return data
+}
+
+export const deletePerson = async (personaId) => {
+  const data = axios.delete(`/personas/${personaId}`)
+  return data
+}
+
+export const updatePerson = async (idpersona, data) =>{
+  const res = axios.put(`/personas/${idpersona}`, data)
+  return res
+}

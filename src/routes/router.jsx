@@ -22,6 +22,8 @@ import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
 import PrivateRoute from './privateRoute.jsx'
 import ReporteTest from '../pages/ReporteTest/index.jsx'
 import Graficos from '../pages/Reportes/Graficos/index.jsx'
+import Mantenimiento from '../pages/mantenimiento/mantenimiento.jsx'
+import Personas from '../pages/mantenimiento/personas/index.jsx'
 
 const router = createBrowserRouter([
   {
@@ -103,6 +105,20 @@ const router = createBrowserRouter([
                 <ReporteTest />
               </RoleGard>
             )
+          },
+          {
+            path: '/mantenimiento',
+            element: (
+              <RoleGard listRoles={['A']}>
+                <Mantenimiento />
+              </RoleGard>
+            ),
+            children: [
+              {
+                path: 'personas',
+                element: <Personas />
+              }
+            ]
           },
           {
             path: 'servicios',
