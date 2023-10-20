@@ -22,6 +22,8 @@ import PrivateRoute from './privateRoute.jsx'
 import ReporteAtenciones from '../pages/Reportes/ReporteAtenciones'
 import Graficos from '../pages/Reportes/Graficos/index.jsx'
 import ReportePagos from '../pages/Reportes/ReportePagos/index.jsx'
+import Mantenimiento from '../pages/mantenimiento/mantenimiento.jsx'
+import Personas from '../pages/mantenimiento/personas/index.jsx'
 
 const router = createBrowserRouter([
   {
@@ -103,6 +105,20 @@ const router = createBrowserRouter([
                 <ReporteAtenciones />
               </RoleGard>
             )
+          },
+          {
+            path: '/mantenimiento',
+            element: (
+              <RoleGard listRoles={['A']}>
+                <Mantenimiento />
+              </RoleGard>
+            ),
+            children: [
+              {
+                path: 'personas',
+                element: <Personas />
+              }
+            ]
           },
           {
             path: 'servicios',

@@ -12,6 +12,7 @@ export function QuestionModal({
   textContent = '¿Seguro de proceder?',
   isOpen,
   onOpenChange,
+  onCancel,
   onConfirm
 }) {
   return (
@@ -24,14 +25,21 @@ export function QuestionModal({
               <span>{textContent}</span>
             </ModalBody>
             <ModalFooter>
-              <Button color='danger' variant='light' onPress={onClose}>
+              <Button
+                color='danger'
+                variant='light'
+                onPress={() => {
+                  onCancel && onCancel()
+                  onClose()
+                }}
+              >
                 Cancelar
               </Button>
               <Button
                 color='primary'
                 onPress={() => {
-                  onClose()
                   onConfirm()
+                  onClose()
                 }}
               >
                 Confirmar

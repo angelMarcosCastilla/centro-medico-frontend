@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Button,
   CardBody,
@@ -28,6 +28,7 @@ import {
   updateMedicoByDetatencion
 } from '../services/admission'
 import { useAuth } from '../context/AuthContext'
+import { socket } from './Socket'
 
 const columns = [
   { name: '#', uid: 'index' },
@@ -46,7 +47,7 @@ export default function AttentionProcessTable({
 
   const { userInfo } = useAuth()
   const [medicoId, setMedicoId] = useState(new Set([]))
-  const { data, mutate } = useFetcher(useFecherFunction)
+  const { data, mutate, refresh } = useFetcher(useFecherFunction)
   const { data: doctorData } = useFetcher(getDoctorByAreaFunction)
 
   const renderCell = useCallback(
@@ -191,6 +192,16 @@ export default function AttentionProcessTable({
       })
     }
   }
+
+  useEffect(() => {
+    socket.on('server:newAction', ({ action }) => {
+      if (action === 'New Admision') {
+        refresh()
+      }
+    })
+
+    return () => socket.off('server:newAction')
+  }, [])
 
   return (
     <>

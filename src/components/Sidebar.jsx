@@ -129,7 +129,7 @@ export default function Sidebar({ children }) {
   )
 }
 
-export function SidebarItem({ icon, text, route }) {
+export function SidebarItem({ icon, text, route, hasNoti }) {
   const { expanded } = useContext(SidebarContext)
   const location = useLocation()
 
@@ -172,6 +172,7 @@ export function SidebarItem({ icon, text, route }) {
             {text}
           </div>
         )}
+        {hasNoti && <span className='w-2 h-2 absolute right-2 top-2 rounded-lg bg-blue-600'></span>}
       </li>
     </Link>
   )

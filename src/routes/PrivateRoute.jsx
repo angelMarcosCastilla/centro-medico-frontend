@@ -4,6 +4,7 @@ import axios from 'axios'
 import { Navigate, Outlet } from 'react-router-dom'
 import { Spinner } from '@nextui-org/react'
 import NoAuthorization from '../components/NoAuthorization'
+import { Socket } from '../components/Socket'
 
 export default function PrivateRoute() {
   const [isValidating, setIsValidating] = useState(true)
@@ -36,6 +37,7 @@ export default function PrivateRoute() {
   return (
     <>
       <NoAuthorization />
+      <Socket />
       <Outlet />
     </>
   )

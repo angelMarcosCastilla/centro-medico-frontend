@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 export const usePagination = (data, rowsPage = 15) => {
   const [rowsPerPage, setRowsPerPage] = useState(rowsPage)
@@ -30,6 +30,10 @@ export const usePagination = (data, rowsPage = 15) => {
     setPage(1)
   }, [])
 
+  useEffect(() => {
+    setPage(1)
+  }, [data])
+  
   return {
     items,
     page,
