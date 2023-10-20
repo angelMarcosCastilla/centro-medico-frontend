@@ -7,6 +7,12 @@ const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 }
 
+const areasColor = {
+  Laboratorio: 'primary',
+  Tomografía: 'secondary',
+  'Rayos X': 'success'
+}
+
 export default function Autocomplete({ data }) {
   const [items, setItems] = useState([])
   const [itemMatch, setItemMatch] = useState([])
@@ -165,7 +171,7 @@ export default function Autocomplete({ data }) {
               <div>{item.servicio.nombre}</div>
               <div className='flex items-center gap-1'>
                 <Chip
-                  color='primary'
+                  color={areasColor[item.area.nombre]}
                   size='sm'
                   variant='flat'
                   className='text-xs'
@@ -173,7 +179,7 @@ export default function Autocomplete({ data }) {
                   {item.categoria.nombre}
                 </Chip>
                 <Chip
-                  color='primary'
+                  color={areasColor[item.area.nombre]}
                   size='sm'
                   variant='flat'
                   className='text-xs'
