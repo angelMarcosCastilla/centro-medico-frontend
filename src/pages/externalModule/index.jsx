@@ -27,6 +27,7 @@ import { toast } from 'sonner'
 import { AlertCircle, Eye, FileEdit } from 'lucide-react'
 import { redirectToResult } from '../../config'
 import Header from '../../components/Header'
+import { socket } from '../../components/Socket'
 
 export default function ExternalModule() {
   const {
@@ -76,6 +77,7 @@ export default function ExternalModule() {
         if (result.isSuccess) {
           await changeStatus(idDet.current, 'PE')
           refresh()
+          socket.emit('client:newAction', { action: "New Informe" })
           onClose()
           toast.success(result.message)
         } else {

@@ -6,7 +6,6 @@ import AuthProvider from './context/AuthContext.jsx'
 import './global.css'
 import { Toaster } from 'sonner'
 import { initialAxios } from './services/axios.js'
-// import { Socket } from './components/Socket.jsx'
 
 initialAxios()
 
@@ -14,7 +13,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <NextUIProvider>
     <Toaster position='top-right' richColors />
     <AuthProvider>
-      {/* <Socket /> */}
       <RouterProvider router={router} />
     </AuthProvider>
   </NextUIProvider>

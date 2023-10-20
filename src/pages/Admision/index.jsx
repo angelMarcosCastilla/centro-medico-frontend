@@ -31,6 +31,7 @@ import { calculateAgePerson } from '../../utils/date'
 import TableServicios from './components/TableServicios'
 import { useFetcher } from '../../hook/useFetcher'
 import DetalleServiciosCard from './components/DetalleServiciosCard'
+import { socket } from '../../components/Socket'
 
 export default function Admision() {
   const [detService, setDetService] = useState([])
@@ -204,6 +205,9 @@ export default function Admision() {
       setSelected('informacion-paciente')
       setResetTable(crypto.randomUUID())
       resetDataToSend()
+      const action =
+        detService[0].estado === 'PT' ? 'New Triaje' : 'New Admision'
+      socket.emit('client:newAction', { action })
     } else {
       toast.error(result.message)
     }

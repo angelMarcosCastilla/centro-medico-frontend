@@ -9,6 +9,7 @@ import {
   HeartHandshake,
   Folders,
   HelpingHand,
+  Info
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import HasRole from '../components/HasRole'
@@ -17,6 +18,42 @@ import { DataProvider } from './Admision/components/DataContext'
 import { Card } from '@nextui-org/react'
 import DropdownLink from '../components/DropdownLink'
 import DropdownLinkMantenimiento from '../components/DropdownLinkMantenimiento'
+import { useState, useEffect } from 'react'
+
+import { socket } from '../components/Socket'
+import { toast } from 'sonner'
+
+function LinkInforme({ userInfo }) {
+  const [hasNew, setHasNew] = useState(false)
+
+  useEffect(() => {
+    socket.on('server:newAction', ({ action }) => {
+      if (action === 'New Informe' && userInfo.nivel_acceso === 'A') {
+        setHasNew(true)
+        toast(
+          <div className='flex justify-between text-blue-600'>
+            <Info size={20} className='mr-2' />
+            <span>Hay nuevo informes</span>
+          </div>
+        )
+      }
+    })
+
+    return () => socket.off('server:newAction')
+  }, [])
+  return (
+    <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
+      <span onClick={()=>{setHasNew(false)}}>
+        <SidebarItem
+          icon={<Folders size={20} />}
+          text='Informes'
+          route='informes'
+          hasNoti={hasNew}
+        />
+      </span>
+    </HasRole>
+  )
+}
 
 export default function Dashboard() {
   const { userInfo } = useAuth()
@@ -31,13 +68,7 @@ export default function Dashboard() {
             route='admision'
           />
         </HasRole>
-        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
-          <SidebarItem
-            icon={<Folders size={20} />}
-            text='Informes'
-            route='informes'
-          />
-        </HasRole>
+        <LinkInforme userInfo={userInfo} />
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
             icon={<HelpingHand size={20} />}
@@ -78,6 +109,7 @@ export default function Dashboard() {
             icon={<Folders size={20} />}
             text='Informes'
             route='informeslaboratorio'
+            hasNoti={true}
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.plantillas}>

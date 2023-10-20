@@ -17,10 +17,12 @@ import { createTriage } from '../../services/triaje'
 import { toast } from 'sonner'
 import Header from '../../components/Header'
 import { capitalize } from '../../utils'
+import { socket } from '../../components/Socket'
 
 export default function FormTriaje() {
   const { state } = useLocation()
   const navigate = useNavigate()
+  
   const [values, setValues] = useState({
     complicacionesMedicas: state.complicaciones,
     triajeAtencion: {
@@ -100,6 +102,7 @@ export default function FormTriaje() {
 
       const result = await createTriage(data)
       if (result.isSuccess) {
+        socket.emit('client:newAction', { action: "New Admision" })
         toast.success('Triaje registrado correctamente')
         navigate('/triaje', { replace: true })
       }

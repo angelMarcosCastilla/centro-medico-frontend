@@ -15,10 +15,22 @@ import { Stethoscope } from 'lucide-react'
 import { statusColorMap } from '../../constants/state'
 import { useNavigate } from 'react-router-dom'
 import Header from '../../components/Header'
+import { useEffect } from 'react'
+import { socket } from '../../components/Socket'
 
 export default function TriajePage() {
-  const { data } = useFetcher(listarTriajeService)
+  const { data, refresh } = useFetcher(listarTriajeService)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    socket.on('server:newAction', ({ action }) => {
+      if (action === 'New Triaje') {
+        refresh()
+      }
+    })
+
+    return () => socket.off('server:newAction')
+  }, [])
 
   const handleNavigate = (triajeData) => {
     const {
