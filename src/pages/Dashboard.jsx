@@ -109,7 +109,6 @@ export default function Dashboard() {
             icon={<Folders size={20} />}
             text='Informes'
             route='informeslaboratorio'
-            hasNoti={true}
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.plantillas}>

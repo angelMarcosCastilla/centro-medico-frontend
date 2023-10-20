@@ -24,6 +24,7 @@ export default function TriajePage() {
 
   useEffect(() => {
     socket.on('server:newAction', ({ action }) => {
+      console.log(action)
       if (action === 'New Triaje') {
         refresh()
       }

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Button,
   CardBody,
@@ -33,6 +33,7 @@ import { capitalize } from '../utils'
 import { listState, statusColorMap } from '../constants/state'
 import { changeStatus } from '../services/admission'
 import ModalCorrection from '../pages/Informes/components/ModalCorrection'
+import { socket } from './Socket'
 
 const columns = [
   { name: 'ID', uid: 'iddetatencion', sortable: true },
@@ -228,6 +229,14 @@ export default function ReportSendTable({ useFecherFunction }) {
 
   const onClear = useCallback(() => {
     setFilterValue('')
+  }, [])
+
+  useEffect(() => {
+    socket.on('server:newAction', ({ action }) => {
+      if (action === 'New Informe') {
+        refresh()
+      }
+    })
   }, [])
 
   const topContent = useMemo(() => {

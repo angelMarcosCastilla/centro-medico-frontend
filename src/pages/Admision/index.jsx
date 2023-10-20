@@ -198,6 +198,9 @@ export default function Admision() {
     const result = await addAdmissionAndData(updatedDataToSend)
 
     if (result.isSuccess) {
+      const action =
+        dataToSend.detalleAtencion[0].estado === 'PT' ? 'New Triaje' : 'New Admision'
+      socket.emit('client:newAction', { action })
       toast.success(result.message)
       setDataPaciente({})
       setDataCliente({})
@@ -206,9 +209,6 @@ export default function Admision() {
       setSelected('informacion-paciente')
       setResetTable(crypto.randomUUID())
       resetDataToSend()
-      const action =
-        detService[0].estado === 'PT' ? 'New Triaje' : 'New Admision'
-      socket.emit('client:newAction', { action })
     } else {
       toast.error(result.message)
     }
@@ -317,7 +317,6 @@ export default function Admision() {
                 placeholder='Enter para buscar'
                 label='Número documento'
                 labelPlacement='outside'
-                radius='none'
                 className='rounded-lg w-[300px] flex-shrink-0'
                 maxLength={20}
                 onKeyDown={handleSearchPerson}
@@ -382,7 +381,6 @@ export default function Admision() {
                       }
                       labelPlacement='outside'
                       placeholder='Enter para buscar'
-                      radius='none'
                       className='rounded-lg w-[300px] flex-shrink-0'
                       maxLength={20}
                       onKeyDown={handleSearchClient}
