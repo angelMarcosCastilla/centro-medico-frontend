@@ -67,7 +67,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
   const handleAddServices = () => {
     // ver que no estea el servicio ya agregado
     const isExist = dataToSend.detalleAtencion?.some(
-      (item) => item.idservicio === currentServicio?.idservicio
+      (item) => item.idServicio === currentServicio?.idservicio
     )
     if (!isExist) {
       onChange({ ...currentServicio, descuento: 0 })

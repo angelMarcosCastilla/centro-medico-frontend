@@ -1,6 +1,7 @@
 import { Search, X } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAutocompleteContext } from './AutocompleteProvider'
+import { Chip } from '@nextui-org/react'
 
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -11,7 +12,6 @@ export default function Autocomplete({ data }) {
   const [itemMatch, setItemMatch] = useState([])
   const [value, setValue] = useState('')
   const [selectedItemIndex, setSelectedItemIndex] = useState(-1)
-  const inputRef = useRef(null)
 
   const { handleSelectItem } = useAutocompleteContext()
 
@@ -22,18 +22,12 @@ export default function Autocomplete({ data }) {
     } else {
       const normalizedText = removeAccents(text).toLowerCase()
       const matches = items.filter((item) => {
-        const servicioNombre = removeAccents(item.servicio.nombre).toLowerCase()
-        const categoriaNombre = removeAccents(
-          item.categoria.nombre
-        ).toLowerCase()
+        const serviceName = removeAccents(item.servicio.nombre).toLowerCase()
 
-        return (
-          servicioNombre.includes(normalizedText) ||
-          categoriaNombre.includes(normalizedText)
-        )
+        return serviceName.includes(normalizedText)
       })
 
-      setItemMatch(matches)
+      setItemMatch(matches.slice(0, 7))
     }
   }
 
@@ -42,11 +36,19 @@ export default function Autocomplete({ data }) {
       e.preventDefault()
       if (selectedItemIndex < itemMatch.length - 1) {
         setSelectedItemIndex(selectedItemIndex + 1)
+      } else {
+        setSelectedItemIndex(0)
       }
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
       if (selectedItemIndex > 0) {
         setSelectedItemIndex(selectedItemIndex - 1)
+      } else {
+        setSelectedItemIndex(itemMatch.length - 1)
+      }
+    } else if (e.key === 'Enter') {
+      if (selectedItemIndex >= 0) {
+        handleItemClick(itemMatch[selectedItemIndex])
       }
     } else if (e.key === 'Tab') {
       setItemMatch([])
@@ -113,12 +115,13 @@ export default function Autocomplete({ data }) {
         <Search size={20} />
       </span>
       <input
+        autoFocus
         className={`
           p-4 mb-1.5 text-[15px] bg-gray-100 rounded-xl w-full pl-12
           outline-0 outline-offset-2 focus:outline-2 focus:outline-primary-500
         `}
         type='text'
-        placeholder='Buscar servicio o categoría o área'
+        placeholder='Buscar un servicio...'
         value={value}
         onChange={(e) => {
           setValue(e.target.value)
@@ -126,7 +129,11 @@ export default function Autocomplete({ data }) {
         }}
         onKeyDown={handleKeyDown}
         onFocus={(e) => searchItems(e.target.value)}
-        ref={inputRef}
+        onBlur={() => {
+          if (selectedItemIndex === -1) {
+            setItemMatch([])
+          }
+        }}
       />
       {value && (
         <button
@@ -140,21 +147,40 @@ export default function Autocomplete({ data }) {
       {itemMatch.length > 0 && (
         <ul
           className={`
-            absolute z-20 p-2 w-full bg-white border rounded-xl shadow-sm max-h-60 overflow-y-auto
+            absolute z-20 p-2 w-full bg-white border rounded-xl shadow max-h-max
+            overflow-hidden transition-all
           `}
           onMouseLeave={handleMouseLeave}
         >
           {itemMatch.map((item, index) => (
             <li
               key={item.servicio.id}
-              className={`text-[15px] px-2 py-[5px] rounded-lg cursor-pointer ${
-                index === selectedItemIndex ? 'bg-gray-300' : ''
-              }`}
+              className={`
+                flex justify-between text-[15px] px-2 py-[5px] rounded-lg cursor-pointer select-none 
+                ${index === selectedItemIndex ? 'bg-gray-300' : ''}
+              `}
               onClick={() => handleItemClick(item)}
               onMouseEnter={() => handleMouseEnter(index)}
             >
-              {item.servicio.nombre} | {item.categoria.nombre} |{' '}
-              {item.area.nombre}
+              <div>{item.servicio.nombre}</div>
+              <div className='flex items-center gap-1'>
+                <Chip
+                  color='primary'
+                  size='sm'
+                  variant='flat'
+                  className='text-xs'
+                >
+                  {item.categoria.nombre}
+                </Chip>
+                <Chip
+                  color='primary'
+                  size='sm'
+                  variant='flat'
+                  className='text-xs'
+                >
+                  {item.area.nombre}
+                </Chip>
+              </div>
             </li>
           ))}
         </ul>
