@@ -298,6 +298,17 @@ export default function Admision() {
     }
   }, [selected])
 
+  useEffect(() => {
+    return () => {
+      setDataPaciente({})
+      setDataCliente({})
+      setDetService([])
+      setIsSamePatient(false)
+      setResetTable(crypto.randomUUID())
+      
+    }
+  }, [])
+
   return (
     <>
       <CardHeader className='flex justify-between'>

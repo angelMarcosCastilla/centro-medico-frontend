@@ -68,6 +68,7 @@ export default function Login() {
             onSubmit={(e) => e.preventDefault()}
           >
             <Input
+              autoFocus
               color='primary'
               variant='underlined'
               type='text'

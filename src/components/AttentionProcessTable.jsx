@@ -3,6 +3,7 @@ import {
   Button,
   CardBody,
   Chip,
+  Divider,
   Modal,
   ModalBody,
   ModalContent,
@@ -18,7 +19,12 @@ import {
   TableRow,
   Tooltip
 } from '@nextui-org/react'
-import { ArrowDownWideNarrow, MonitorPause, UserCheck } from 'lucide-react'
+import {
+  ArrowDownWideNarrow,
+  ArrowUpWideNarrow,
+  MonitorPause,
+  UserCheck
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { useFetcher } from '../hook/useFetcher'
 import { listState, statusColorMap } from '../constants/state'
@@ -50,8 +56,26 @@ export default function AttentionProcessTable({
   const { data, mutate, refresh } = useFetcher(useFecherFunction)
   const { data: doctorData } = useFetcher(getDoctorByAreaFunction)
 
+  const dataToAtencion = useMemo(() => {
+    return data
+      .filter((d) => d.estado !== 'EE')
+      .map((el, i) => ({
+        ...el,
+        index: i + 1
+      }))
+  }, [data])
+
+  const dataToEspera = useMemo(() => {
+    return data
+      .filter((d) => d.estado === 'EE')
+      .map((el, i) => ({
+        ...el,
+        index: i + 1
+      }))
+  }, [data])
+
   const renderCell = useCallback(
-    (detail, columnKey) => {
+    (detail, columnKey, isposponer) => {
       const cellValue = detail[columnKey]
       const estadoTexto = listState[cellValue]
       const classChip = statusColorMap[cellValue]
@@ -59,18 +83,15 @@ export default function AttentionProcessTable({
       switch (columnKey) {
         case 'estado':
           return (
-            <Chip
-              className={`capitalize ${classChip}`}
-              size='sm'
-              variant='flat'
-            >
+            <Chip className={classChip} size='sm' variant='flat'>
               {estadoTexto}
             </Chip>
           )
         case 'acciones':
+          console.log(detail)
           return (
             <div className='relative flex items-center gap-x-2'>
-              {index === 1 && (
+              {index === 1 && !isposponer && (
                 <div className='flex  items-center'>
                   <Tooltip
                     content={
@@ -109,12 +130,30 @@ export default function AttentionProcessTable({
                         isIconOnly
                         color='danger'
                         variant='light'
-                        onClick={handleReorder}
+                        onClick={() =>
+                          handleReorder(detail.iddetatencion, 'EE')
+                        }
                       >
                         <ArrowDownWideNarrow size={20} />
                       </Button>
                     </Tooltip>
                   )}
+                </div>
+              )}
+              {isposponer && (
+                <div>
+                  <Tooltip content='Desposponer' color='primary' closeDelay={0}>
+                    <Button
+                      isIconOnly
+                      size='sm'
+                      isDisabled={verify}
+                      color='primary'
+                      variant='light'
+                      onClick={() => handleReorder(detail.iddetatencion, 'P')}
+                    >
+                      <ArrowUpWideNarrow size={20} />
+                    </Button>
+                  </Tooltip>
                 </div>
               )}
             </div>
@@ -165,33 +204,26 @@ export default function AttentionProcessTable({
     setMedicoId(new Set([]))
   }
 
-  const items = useMemo(() => {
-    return data.map((el, index) => ({ ...el, index: index + 1 }))
-  }, [data])
-
-  const handleReorder = async () => {
-    if (data.length > 1) {
-      const firstValue = data[0]
-      const secondValue = data[1]
-
-      mutate((prevValue) => {
-        return prevValue.map((item, index) => {
-          if (index === 0)
-            return { ...secondValue, num_atencion: firstValue.num_atencion }
-          if (index === 1)
-            return { ...firstValue, num_atencion: secondValue.num_atencion }
+  const handleReorder = async (iddetatencion, estado) => {
+    mutate((prevData) => {
+      return prevData.map((item) => {
+        if (item.iddetatencion === iddetatencion) {
+          return {
+            ...item,
+            estado
+          }
+        } else {
           return item
-        })
+        }
       })
-
-      await changeOrder({
-        firstDetAtencion: secondValue.iddetatencion,
-        firstNumOrder: firstValue.num_atencion,
-        secondDetAtencion: firstValue.iddetatencion,
-        secondNumOrder: secondValue.num_atencion
-      })
-    }
+    })
+    await changeOrder({
+      iddetatencion,
+      estado
+    })
   }
+
+  const verify = data.some((el) => el.estado === 'A')
 
   useEffect(() => {
     socket.on('server:newAction', ({ action }) => {
@@ -207,18 +239,14 @@ export default function AttentionProcessTable({
     <>
       <CardBody>
         <div>
-          <h1 className='text-2xl'>Lista atenciones</h1>
+          <h1 className='text-2xl'>En espera</h1>
         </div>
         <Table
           aria-label='Example table with custom cells, pagination and sorting'
           isHeaderSticky
+          removeWrapper
           isStriped
-          bottomContentPlacement='outside'
-          classNames={{
-            wrapper: 'max-h-[600px]'
-          }}
-          topContentPlacement='outside'
-          shadow='none'
+          tabIndex={-1}
         >
           <TableHeader columns={columns}>
             {(column) => (
@@ -231,11 +259,48 @@ export default function AttentionProcessTable({
               </TableColumn>
             )}
           </TableHeader>
-          <TableBody emptyContent={'No se encontraron pacientes'} items={items}>
+          <TableBody
+            emptyContent={'No se encontraron pacientes'}
+            items={dataToAtencion}
+          >
             {(item) => (
               <TableRow key={crypto.randomUUID().toString()}>
                 {(columnKey) => (
-                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                  <TableCell>{renderCell(item, columnKey, false)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        <Divider className='my-5' />
+        <div>
+          <h1 className='text-2xl'>Pospuestos</h1>
+        </div>
+        <Table
+          removeWrapper
+          isStriped
+          tabIndex={-1}
+          aria-label='Example static collection table'
+        >
+          <TableHeader columns={columns}>
+            {(column) => (
+              <TableColumn                
+                key={column.uid}
+                align={column.uid === 'actions' ? 'center' : 'start'}
+                allowsSorting={column.sortable}
+              >
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            emptyContent= 'No se encontraron pacientes'
+            items={dataToEspera}
+          >
+            {(item) => (
+              <TableRow key={crypto.randomUUID().toString()}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey, true)}</TableCell>
                 )}
               </TableRow>
             )}
