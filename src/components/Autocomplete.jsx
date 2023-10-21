@@ -18,6 +18,7 @@ export default function Autocomplete({ data }) {
   const [itemMatch, setItemMatch] = useState([])
   const [value, setValue] = useState('')
   const [selectedItemIndex, setSelectedItemIndex] = useState(-1)
+  const [resultsFound, setResultsFound] = useState(true)
 
   const { handleSelectItem } = useAutocompleteContext()
 
@@ -25,6 +26,7 @@ export default function Autocomplete({ data }) {
     if (!text) {
       setItemMatch([])
       setSelectedItemIndex(-1)
+      setResultsFound(true)
     } else {
       const normalizedText = removeAccents(text).toLowerCase()
       const matches = items.filter((item) => {
@@ -34,6 +36,7 @@ export default function Autocomplete({ data }) {
       })
 
       setItemMatch(matches.slice(0, 7))
+      setResultsFound(matches.length > 0)
     }
   }
 
@@ -128,6 +131,7 @@ export default function Autocomplete({ data }) {
         `}
         type='text'
         placeholder='Buscar un servicio...'
+        maxLength={50}
         value={value}
         onChange={(e) => {
           setValue(e.target.value)
@@ -136,8 +140,9 @@ export default function Autocomplete({ data }) {
         onKeyDown={handleKeyDown}
         onFocus={(e) => searchItems(e.target.value)}
         onBlur={() => {
-          if (selectedItemIndex === -1) {
+          if (selectedItemIndex === -1 || !resultsFound) {
             setItemMatch([])
+            setResultsFound(true)
           }
         }}
       />
@@ -190,6 +195,16 @@ export default function Autocomplete({ data }) {
             </li>
           ))}
         </ul>
+      )}
+      {!resultsFound && (
+        <div
+          className={`
+          absolute z-20 w-full px-4 py-[14px] text-[15px] 
+          bg-white  border rounded-xl shadow max-h-max select-none 
+        `}
+        >
+          No se encontraron resultados.
+        </div>
       )}
     </div>
   )

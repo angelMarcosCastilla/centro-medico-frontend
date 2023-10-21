@@ -55,7 +55,12 @@ export default function Sidebar({ children }) {
             className='text-gray-600'
             variant='light'
             isIconOnly
-            onClick={() => setExpanded((curr) => !curr)}
+            onPress={() => setExpanded((curr) => !curr)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === 'Space') {
+                setExpanded((curr) => !curr)
+              }
+            }}
           >
             {expanded ? <ChevronFirst /> : <ChevronLast />}
           </Button>
@@ -136,7 +141,7 @@ export function SidebarItem({ icon, text, route, hasNoti }) {
   const isActive = location.pathname.substring(1).startsWith(route)
 
   return (
-    <Link to={route}>
+    <Link to={route} tabIndex={-1}>
       <li
         className={`
         relative flex items-center py-2.5 px-3.5 my-1
@@ -172,7 +177,9 @@ export function SidebarItem({ icon, text, route, hasNoti }) {
             {text}
           </div>
         )}
-        {hasNoti && <span className='w-2 h-2 absolute right-2 top-2 rounded-lg bg-blue-600'></span>}
+        {hasNoti && (
+          <span className='w-2 h-2 absolute right-2 top-2 rounded-lg bg-blue-600'></span>
+        )}
       </li>
     </Link>
   )

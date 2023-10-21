@@ -4,12 +4,12 @@ import {
   Brain,
   Bone,
   Microscope,
-  FileText,
   LayoutTemplate,
   HeartHandshake,
   Folders,
   HelpingHand,
-  Info
+  Info,
+  Computer
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import HasRole from '../components/HasRole'
@@ -63,7 +63,7 @@ export default function Dashboard() {
       <Sidebar>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
-            icon={<FileText size={20} />}
+            icon={<Computer size={20} />}
             text='Admisión'
             route='admision'
           />

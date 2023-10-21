@@ -6,6 +6,7 @@ import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { redirectRoles } from '../constants/auth.constant'
 import { toast } from 'sonner'
+import loginImage from '../assets/login.jpg'
 
 export default function Login() {
   const [username, setUsername] = useState('')
@@ -46,7 +47,7 @@ export default function Login() {
       <div className='bg-gray-100 flex rounded-2xl shadow-2xl max-w-3xl p-5 items-center'>
         {/* Image */}
         <div className='md:block hidden w-1/2 relative'>
-          <img className='rounded-2xl' src='https://i.imgur.com/LucPa4a.jpg' />
+          <img className='rounded-2xl' src={loginImage} />
           <p className='text-base text-center text-white absolute bottom-8 left-1/2 transform -translate-x-1/2 p-2 w-4/5'>
             <i>
               &#34;La calidad de nuestro servicio, nuestra mejor garantía&#34;

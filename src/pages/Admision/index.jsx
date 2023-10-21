@@ -28,7 +28,7 @@ import ModalNewCompany from './components/ModalNewCompany'
 import PaymentDetails from './components/PaymentDetails'
 import { validateFieldsFormAdmision } from './utils'
 import { calculateAgePerson } from '../../utils/date'
-import TableServicios from './components/TableServicios'
+import ServiceTable from './components/ServiceTable'
 import { useFetcher } from '../../hook/useFetcher'
 import DetalleServiciosCard from './components/DetalleServiciosCard'
 import { AutocompleteProvider } from '../../components/AutocompleteProvider'
@@ -199,7 +199,9 @@ export default function Admision() {
 
     if (result.isSuccess) {
       const action =
-        dataToSend.detalleAtencion[0].estado === 'PT' ? 'New Triaje' : 'New Admision'
+        dataToSend.detalleAtencion[0].estado === 'PT'
+          ? 'New Triaje'
+          : 'New Admision'
       socket.emit('client:newAction', { action })
       toast.success(result.message)
       setDataPaciente({})
@@ -314,6 +316,7 @@ export default function Admision() {
           <Tab key='informacion-paciente' title='Información del paciente'>
             <div className='flex gap-x-4 mt-5 mb-6 items-end'>
               <Input
+                autoFocus
                 placeholder='Enter para buscar'
                 label='Número documento'
                 labelPlacement='outside'
@@ -363,7 +366,7 @@ export default function Admision() {
             >
               Agregar servicio
             </Button>
-            <TableServicios
+            <ServiceTable
               detService={detService}
               setDetService={setDetService}
             />
