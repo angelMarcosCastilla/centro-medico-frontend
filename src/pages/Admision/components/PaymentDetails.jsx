@@ -133,7 +133,11 @@ export default function PaymentDetails({
         </Button>
       </div>
       <div className='col-start-1 col-end-6'>
-        <Table aria-label='Tabla de métodos de pagos elegidos' removeWrapper>
+        <Table
+          removeWrapper
+          tabIndex={-1}
+          aria-label='Tabla de métodos de pagos elegidos'
+        >
           <TableHeader>
             <TableColumn className='bg-blue-50'>#</TableColumn>
             <TableColumn className='bg-blue-50'>MÉTODO</TableColumn>
