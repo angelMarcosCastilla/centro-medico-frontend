@@ -25,22 +25,22 @@ import { addAdmissionAndData } from '../../services/admission'
 import { toast } from 'sonner'
 import ModalNewPerson from './components/ModalNewPerson'
 import ModalNewCompany from './components/ModalNewCompany'
-import PaymentDetails from './components/PaymentDetails'
+import PaymentTable from './components/PaymentTable'
 import { validateFieldsFormAdmision } from './utils'
-import { calculateAgePerson } from '../../utils/date'
+import { calculatePersonAge } from '../../utils/date'
 import ServiceTable from './components/ServiceTable'
 import { useFetcher } from '../../hook/useFetcher'
-import DetalleServiciosCard from './components/DetalleServiciosCard'
+import MedicalServicesSummary from './components/MedicalServicesSummary'
 import { AutocompleteProvider } from '../../components/AutocompleteProvider'
 import { socket } from '../../components/Socket'
 
 export default function Admision() {
-  const [detService, setDetService] = useState([])
+  const [serviceDetails, setServiceDetails] = useState([])
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const [selected, setSelected] = useState('informacion-paciente')
   const [resetTable, setResetTable] = useState(crypto.randomUUID())
   const { data: services } = useFetcher(getAllServices)
-  const { data: tipoPagos } = useFetcher(getPaymentTypes)
+  const { data: paymentTypes } = useFetcher(getPaymentTypes)
   const {
     isOpen: isOpenPerson,
     onOpen: onOpenPerson,
@@ -75,10 +75,10 @@ export default function Admision() {
   }
 
   const handleAddServices = (data) => {
-    setDetService([...detService, data])
+    setServiceDetails([...serviceDetails, data])
   }
 
-  const montoTotal = detService.reduce(
+  const totalAmount = serviceDetails.reduce(
     (acc, curr) =>
       acc + parseFloat(curr.precio) - parseFloat(curr.descuento || 0),
     0
@@ -87,27 +87,28 @@ export default function Admision() {
   const handleSearchPerson = async (e) => {
     if (e.key !== 'Enter') return
 
-    const numDocumento = e.target.value
-    if (!numDocumento || numDocumento.length < 8) return
+    const docNumber = e.target.value
+    if (!docNumber || docNumber.length < 8) return
 
-    const result = await searchPersonByNumDoc(numDocumento)
+    const result = await searchPersonByNumDoc(docNumber)
 
     if (!result.data) {
-      toast.error('No he encontrado ningún resultado')
       setDataPaciente({})
-      return
+      return toast.error('No he encontrado ningún resultado')
     }
 
     const {
       idpersona: idpaciente,
       apellidos,
       nombres,
+      num_documento: numeroDocumento,
       fecha_nacimiento: fechaNacimiento,
       direccion
     } = result.data
 
     setDataPaciente({
       nombres: apellidos + ' ' + nombres,
+      numeroDocumento,
       fechaNacimiento: new Date(fechaNacimiento).toLocaleDateString('es', {
         day: '2-digit',
         month: '2-digit',
@@ -122,49 +123,65 @@ export default function Admision() {
   }
 
   const handleSearchClient = async (e) => {
-    if (e.key !== 'Enter') return
+    if (e.key !== 'Enter' || !Object.keys(dataPaciente).length) return
 
     setIsSamePatient(false)
-    const numDocumentoOrRUC = e.target.value
-    if (!numDocumentoOrRUC || numDocumentoOrRUC.length < 8) return
+    const docNumberOrRUC = e.target.value
+    if (!docNumberOrRUC || docNumberOrRUC.length < 8) return
 
-    if (dataToSend.pagoData.tipoComprobante === 'B') {
-      const result = await searchPersonByNumDoc(numDocumentoOrRUC)
+    const allowedTypesReceiptsForIndividuals = ['S', 'B']
+
+    if (
+      allowedTypesReceiptsForIndividuals.includes(
+        dataToSend.pagoData.tipoComprobante
+      )
+    ) {
+      const result = await searchPersonByNumDoc(docNumberOrRUC)
 
       if (!result.data) {
-        toast.error('No he encontrado ningún resultado')
-        setDataPaciente({})
-        return
+        setDataCliente({})
+        return toast.error('No he encontrado ningún resultado')
       }
 
       const {
         idpersona,
         apellidos,
         nombres,
+        num_documento: numDocumento,
         fecha_nacimiento: fechaNacimiento,
         direccion
       } = result.data
       const fechaFormateada = fechaNacimiento.split('T')[0]
 
-      if (calculateAgePerson(fechaFormateada)) {
+      if (!calculatePersonAge(fechaFormateada)) {
+        return toast.error('El cliente debe ser mayor de edad.')
+      }
+
+      if (numDocumento === dataPaciente.numeroDocumento) {
+        setDataCliente({
+          nombres: dataPaciente.nombres,
+          direccion: dataPaciente.direccion,
+          estado: 0
+        })
+        setIsSamePatient(true)
+      } else {
         setDataCliente({
           nombres: apellidos + ' ' + nombres,
           direccion,
           estado: 0
         })
-        setDataToSend({
-          ...dataToSend,
-          idcliente: [idpersona, 0]
-        })
-      } else {
-        toast.error('El cliente debe ser mayor de edad.')
       }
+
+      setDataToSend({
+        ...dataToSend,
+        idcliente: [idpersona, 0]
+      })
     } else {
-      const result = await searchCompanyByRUC(numDocumentoOrRUC)
+      const result = await searchCompanyByRUC(docNumberOrRUC)
+
       if (!result.data) {
-        toast.error('No he encontrado ningún resultado')
-        setDataPaciente({})
-        return
+        setDataCliente({})
+        return toast.error('No he encontrado ningún resultado.')
       }
 
       const {
@@ -173,6 +190,7 @@ export default function Admision() {
         direccion,
         convenio
       } = result.data
+
       setDataCliente({
         nombres: razonSocial,
         direccion,
@@ -206,7 +224,7 @@ export default function Admision() {
       toast.success(result.message)
       setDataPaciente({})
       setDataCliente({})
-      setDetService([])
+      setServiceDetails([])
       setIsSamePatient(false)
       setSelected('informacion-paciente')
       setResetTable(crypto.randomUUID())
@@ -228,36 +246,36 @@ export default function Admision() {
     })
   }
 
-  const isDisableButton = validateFieldsFormAdmision(
+  const isSaveButtonDisabled = validateFieldsFormAdmision(
     dataToSend,
     dataCliente.convenio
   )
 
   const isPaymentValid =
     dataToSend.detallePago?.reduce((acc, curr) => acc + curr.montoPagado, 0) ===
-      parseFloat(montoTotal) || Boolean(dataCliente.convenio)
+      parseFloat(totalAmount) || Boolean(dataCliente.convenio)
 
   useEffect(() => {
-    const hasTriaje = detService.some((el) => Boolean(el.triaje))
+    const hasTriage = serviceDetails.some((el) => Boolean(el.triaje))
 
-    const detalleAtencion = detService.map(
+    const detalleAtencion = serviceDetails.map(
       ({ idservicio, precio, descuento, idpersonalMedico }) => ({
         idServicio: idservicio,
         precioPagado: precio - descuento,
         descuento,
         idpersonalMedico,
-        estado: hasTriaje ? 'PT' : 'P'
+        estado: hasTriage ? 'PT' : 'P'
       })
     )
     setDataToSend({
       ...dataToSend,
       pagoData: {
         ...dataToSend.pagoData,
-        montoTotal
+        montoTotal: totalAmount
       },
       detalleAtencion
     })
-  }, [detService])
+  }, [serviceDetails])
 
   useEffect(() => {
     if (isSamePatient) {
@@ -279,7 +297,6 @@ export default function Admision() {
   }, [isSamePatient])
 
   useEffect(() => {
-    // Cada ves que se cambie de boleta a factura o viceversa se debe limpiar los datos del cliente
     setDataCliente({})
     setIsSamePatient(false)
   }, [dataToSend.pagoData.tipoComprobante])
@@ -288,7 +305,6 @@ export default function Admision() {
     setResetTable(crypto.randomUUID())
   }, [dataCliente])
 
-  // si cambia de pestaña el pago se resetea
   useEffect(() => {
     if (selected === 'informacion-paciente') {
       setDataToSend({
@@ -302,10 +318,10 @@ export default function Admision() {
     return () => {
       setDataPaciente({})
       setDataCliente({})
-      setDetService([])
+      setServiceDetails([])
       setIsSamePatient(false)
       setResetTable(crypto.randomUUID())
-      
+      resetDataToSend()
     }
   }, [])
 
@@ -378,8 +394,8 @@ export default function Admision() {
               Agregar servicio
             </Button>
             <ServiceTable
-              detService={detService}
-              setDetService={setDetService}
+              detService={serviceDetails}
+              setDetService={setServiceDetails}
             />
           </Tab>
           <Tab key='metodo-pago' title='Método de pago'>
@@ -455,7 +471,7 @@ export default function Admision() {
                   />
                 </div>
                 {dataToSend.pagoData.tipoComprobante !== 'F' &&
-                  calculateAgePerson(dataPaciente.fechaNacimiento) && (
+                  calculatePersonAge(dataPaciente.fechaNacimiento) && (
                     <div className='justify-items-start'>
                       <Checkbox
                         size='sm'
@@ -467,16 +483,16 @@ export default function Admision() {
                     </div>
                   )}
                 <Divider className='col-span-5 mb-5' />
-                <PaymentDetails
+                <PaymentTable
                   key={resetTable}
-                  tipoPagos={tipoPagos}
+                  paymentTypes={paymentTypes}
                   onChange={handlePayment}
-                  totalPayment={montoTotal}
+                  totalPayment={totalAmount}
                 />
               </div>
-              <DetalleServiciosCard
-                detService={detService}
-                montoTotal={montoTotal}
+              <MedicalServicesSummary
+                detService={serviceDetails}
+                totalAmount={totalAmount}
               />
             </div>
           </Tab>
@@ -486,7 +502,7 @@ export default function Admision() {
         <Button
           color='primary'
           onClick={handleAddAdmissionAndData}
-          isDisabled={!isDisableButton || !isPaymentValid}
+          isDisabled={!isSaveButtonDisabled || !isPaymentValid}
         >
           Guardar
         </Button>

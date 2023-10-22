@@ -3,22 +3,25 @@ import { createContext, useCallback, useContext, useState } from 'react'
 const DataContext = createContext()
 
 export const DataProvider = ({ children }) => {
+  const userInfo = JSON.parse(localStorage.getItem('userInfo'))
   const [dataPaciente, setDataPaciente] = useState({})
   const [dataCliente, setDataCliente] = useState({})
   const [dataToSend, setDataToSend] = useState({
     pagoData: {
-      idUsuario: JSON.parse(localStorage.getItem('userInfo')).idusuario,
+      idUsuario: userInfo.idusuario,
       tipoComprobante: 'B'
     }
   })
 
   const resetDataToSend = useCallback(() => {
-    setDataToSend({
-      pagoData: {
-        idUsuario: JSON.parse(localStorage.getItem('userInfo')).idusuario,
-        tipoComprobante: 'B'
-      }
-    })
+    if (userInfo) {
+      setDataToSend({
+        pagoData: {
+          idUsuario: userInfo.idusuario,
+          tipoComprobante: 'B'
+        }
+      })
+    }
   }, [])
 
   return (
