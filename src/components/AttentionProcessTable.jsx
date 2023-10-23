@@ -42,8 +42,8 @@ import DateTimeClock from './DateTimeClock'
 const columns = [
   { name: '#', uid: 'index' },
   { name: 'PACIENTE', uid: 'paciente' },
-  { name: 'CATEGORIA', uid: 'nombre_categoria' },
-  { name: 'TIPO DE SERVICIO', uid: 'nombre_servicio' },
+  { name: 'CATEGORÍA', uid: 'nombre_categoria' },
+  { name: 'SERVICIO', uid: 'nombre_servicio' },
   { name: 'FECHA Y HORA', uid: 'create_at' },
   { name: 'ESTADO', uid: 'estado' },
   { name: 'ACCIONES', uid: 'acciones' }
@@ -254,11 +254,10 @@ export default function AttentionProcessTable({
           <h1 className='text-xl'>En espera</h1>
         </div>
         <Table
-          aria-label='Example table with custom cells, pagination and sorting'
-          isHeaderSticky
           removeWrapper
           isStriped
           tabIndex={-1}
+          aria-label='Lista de espera de pacientes'
         >
           <TableHeader columns={columns}>
             {(column) => (
@@ -290,7 +289,7 @@ export default function AttentionProcessTable({
           removeWrapper
           isStriped
           tabIndex={-1}
-          aria-label='Example static collection table'
+          aria-label='Atenciones/Pacientes pospuestos'
         >
           <TableHeader columns={columns}>
             {(column) => (
