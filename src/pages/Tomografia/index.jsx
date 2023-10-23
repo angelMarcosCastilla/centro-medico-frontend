@@ -6,6 +6,7 @@ import { getDoctorByAreaFunction } from '../../services/person'
 export default function Tomografia() {
   return (
     <AttentionProcessTable
+      nameArea='Tomografía'
       useFecherFunction={() => getInProcessAttentionsByArea(TOMOGRAFIA_ID)}
       getDoctorByAreaFunction={() => getDoctorByAreaFunction(TOMOGRAFIA_ID)}
     />

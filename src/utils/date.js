@@ -8,7 +8,7 @@ export const createQueryParams = (paramsObj) => {
   return `?${params.toString()}`
 }
 
-export const calculateAgePerson = (date) => {
+export const calculatePersonAge = (date) => {
   const dateFormat = date?.split('/')
   if (dateFormat) {
     const fechaInvertida = `${dateFormat[2]}-${dateFormat[1]}-${dateFormat[0]}`

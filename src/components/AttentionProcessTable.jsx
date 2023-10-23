@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Button,
   CardBody,
+  CardHeader,
   Chip,
   Divider,
   Modal,
@@ -20,8 +21,8 @@ import {
   Tooltip
 } from '@nextui-org/react'
 import {
-  ArrowDownWideNarrow,
-  ArrowUpWideNarrow,
+  ArrowDownNarrowWide,
+  ArrowUpNarrowWide,
   MonitorPause,
   UserCheck
 } from 'lucide-react'
@@ -35,17 +36,21 @@ import {
 } from '../services/admission'
 import { useAuth } from '../context/AuthContext'
 import { socket } from './Socket'
+import { formatDate } from '../utils/date'
+import DateTimeClock from './DateTimeClock'
 
 const columns = [
   { name: '#', uid: 'index' },
-  { name: 'PACIENTE', uid: 'paciente', sortable: true },
-  { name: 'CATEGORIA', uid: 'nombre_categoria', sortable: true },
-  { name: 'TIPO DE SERVICIO', uid: 'nombre_servicio', sortable: true },
-  { name: 'ESTADO', uid: 'estado', sortable: true },
+  { name: 'PACIENTE', uid: 'paciente' },
+  { name: 'CATEGORIA', uid: 'nombre_categoria' },
+  { name: 'TIPO DE SERVICIO', uid: 'nombre_servicio' },
+  { name: 'FECHA Y HORA', uid: 'create_at' },
+  { name: 'ESTADO', uid: 'estado' },
   { name: 'ACCIONES', uid: 'acciones' }
 ]
 
 export default function AttentionProcessTable({
+  nameArea,
   useFecherFunction,
   getDoctorByAreaFunction
 }) {
@@ -80,7 +85,10 @@ export default function AttentionProcessTable({
       const estadoTexto = listState[cellValue]
       const classChip = statusColorMap[cellValue]
       const index = detail.index
+
       switch (columnKey) {
+        case 'create_at':
+          return formatDate(cellValue, true)
         case 'estado':
           return (
             <Chip className={classChip} size='sm' variant='flat'>
@@ -88,7 +96,6 @@ export default function AttentionProcessTable({
             </Chip>
           )
         case 'acciones':
-          console.log(detail)
           return (
             <div className='relative flex items-center gap-x-2'>
               {index === 1 && !isposponer && (
@@ -134,7 +141,7 @@ export default function AttentionProcessTable({
                           handleReorder(detail.iddetatencion, 'EE')
                         }
                       >
-                        <ArrowDownWideNarrow size={20} />
+                        <ArrowDownNarrowWide size={20} />
                       </Button>
                     </Tooltip>
                   )}
@@ -142,7 +149,7 @@ export default function AttentionProcessTable({
               )}
               {isposponer && (
                 <div>
-                  <Tooltip content='Desposponer' color='primary' closeDelay={0}>
+                  <Tooltip content='Reanudar' color='primary' closeDelay={0}>
                     <Button
                       isIconOnly
                       size='sm'
@@ -151,7 +158,7 @@ export default function AttentionProcessTable({
                       variant='light'
                       onClick={() => handleReorder(detail.iddetatencion, 'P')}
                     >
-                      <ArrowUpWideNarrow size={20} />
+                      <ArrowUpNarrowWide size={20} />
                     </Button>
                   </Tooltip>
                 </div>
@@ -237,9 +244,14 @@ export default function AttentionProcessTable({
 
   return (
     <>
+      <CardHeader className='flex justify-between'>
+        <h2 className='text-2xl'>{nameArea}</h2>
+        <DateTimeClock />
+      </CardHeader>
+      <Divider />
       <CardBody>
-        <div>
-          <h1 className='text-2xl'>En espera</h1>
+        <div className='mb-3'>
+          <h1 className='text-xl'>En espera</h1>
         </div>
         <Table
           aria-label='Example table with custom cells, pagination and sorting'
@@ -253,16 +265,12 @@ export default function AttentionProcessTable({
               <TableColumn
                 key={column.uid}
                 align={column.uid === 'actions' ? 'center' : 'start'}
-                allowsSorting={column.sortable}
               >
                 {column.name}
               </TableColumn>
             )}
           </TableHeader>
-          <TableBody
-            emptyContent={'No se encontraron pacientes'}
-            items={dataToAtencion}
-          >
+          <TableBody emptyContent='No hay atenciones' items={dataToAtencion}>
             {(item) => (
               <TableRow key={crypto.randomUUID().toString()}>
                 {(columnKey) => (
@@ -272,9 +280,11 @@ export default function AttentionProcessTable({
             )}
           </TableBody>
         </Table>
-        <Divider className='my-5' />
-        <div>
-          <h1 className='text-2xl'>Pospuestos</h1>
+
+        <Divider className='my-6' />
+
+        <div className='mb-3'>
+          <h1 className='text-xl'>Pospuestos</h1>
         </div>
         <Table
           removeWrapper
@@ -284,17 +294,16 @@ export default function AttentionProcessTable({
         >
           <TableHeader columns={columns}>
             {(column) => (
-              <TableColumn                
+              <TableColumn
                 key={column.uid}
                 align={column.uid === 'actions' ? 'center' : 'start'}
-                allowsSorting={column.sortable}
               >
                 {column.name}
               </TableColumn>
             )}
           </TableHeader>
           <TableBody
-            emptyContent= 'No se encontraron pacientes'
+            emptyContent='No hay atenciones pospuestas'
             items={dataToEspera}
           >
             {(item) => (
@@ -307,6 +316,7 @@ export default function AttentionProcessTable({
           </TableBody>
         </Table>
       </CardBody>
+
       <Modal
         isOpen={Boolean(idDetAttention)}
         onOpenChange={() => setIdDetAttention(null)}
