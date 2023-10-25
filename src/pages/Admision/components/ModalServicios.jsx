@@ -12,6 +12,8 @@ import {
 import React, { useEffect, useMemo, useState } from 'react'
 import { useDataContext } from './DataContext'
 import { toast } from 'sonner'
+import Autocomplete from '../../../components/Autocomplete'
+import { useAutocompleteContext } from '../../../components/AutocompleteProvider'
 
 export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
   const [area, setArea] = useState(new Set([]))
@@ -19,13 +21,24 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
   const [servicio, setServicio] = useState(new Set([]))
   const [isButtonDisabled, setButtonDisable] = useState(true)
 
-  useEffect(()=>{
-    if(area.size >0 && categoria.size >0 && servicio.size >0){
+  useEffect(() => {
+    if (area.size > 0 && categoria.size > 0 && servicio.size > 0) {
       setButtonDisable(false)
-    }else{
+    } else {
       setButtonDisable(true)
     }
   }, [area, categoria, servicio])
+
+  const { selectedItem, handleSelectItem } = useAutocompleteContext()
+
+  useEffect(() => {
+    if (selectedItem.servicio && selectedItem.categoria && selectedItem.area) {
+      setArea(new Set([selectedItem.area.id.toString()]))
+      setCategoria(new Set([selectedItem.categoria.id.toString()]))
+      setServicio(new Set([selectedItem.servicio.id.toString()]))
+      handleSelectItem('')
+    }
+  }, [selectedItem])
 
   const { dataToSend } = useDataContext()
 
@@ -54,10 +67,10 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
   const handleAddServices = () => {
     // ver que no estea el servicio ya agregado
     const isExist = dataToSend.detalleAtencion?.some(
-      (item) => item.idservicio === currentServicio?.idservicio
+      (item) => item.idServicio === currentServicio?.idservicio
     )
     if (!isExist) {
-      onChange({ ...currentServicio, descuento: ''})
+      onChange({ ...currentServicio, descuento: 0 })
       onOpenChange(false)
       setArea(new Set([]))
       setCategoria(new Set([]))
@@ -77,6 +90,9 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                 <h2 className='text-xl'>Selección de servicio</h2>
               </ModalHeader>
               <ModalBody>
+                <div className='w-full'>
+                  <Autocomplete data={data} />
+                </div>
                 <div className='grid grid-cols-7 gap-4'>
                   <div className='grid col-span-5 gap-4'>
                     <Select
@@ -119,7 +135,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                         </SelectItem>
                       ))}
                     </Select>
-                    <Select                      
+                    <Select
                       label='Servicios'
                       selectedKeys={servicio}
                       onChange={(e) => {
@@ -139,7 +155,6 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                         </SelectItem>
                       ))}
                     </Select>
-                  
                   </div>
                   <div className='col-span-2 border text-base text-blue-900 border-blue-500 bg-blue-50 rounded-md p-4'>
                     <div className='grid grid-rows-3 grid-flow-col gap-x-4 h-full'>
@@ -194,7 +209,11 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                 <Button color='danger' variant='light' onPress={onClose}>
                   Cerrar
                 </Button>
-                <Button color='primary' onPress={handleAddServices} isDisabled={isButtonDisabled}>
+                <Button
+                  color='primary'
+                  onPress={handleAddServices}
+                  isDisabled={isButtonDisabled}
+                >
                   Agregar
                 </Button>
               </ModalFooter>

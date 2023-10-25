@@ -6,8 +6,9 @@ import { getDoctorByAreaFunction } from '../../services/person'
 export default function Rayosx() {
   return (
     <AttentionProcessTable
+      nameArea='Rayos X'
       useFecherFunction={() => getInProcessAttentionsByArea(RAYOSX_ID)}
-      getDoctorByAreaFunction={()=>getDoctorByAreaFunction(RAYOSX_ID)}
+      getDoctorByAreaFunction={() => getDoctorByAreaFunction(RAYOSX_ID)}
     />
   )
 }

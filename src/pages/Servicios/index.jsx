@@ -26,12 +26,12 @@ import {
   Trash2
 } from 'lucide-react'
 import { getAllServices, removeService } from '../../services/service'
-import { usePagination } from '../../hook/usePagination'
 import { useFetcher } from '../../hook/useFetcher'
 import { capitalize } from '../../utils'
 import ModalFormService from './components/ModalFormService'
 import { QuestionModal } from '../../components/QuestionModal'
 import { toast } from 'sonner'
+import { usePagination } from '../../hook/usePagination'
 
 const columns = [
   { name: 'ÁREA', uid: 'area', sortable: true },
@@ -57,7 +57,7 @@ export default function Servicios() {
   )
   const [areasFilter, setAreasFilter] = useState('all')
   const [sortDescriptor, setSortDescriptor] = useState({
-    column: 'idservicio',
+    column: 'id',
     direction: 'descending'
   })
   const [editService, setEditService] = useState(null)
@@ -72,23 +72,25 @@ export default function Servicios() {
 
   const { data, refresh } = useFetcher(getAllServices)
 
-  const transformedData = data
-    .reduce((result, area) => {
-      area.categorias.forEach((categoria) => {
-        categoria.servicios.forEach((servicio) => {
-          result.push({
-            idservicio: servicio.idservicio,
-            area: area.nombre,
-            categoria: categoria.nombre,
-            servicio: servicio.nombre,
-            observacion: servicio.observacion || '',
-            precio: servicio.precio
+  const transformedData = useMemo(() => {
+    return data
+      .reduce((result, area) => {
+        area.categorias.forEach((categoria) => {
+          categoria.servicios.forEach((servicio) => {
+            result.push({
+              idservicio: servicio.idservicio,
+              area: area.nombre,
+              categoria: categoria.nombre,
+              servicio: servicio.nombre,
+              observacion: servicio.observacion || '',
+              precio: servicio.precio
+            })
           })
         })
-      })
-      return result
-    }, [])
-    .sort((a, b) => b.idservicio - a.idservicio)
+        return result
+      }, [])
+      .sort((a, b) => b.idservicio - a.idservicio)
+  }, [data])
 
   const areasOptions = data.map((area) => ({
     name: area.nombre,

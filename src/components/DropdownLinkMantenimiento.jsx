@@ -4,16 +4,16 @@ import {
   DropdownMenu,
   DropdownTrigger
 } from '@nextui-org/react'
-import { AreaChart } from 'lucide-react'
+import {  UserCog } from 'lucide-react'
 import React, { useContext } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { SidebarContext } from './Sidebar'
 
-export default function DropdownLink() {
+export default function DropdownLinkMantenimiento() {
   const { pathname } = useLocation()
   const { expanded } = useContext(SidebarContext)
 
-  const isActive = pathname.includes('report')
+  const isActive = pathname.includes('mantenimiento')
 
   return (
     <Dropdown placement='left' showArrow>
@@ -31,32 +31,23 @@ export default function DropdownLink() {
         }
       `}
         >
-          <AreaChart size={20} />
+          <UserCog size={20} />
           <span
             className={`overflow-hidden h-5 text-[15px] transition-all ${
               expanded ? 'w-[200px] ml-3' : 'w-0'
             }`}
           >
-            Reportes
+            Mantenimiento
           </span>
         </li>
       </DropdownTrigger>
       <DropdownMenu variant='flat' aria-label='Example with disabled actions'>
         <DropdownItem key='graficos' className='p-0'>
-          <Link to='/reportes/graficos' className='p-2 w-full block'>
-            Gráficos
+          <Link to='/mantenimiento/personas' className='p-2 w-full block'>
+            Personas
           </Link>
         </DropdownItem>
-        <DropdownItem key='pagos' className='p-0'>
-          <Link to='/reportes/pagos' className='p-2 w-full block'>
-            Pagos
-          </Link>
-        </DropdownItem>
-        <DropdownItem key='atenciones' className='p-0'>
-          <Link to='/reportes/atenciones' className='p-2 w-full block'>
-            Atenciones
-          </Link>
-        </DropdownItem>
+        
       </DropdownMenu>
     </Dropdown>
   )

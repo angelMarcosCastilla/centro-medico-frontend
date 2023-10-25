@@ -6,6 +6,7 @@ import { getDoctorByAreaFunction } from '../../services/person'
 export default function Laboratorio() {
   return (
     <AttentionProcessTable
+      nameArea='Laboratorio'
       useFecherFunction={() => getInProcessAttentionsByArea(LABORATORIO_ID)}
       getDoctorByAreaFunction={() => getDoctorByAreaFunction(LABORATORIO_ID)}
     />

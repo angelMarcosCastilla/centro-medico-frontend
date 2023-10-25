@@ -11,6 +11,7 @@ import {
 } from '../../services/result'
 import { changeStatus } from '../../services/admission'
 import { ChevronsRight } from 'lucide-react'
+import { socket } from '../../components/Socket'
 
 const useDebaunce = (value, delay = 500) => {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -141,6 +142,8 @@ export default function ReportEditor() {
 
     if (result.isSuccess) {
       await changeStatus(state.idDetAttention, 'PE')
+      socket.emit('client:newAction', { action: 'New Informe' })
+
       toast.success(result.message)
       navigate('/informeslaboratorio')
     } else {

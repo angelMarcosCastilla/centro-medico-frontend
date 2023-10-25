@@ -5,7 +5,8 @@ export const listState = {
   PI: 'Pendiente Informe',
   PC: 'Pendiente Correción',
   PE: 'Pendiente Entrega',
-  F: 'Finalizado'
+  F: 'Finalizado',
+  EE: 'En espera'
 }
 
 export const statusColorMap = {
@@ -15,7 +16,8 @@ export const statusColorMap = {
   PI: 'bg-cyan-100 text-cyan-600',
   PC: 'bg-warning-100 text-warning-600',
   PE: 'bg-blue-100 text-blue-600',
-  F: 'bg-green-100 text-green-600'
+  F: 'bg-green-100 text-green-600',
+  EE : 'bg-red-100 text-red-600'
 }
 
 export const TIPO_COMPROBANTE = {
