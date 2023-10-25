@@ -171,7 +171,7 @@ export default function ModalNewCompany({
                     />
                   </div>
                   <div className='grid grid-cols-2 gap-x-4'>
-                    <CheckboxGroup
+                    {/* <CheckboxGroup
                       orientation='horizontal'
                       value={selected}
                       onValueChange={setSelected}
@@ -183,7 +183,7 @@ export default function ModalNewCompany({
                       >
                         Habilitar Convenio
                       </Checkbox>
-                    </CheckboxGroup>
+                    </CheckboxGroup> */}
                   </div>
                 </ModalBody>
                 <ModalFooter>
