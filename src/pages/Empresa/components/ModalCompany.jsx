@@ -7,8 +7,6 @@ import {
 } from '../../../services/company'
 import {
   Button,
-  Checkbox,
-  CheckboxGroup,
   Input,
   Modal,
   ModalBody,
@@ -35,7 +33,7 @@ export default function ModalNewCompany({
 }) {
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({})
-  const [selected, setSelected] = useState([])
+  // const [selected, setSelected] = useState([])
   // const { dataToSend, setDataToSend } = useDataContext()
 
   const handleInputChange = (e, type = 'text') => {
@@ -46,9 +44,9 @@ export default function ModalNewCompany({
     })
   }
 
-  const handleCheckBoxChange = (e) => {
+  /* const handleCheckBoxChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.checked })
-  }
+  } */
 
   const handleSubmitCompany = async (e, onClose) => {
 
@@ -81,7 +79,7 @@ export default function ModalNewCompany({
   const handleClose = () => {
     if (operation === 'new') {
       setForm(INITIAL_FORM)    
-      setSelected([])
+      // setSelected([])
     }
     onOpenChange(false)
   }
@@ -97,13 +95,13 @@ export default function ModalNewCompany({
           registrarConvenio: Boolean(res.convenio)
         })
 
-        setSelected([
+        /* setSelected([
           res.convenio === 1 ? 'Convenio' : '',
-        ])
+        ]) */
       })
     }else{
       setForm(INITIAL_FORM)
-      setSelected([])
+      // setSelected([])
     }
   },[operation, serviceToEdit])
 
