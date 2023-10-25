@@ -21,9 +21,11 @@ import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
 import PrivateRoute from './privateRoute.jsx'
 import ReporteAtenciones from '../pages/Reportes/ReporteAtenciones'
 import Graficos from '../pages/Reportes/Graficos/index.jsx'
+import Empresa from '../pages/Empresa/index.jsx'
 import ReportePagos from '../pages/Reportes/ReportePagos/index.jsx'
 import Mantenimiento from '../pages/mantenimiento/mantenimiento.jsx'
 import Personas from '../pages/mantenimiento/personas/index.jsx'
+
 
 const router = createBrowserRouter([
   {
@@ -117,6 +119,10 @@ const router = createBrowserRouter([
               {
                 path: 'personas',
                 element: <Personas />
+              },
+                {
+                path: 'empresas',
+                element: <Empresa />
               }
             ]
           },
@@ -125,6 +131,14 @@ const router = createBrowserRouter([
             element: (
               <RoleGard listRoles={listRoles.admision}>
                 <Servicios />
+              </RoleGard>
+            )
+          },
+          {
+            path: 'empresa',
+            element: (
+              <RoleGard listRoles={listRoles.admision}>
+                <Empresa/>
               </RoleGard>
             )
           },
