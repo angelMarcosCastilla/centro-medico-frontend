@@ -1,10 +1,10 @@
 export const listState = {
-  PT: 'Pendiente Triaje',
+  PT: 'Pendiente triaje',
   P: 'Pendiente',
   A: 'Atendiendo',
-  PI: 'Pendiente Informe',
-  PC: 'Pendiente Correción',
-  PE: 'Pendiente Entrega',
+  PI: 'Pendiente informe',
+  PC: 'Pendiente correción',
+  PE: 'Pendiente entrega',
   F: 'Finalizado',
   EE: 'En espera'
 }
@@ -21,6 +21,7 @@ export const statusColorMap = {
 }
 
 export const TIPO_COMPROBANTE = {
+  S: "Boleta Simple",
   B: "Boleta",
   F: "Factura"
 }
