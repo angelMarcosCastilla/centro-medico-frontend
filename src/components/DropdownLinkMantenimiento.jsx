@@ -16,7 +16,7 @@ export default function DropdownLinkMantenimiento() {
   const isActive = pathname.includes('mantenimiento')
 
   return (
-    <Dropdown placement='left' showArrow>
+    <Dropdown placement='left' showArrow key="menu-mantenimento" backdrop='opaque'>
       <DropdownTrigger>
         <li
           className={`
@@ -32,6 +32,18 @@ export default function DropdownLinkMantenimiento() {
       `}
         >
           <UserCog size={20} />
+          <div
+            className={`
+              absolute left-full rounded-md px-2 py-1 ml-6 text-[15px]  
+              bg-indigo-100 text-indigo-800
+              invisible opacity-20 -translate-x-3 transition-all
+              whitespace-nowrap
+              group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+              z-50
+            `}
+          >
+            Mantenimiento
+          </div>
           <span
             className={`overflow-hidden h-5 text-[15px] transition-all ${
               expanded ? 'w-[200px] ml-3' : 'w-0'

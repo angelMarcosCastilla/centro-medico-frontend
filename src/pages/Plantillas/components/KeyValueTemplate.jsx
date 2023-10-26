@@ -51,6 +51,7 @@ export default function KeyValueTemplate({
             </Button>
             <Input
               color='primary'
+              isDisabled
               variant='bordered'
               value={item.value}
               onChange={(e) =>
