@@ -33,7 +33,8 @@ export default function FormTriaje() {
       talla: '',
       presion_arterial: '',
       frecuencia_cardiaca: '',
-      frecuencia_respiratoria: ''
+      frecuencia_respiratoria: '',
+      embarazo: true
     }
   })
   const [disabledCheckboxes] = useState(
@@ -257,6 +258,18 @@ export default function FormTriaje() {
                             </Checkbox>
                           )
                         )}
+                        <Input></Input>
+                        <Checkbox isSelected={values.triajeAtencion.embarazo} onValueChange={()=>{
+                          setValues((prev) => {
+                            return {
+                              ...prev,
+                              triajeAtencion:{ 
+                                ...prev.triajeAtencion,
+                                embarazo: !prev.triajeAtencion.embarazo
+                              }
+                            }
+                          })
+                        }} >Embarazo</Checkbox>
                       </div>
                     </Tab>
                     <Tab
@@ -306,9 +319,7 @@ export default function FormTriaje() {
                 </CardBody>
               </Card>
             </div>
-            <div className='flex justify-end'>
-              <Image width={125} alt='Sello' src='../../../private/sello.png' />
-            </div>
+            
           </form>
         </CardBody>
         <CardFooter className='flex justify-end gap-3'>

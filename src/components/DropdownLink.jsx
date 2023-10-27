@@ -12,7 +12,6 @@ import { SidebarContext } from './Sidebar'
 export default function DropdownLink() {
   const { pathname } = useLocation()
   const { expanded } = useContext(SidebarContext)
-
   const isActive = pathname.includes('report')
 
   return (
@@ -32,18 +31,20 @@ export default function DropdownLink() {
       `}
         >
           <AreaChart size={20} />
-          <div
-            className={`
-              absolute left-full rounded-md px-2 py-1 ml-6 text-[15px]  
-              bg-indigo-100 text-indigo-800
-              invisible opacity-20 -translate-x-3 transition-all
-              whitespace-nowrap
-              group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
-              z-50
-            `}
-          >
-            Reportes
-          </div>
+          {
+            !expanded && (<div
+              className={`
+                absolute left-full rounded-md px-2 py-1 ml-6 text-[15px]  
+                bg-indigo-100 text-indigo-800
+                invisible opacity-20 -translate-x-3 transition-all
+                whitespace-nowrap
+                group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+                z-50
+              `}
+            >
+              Reportes
+            </div>)
+          }
           <span
             className={`overflow-hidden h-5 text-[15px] transition-all ${
               expanded ? 'w-[200px] ml-3' : 'w-0'
