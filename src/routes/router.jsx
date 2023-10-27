@@ -25,6 +25,7 @@ import Empresa from '../pages/Empresa/index.jsx'
 import ReportePagos from '../pages/Reportes/ReportePagos/index.jsx'
 import Mantenimiento from '../pages/mantenimiento/mantenimiento.jsx'
 import Personas from '../pages/mantenimiento/personas/index.jsx'
+import Reembolsos from '../pages/Reembolsos'
 
 
 const router = createBrowserRouter([
@@ -81,6 +82,14 @@ const router = createBrowserRouter([
             element: (
               <RoleGard listRoles={listRoles.admision}>
                 <Pagos />
+              </RoleGard>
+            )
+          },
+          {
+            path: 'reembolsos',
+            element: (
+              <RoleGard listRoles={listRoles.admision}>
+                <Reembolsos />
               </RoleGard>
             )
           },

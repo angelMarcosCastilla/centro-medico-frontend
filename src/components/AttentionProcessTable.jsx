@@ -63,7 +63,7 @@ export default function AttentionProcessTable({
 
   const dataToAtencion = useMemo(() => {
     return data
-      .filter((d) => d.estado !== 'EE')
+      .filter((d) => d.estado !== 'PP')
       .map((el, i) => ({
         ...el,
         index: i + 1
@@ -72,7 +72,7 @@ export default function AttentionProcessTable({
 
   const dataToEspera = useMemo(() => {
     return data
-      .filter((d) => d.estado === 'EE')
+      .filter((d) => d.estado === 'PP')
       .map((el, i) => ({
         ...el,
         index: i + 1
@@ -138,7 +138,7 @@ export default function AttentionProcessTable({
                         color='danger'
                         variant='light'
                         onClick={() =>
-                          handleReorder(detail.iddetatencion, 'EE')
+                          handleReorder(detail.iddetatencion, 'PP')
                         }
                       >
                         <ArrowDownNarrowWide size={20} />

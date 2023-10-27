@@ -9,7 +9,8 @@ import {
   Folders,
   HelpingHand,
   Info,
-  Computer
+  Computer,
+  Building2
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import HasRole from '../components/HasRole'
@@ -43,7 +44,11 @@ function LinkInforme({ userInfo }) {
   }, [])
   return (
     <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
-      <span onClick={()=>{setHasNew(false)}}>
+      <span
+        onClick={() => {
+          setHasNew(false)
+        }}
+      >
         <SidebarItem
           icon={<Folders size={20} />}
           text='Informes'
@@ -71,9 +76,16 @@ export default function Dashboard() {
         <LinkInforme userInfo={userInfo} />
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
-            icon={<HelpingHand size={20} />}
-            text='Pagos'
+            icon={<Building2 size={20} />}
+            text='Convenios'
             route='pagos'
+          />
+        </HasRole>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
+          <SidebarItem
+            icon={<HelpingHand size={20} />}
+            text='Reembolsos'
+            route='reembolsos'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>

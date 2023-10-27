@@ -1,5 +1,15 @@
 import axios from 'axios'
 
+export const createPayment = async (paymentData) => {
+  const { data } = await axios.post('/pagos', paymentData)
+  return data
+}
+
+export const createPaymentDetail = async (paymentDetailData) => {
+  const { data } = await axios.post('/pagos/detalles', paymentDetailData)
+  return data
+}
+
 export const getPaymentTypes = async () => {
   const {
     data: { data }
