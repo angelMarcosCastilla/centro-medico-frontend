@@ -50,7 +50,7 @@ export default function ModalDetails({ isOpen, onOpenChange, detail }) {
                       </tr>
                       <tr className='text-gray-600'>
                         <td className='font-bold'>N° Comprobante:</td>
-                        <td>{detail.num_comprobante}</td>
+                        <td>{detail.num_comprobante || '---'}</td>
                       </tr>
                       <tr className='text-gray-600'>
                         <td className='font-bold'>Fecha de Emisión:</td>

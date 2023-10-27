@@ -19,6 +19,7 @@ import { formatDate } from '../../utils/date'
 import { Eye, RotateCcw } from 'lucide-react'
 import ModalDetails from './components/ModalDetails'
 import ModalFormRefund from './components/ModalFormRefund'
+import { TIPO_COMPROBANTE } from '../../constants/state'
 
 const columns = [
   { name: 'PACIENTE', uid: 'paciente', sortable: true },
@@ -53,17 +54,13 @@ export default function Reembolsos() {
 
     switch (columnKey) {
       case 'tipo_comprobante':
-        return cellValue === 'S'
-          ? 'Boleta simple'
-          : cellValue === 'B'
-          ? 'Boleta'
-          : 'Factura'
+        return TIPO_COMPROBANTE[cellValue]
       case 'fecha_hora_emision':
         return formatDate(cellValue, true)
       case 'acciones':
         return (
           <div className='relative flex items-center gap-x-1'>
-            <Tooltip content='Ver detalles' color='primary' closeDelay={0}>
+            <Tooltip content='Detalles' color='primary' closeDelay={0}>
               <Button
                 isIconOnly
                 color='primary'
@@ -77,28 +74,20 @@ export default function Reembolsos() {
                 <Eye size={20} />
               </Button>
             </Tooltip>
-            {detail.detallesAtencion.every((el) =>
-              ['P', 'PT', 'EE'].includes(el.estado)
-            ) && (
-              <Tooltip
-                content='Reembolsar completo'
+            <Tooltip content='Reembolsar' color='danger' closeDelay={0}>
+              <Button
+                isIconOnly
                 color='danger'
-                closeDelay={0}
+                size='sm'
+                variant='light'
+                onPress={() => {
+                  setPayment(detail)
+                  onOpenForm()
+                }}
               >
-                <Button
-                  isIconOnly
-                  color='danger'
-                  size='sm'
-                  variant='light'
-                  onPress={() => {
-                    setPayment(detail)
-                    onOpenForm()
-                  }}
-                >
-                  <RotateCcw size={20} />
-                </Button>
-              </Tooltip>
-            )}
+                <RotateCcw size={20} />
+              </Button>
+            </Tooltip>
           </div>
         )
       default:

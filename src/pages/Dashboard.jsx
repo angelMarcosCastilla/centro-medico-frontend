@@ -10,7 +10,7 @@ import {
   HelpingHand,
   Info,
   Computer,
-  Wallet
+  Building2
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import HasRole from '../components/HasRole'
@@ -75,7 +75,11 @@ export default function Dashboard() {
         </HasRole>
         <LinkInforme userInfo={userInfo} />
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
-          <SidebarItem icon={<Wallet size={20} />} text='Pagos' route='pagos' />
+          <SidebarItem
+            icon={<Building2 size={20} />}
+            text='Convenios'
+            route='pagos'
+          />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
