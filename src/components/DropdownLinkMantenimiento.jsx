@@ -47,6 +47,11 @@ export default function DropdownLinkMantenimiento() {
             Personas
           </Link>
         </DropdownItem>
+        <DropdownItem key='graficos' className='p-0'>
+          <Link to='/mantenimiento/empresas' className='p-2 w-full block'>
+            Empresas
+          </Link>
+        </DropdownItem>
         
       </DropdownMenu>
     </Dropdown>

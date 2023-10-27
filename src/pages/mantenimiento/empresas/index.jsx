@@ -16,12 +16,12 @@ import {
 } from '@nextui-org/react'
 import { BadgeX, PenSquare, Plus, SearchIcon } from 'lucide-react'
 
-import { getAllCompany, removeCompany } from '../../services/company'
+import { getAllCompany, removeCompany } from '../../../services/company'
 import { toast } from 'sonner'
-import { QuestionModal } from '../../components/QuestionModal'
-import { useFetcher } from '../../hook/useFetcher'
-import { usePagination } from '../../hook/usePagination'
-import ModalCompany from './components/ModalCompany'
+import { QuestionModal } from '../../../components/QuestionModal'
+import { useFetcher } from '../../../hook/useFetcher'
+import { usePagination } from '../../../hook/usePagination'
+import ModalCompany from './ModalCompany'
 
 const columns = [
   { name: 'EMPRESA', uid: 'razon_social', sortable: true },
