@@ -3,6 +3,8 @@ import { useFetcher } from '../../hook/useFetcher'
 import {
   Button,
   CardBody,
+  CardHeader,
+  Divider,
   Pagination,
   Table,
   TableBody,
@@ -20,6 +22,7 @@ import { Eye, RotateCcw } from 'lucide-react'
 import ModalDetails from './components/ModalDetails'
 import ModalFormRefund from './components/ModalFormRefund'
 import { TIPO_COMPROBANTE } from '../../constants/state'
+import DateTimeClock from '../../components/DateTimeClock'
 
 const columns = [
   { name: 'PACIENTE', uid: 'paciente', sortable: true },
@@ -125,6 +128,11 @@ export default function Reembolsos() {
 
   return (
     <>
+      <CardHeader className='flex justify-between'>
+        <h2 className='text-2xl'>Reembolsos y devoluciones</h2>
+        <DateTimeClock />
+      </CardHeader>
+      <Divider />
       <CardBody>
         <Table
           aria-label='Example table with custom cells, pagination and sorting'
