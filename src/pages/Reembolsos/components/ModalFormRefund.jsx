@@ -187,13 +187,15 @@ export default function ModalFormRefund({
     (tabSelected === 'reembolso-parcial' &&
       (selectedServices.size === 0 ||
         selectedServices === 'all' ||
-        selectedServices.size === paymentData.detallesAtencion.length))
+        selectedServices.size ===
+          paymentData.detallesAtencion.filter((item) => item.estado !== 'C')
+            .length))
 
   useEffect(() => {
     if (Object.keys(paymentData).length > 0) {
-      const isEveryElValid = paymentData.detallesAtencion.every((el) =>
-        allowedStates.includes(el.estado)
-      )
+      const isEveryElValid = paymentData.detallesAtencion
+        .filter((item) => item.estado !== 'C')
+        .every((el) => allowedStates.includes(el.estado))
 
       setTabsDisabled(isEveryElValid ? [] : ['reembolso-completo'])
 
