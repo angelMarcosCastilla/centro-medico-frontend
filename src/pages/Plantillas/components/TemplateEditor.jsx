@@ -291,7 +291,7 @@ export default function TemplateEditor() {
 
     if (result.isSuccess) {
       toast.success(result.message)
-      navigate('/plantillas')
+      navigate('/plantillas', {replace: true})
     } else {
       toast.error(result.message)
     }
@@ -311,7 +311,7 @@ export default function TemplateEditor() {
             setSections(formato.sections)
           } else {
             toast.error('No encontré una plantilla para editar')
-            navigate('/plantillas')
+            navigate('/plantillas', {replace: true})
           }
         }
       )
@@ -322,17 +322,6 @@ export default function TemplateEditor() {
     <>
       <CardBody>
         <div className='grid grid-cols-4 px-4 mb-4 gap-4 items-end'>
-          <Input
-            label='Nombre de la plantilla'
-            color='primary'
-            size='lg'
-            variant='underlined'
-            className='col-span-2'
-            value={template.templateName || ''}
-            onChange={(e) =>
-              setTemplate({ ...template, templateName: e.target.value })
-            }
-          />
           <Input
             isReadOnly
             label='Servicio'
@@ -359,6 +348,17 @@ export default function TemplateEditor() {
               </SelectItem>
             ))}
           </Select>
+          <Input
+            label='Nombre de la plantilla'
+            color='primary'
+            size='lg'
+            variant='underlined'
+            className='col-span-2'
+            value={template.templateName || ''}
+            onChange={(e) =>
+              setTemplate({ ...template, templateName: e.target.value })
+            }
+          />
         </div>
         {
           <TypeTemplate
@@ -392,7 +392,7 @@ export default function TemplateEditor() {
         <Button
           color='danger'
           variant='light'
-          onClick={() => navigate('/plantillas')}
+          onClick={() => navigate('/plantillas', {replace: true})}
         >
           Cancelar
         </Button>

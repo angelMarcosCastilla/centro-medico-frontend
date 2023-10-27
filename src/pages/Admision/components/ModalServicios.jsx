@@ -32,7 +32,11 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
   const { selectedItem, handleSelectItem } = useAutocompleteContext()
 
   useEffect(() => {
-    if (selectedItem.servicio && selectedItem.categoria && selectedItem.area) {
+    if (
+      selectedItem?.servicio &&
+      selectedItem?.categoria &&
+      selectedItem?.area
+    ) {
       setArea(new Set([selectedItem.area.id.toString()]))
       setCategoria(new Set([selectedItem.categoria.id.toString()]))
       setServicio(new Set([selectedItem.servicio.id.toString()]))
@@ -51,7 +55,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
     return options
   }, [area])
 
-  const optionSercicios = useMemo(() => {
+  const optionServicios = useMemo(() => {
     if (categoria.size === 0) return []
     const options = optionsCategoria.find((item) =>
       categoria.has(String(item.idcategoria))
@@ -61,7 +65,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
 
   const currentServicio = useMemo(() => {
     if (servicio.size === 0) return null
-    return optionSercicios.find((item) => servicio.has(String(item.idservicio)))
+    return optionServicios.find((item) => servicio.has(String(item.idservicio)))
   }, [servicio])
 
   const handleAddServices = () => {
@@ -146,7 +150,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                         }
                       }}
                     >
-                      {optionSercicios.map((servicio) => (
+                      {optionServicios.map((servicio) => (
                         <SelectItem
                           key={servicio.idservicio}
                           value={servicio.idservicio}

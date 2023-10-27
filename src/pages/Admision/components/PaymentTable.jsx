@@ -8,7 +8,8 @@ import {
   TableHeader,
   TableRow,
   Table,
-  Input
+  Input,
+  Tooltip
 } from '@nextui-org/react'
 import { Plus, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
@@ -168,16 +169,18 @@ export default function PaymentTable({
                 <TableCell>{pago.cantidad.toFixed(2)}</TableCell>
                 <TableCell>
                   <div className='relative flex items-center gap-2'>
-                    <Button
-                      isIconOnly
-                      color='danger'
-                      variant='light'
-                      onClick={() => {
-                        handleRemovePayment(index)
-                      }}
-                    >
-                      <Trash2 size={20} />
-                    </Button>
+                    <Tooltip content='Eliminar' color='danger' closeDelay={0}>
+                      <Button
+                        isIconOnly
+                        color='danger'
+                        variant='light'
+                        onClick={() => {
+                          handleRemovePayment(index)
+                        }}
+                      >
+                        <Trash2 size={20} />
+                      </Button>
+                    </Tooltip>
                   </div>
                 </TableCell>
               </TableRow>
