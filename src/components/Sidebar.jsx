@@ -306,7 +306,7 @@ export function SidebarListv2({ icon, text, route, items }) {
       font-medium rounded-md cursor-pointer
       transition-colors group select-none
       ${
-        itemActive && !expanded
+        itemActive && !expanded && listOpen
           ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800'
           : 'hover:bg-indigo-50 text-gray-600'
       }

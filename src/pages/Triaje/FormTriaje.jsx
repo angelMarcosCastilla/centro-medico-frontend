@@ -21,7 +21,7 @@ import { socket } from '../../components/Socket'
 export default function FormTriaje() {
   const { state } = useLocation()
   const navigate = useNavigate()
-  
+
   const [values, setValues] = useState({
     complicacionesMedicas: state.complicaciones,
     triajeAtencion: {
@@ -33,8 +33,9 @@ export default function FormTriaje() {
       presion_arterial: '',
       frecuencia_cardiaca: '',
       frecuencia_respiratoria: '',
+      danio_hepatico: false,
       embarazo: false,
-      dano_epatico: false
+      otros: ''
     }
   })
   const [disabledCheckboxes] = useState(
@@ -103,7 +104,7 @@ export default function FormTriaje() {
 
       const result = await createTriage(data)
       if (result.isSuccess) {
-        socket.emit('client:newAction', { action: "New Admision" })
+        socket.emit('client:newAction', { action: 'New Admision' })
         toast.success('Triaje registrado correctamente')
         navigate('/triaje', { replace: true })
       }
@@ -235,7 +236,7 @@ export default function FormTriaje() {
                       key='factores-riesgo'
                       title='Factores de riesgo o comorbilidad'
                     >
-                      <div className='grid grid-cols-2 gap-6 px-4'>
+                      <div className='grid grid-cols-2 gap-6 px-4 items-start'>
                         {Object.entries(values.complicacionesMedicas).map(
                           ([complicacion, valor]) => (
                             <Checkbox
@@ -258,29 +259,45 @@ export default function FormTriaje() {
                             </Checkbox>
                           )
                         )}
-                        <Checkbox isSelected={values.triajeAtencion.embarazo} onValueChange={()=>{
-                          setValues((prev) => {
-                            return {
-                              ...prev,
-                              triajeAtencion:{ 
-                                ...prev.triajeAtencion,
-                                embarazo: !prev.triajeAtencion.embarazo
+                        <Checkbox
+                          isSelected={values.triajeAtencion.embarazo}
+                          onValueChange={() => {
+                            setValues((prev) => {
+                              return {
+                                ...prev,
+                                triajeAtencion: {
+                                  ...prev.triajeAtencion,
+                                  embarazo: !prev.triajeAtencion.embarazo
+                                }
                               }
-                            }
-                          })
-                        }} >Embarazo</Checkbox>
-                        <Checkbox isSelected={values.complicacionesMedicas.dano_epatico} onValueChange={()=>{
-                          setValues((prev) => {
-                            return{
-                              ...prev,
-                              triajeAtencion:{
-                                ...prev.triajeAtencion,
-                                dano_epatico: !prev.triajeAtencion.dano_epatico
+                            })
+                          }}
+                        >
+                          Embarazo
+                        </Checkbox>
+                        <Checkbox
+                          isSelected={values.triajeAtencion.danio_hepatico}
+                          onValueChange={() => {
+                            setValues((prev) => {
+                              return {
+                                ...prev,
+                                triajeAtencion: {
+                                  ...prev.triajeAtencion,
+                                  danio_hepatico:
+                                    !prev.triajeAtencion.danio_hepatico
+                                }
                               }
-                            }
-                          })
-                        }}>Daño Epatico</Checkbox>
-                        <Input label='Otros'></Input>
+                            })
+                          }}
+                        >
+                          Daño hepático
+                        </Checkbox>
+                        <Input
+                          label='Otros'
+                          name='otros'
+                          value={values.triajeAtencion.otros}
+                          onChange={handleChange}
+                        ></Input>
                       </div>
                     </Tab>
                     <Tab
@@ -330,7 +347,6 @@ export default function FormTriaje() {
                 </CardBody>
               </Card>
             </div>
-            
           </form>
         </CardBody>
         <CardFooter className='flex justify-end gap-3'>
