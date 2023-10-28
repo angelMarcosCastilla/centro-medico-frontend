@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom'
-import Sidebar, { SidebarItem } from '../components/Sidebar'
+import Sidebar, { SidebarItem, SidebarList } from '../components/Sidebar'
 import {
   Brain,
   Bone,
@@ -10,15 +10,15 @@ import {
   HelpingHand,
   Info,
   Computer,
-  Building2
+  Building2,
+  LineChart,
+  UserCog
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import HasRole from '../components/HasRole'
 import { listRoles } from '../constants/auth.constant'
 import { DataProvider } from './Admision/components/DataContext'
 import { Card } from '@nextui-org/react'
-import DropdownLink from '../components/DropdownLink'
-import DropdownLinkMantenimiento from '../components/DropdownLinkMantenimiento'
 import { useState, useEffect } from 'react'
 
 import { socket } from '../components/Socket'
@@ -53,7 +53,7 @@ function LinkInforme({ userInfo }) {
           icon={<Folders size={20} />}
           text='Informes'
           route='informes'
-          hasNoti={hasNew}
+          alert={hasNew}
         />
       </span>
     </HasRole>
@@ -137,8 +137,29 @@ export default function Dashboard() {
             route='triaje'
           />
         </HasRole>
-        {userInfo.nivel_acceso === 'A' && <DropdownLink />}
-        {userInfo.nivel_acceso === 'A' && <DropdownLinkMantenimiento />}
+        {userInfo.nivel_acceso === 'A' && (
+          <>
+            <SidebarList
+              icon={<LineChart size={20} />}
+              text='Reportes'
+              route='reportes'
+              items={[
+                { key: '1', label: 'Gráficos', route: 'graficos' },
+                { key: '2', label: 'Pagos', route: 'pagos' },
+                { key: '3', label: 'Atenciones', route: 'atenciones' }
+              ]}
+            />
+            <SidebarList
+              icon={<UserCog size={20} />}
+              text='Mantenimiento'
+              route='mantenimiento'
+              items={[
+                { key: '1', label: 'Personas', route: 'personas' },
+                { key: '2', label: 'Empresas', route: 'empresas' }
+              ]}
+            />
+          </>
+        )}
       </Sidebar>
       <div className='bg-slate-100 flex-1 px-5 py-3 overflow-y-auto'>
         <DataProvider>

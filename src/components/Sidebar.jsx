@@ -134,7 +134,7 @@ export default function Sidebar({ children }) {
   )
 }
 
-export function SidebarItem({ icon, text, route, hasNoti }) {
+export function SidebarItem({ icon, text, route, alert }) {
   const { expanded } = useContext(SidebarContext)
   const location = useLocation()
 
@@ -163,6 +163,14 @@ export function SidebarItem({ icon, text, route, hasNoti }) {
           {text}
         </span>
 
+        {alert && (
+          <div
+            className={`absolute right-2 w-2 h-2 rounded bg-indigo-400 ${
+              expanded ? '' : 'top-2'
+            }`}
+          />
+        )}
+
         {!expanded && (
           <div
             className={`
@@ -177,10 +185,119 @@ export function SidebarItem({ icon, text, route, hasNoti }) {
             {text}
           </div>
         )}
-        {hasNoti && (
-          <span className='w-2 h-2 absolute right-2 top-2 rounded-lg bg-blue-600'></span>
-        )}
       </li>
     </Link>
+  )
+}
+
+export function SidebarList({ icon, text, route, items }) {
+  const { expanded } = useContext(SidebarContext)
+  const location = useLocation()
+
+  const isActive = location.pathname.substring(1).startsWith(route)
+  const itemActive = location.pathname.split('/')[2]
+
+  return (
+    <Dropdown
+      showArrow
+      placement='left'
+      backdrop='opaque'
+      motionProps={{
+        variants: {
+          enter: {
+            opacity: 1,
+            duration: 0.1,
+            transition: {
+              opacity: {
+                duration: 0.15
+              }
+            }
+          },
+          exit: {
+            opacity: 0,
+            duration: 0,
+            transition: {
+              opacity: {
+                duration: 0.1
+              }
+            }
+          }
+        }
+      }}
+    >
+      <DropdownTrigger>
+        <li
+          className={`
+          relative flex items-center py-2.5 px-3.5 my-1
+          font-medium rounded-md cursor-pointer
+          transition-colors group
+          aria-[expanded=true]:opacity-100
+          ${
+            isActive
+              ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800'
+              : 'hover:bg-indigo-50 text-gray-600'
+          }
+        `}
+        >
+          {icon}
+          <span
+            className={`overflow-hidden h-5 text-[15px] transition-all ${
+              expanded ? 'w-[200px] ml-3' : 'w-0'
+            }`}
+          >
+            {text}
+          </span>
+
+          {!expanded && (
+            <div
+              className={`
+                absolute left-full rounded-md px-2 py-1 ml-6 text-[15px]  
+                bg-indigo-100 text-indigo-800
+                invisible opacity-20 -translate-x-3 transition-all
+                whitespace-nowrap
+                group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+                z-50
+              `}
+            >
+              {text}
+            </div>
+          )}
+        </li>
+      </DropdownTrigger>
+      <DropdownMenu variant='' aria-label='Lista de items' items={items}>
+        {(item) => (
+          <DropdownItem
+            key={item.key}
+            className={`p-0 ${
+              itemActive === item.route
+                ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800'
+                : 'hover:bg-indigo-50'
+            }`}
+            textValue={item.label}
+          >
+            <Link to={`${route}/${item.route}`} className='p-2 w-full block'>
+              {item.label}
+            </Link>
+          </DropdownItem>
+        )}
+      </DropdownMenu>
+    </Dropdown>
+  )
+}
+
+export function SidebarListv2() {
+  const [isOpen, setIsOpen] = useState()
+
+  useEffect(() => {
+    console.log(isOpen)
+  }, [isOpen])
+
+  return (
+    <div
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
+      Lista v2
+    </div>
   )
 }
