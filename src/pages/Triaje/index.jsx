@@ -73,7 +73,7 @@ export default function TriajePage() {
 
   return (
     <div className='px-3 py-4 bg-slate-100 h-screen flex flex-col gap-y-4'>
-      <Header title='Triaje' />
+      <Header title='TRIAJE'/> 
       <section className='px-4 py-3 bg-[white] shadow h-full rounded-lg'>
         <Table
           isStriped

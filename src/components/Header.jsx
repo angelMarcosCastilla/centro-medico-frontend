@@ -12,8 +12,13 @@ export default function Header({ title = 'Informe' }) {
   const { userInfo, logout } = useAuth()
 
   return (
-    <header className='shadow bg-[white] flex justify-between items-center sticky top-4 px-4 py-5 rounded-lg'>
-      <h1>{title}</h1>
+    <header className='shadow bg-[white] flex justify-between items-center sticky top-4 px-4 py-5 rounded-lg '>
+      <img
+        src='/logo.png'
+        alt=''
+        className='w-[220px] h-[44px]'
+      />
+      <h1 className='text-xl text-justify'>{title}</h1>
       <Dropdown placement='bottom-start'>
         <DropdownTrigger>
           <User

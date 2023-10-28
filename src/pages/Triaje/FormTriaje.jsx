@@ -6,7 +6,6 @@ import {
   CardFooter,
   CardHeader,
   Checkbox,
-  Image,
   Input,
   Tab,
   Tabs
@@ -34,7 +33,8 @@ export default function FormTriaje() {
       presion_arterial: '',
       frecuencia_cardiaca: '',
       frecuencia_respiratoria: '',
-      embarazo: true
+      embarazo: false,
+      dano_epatico: false
     }
   })
   const [disabledCheckboxes] = useState(
@@ -258,7 +258,6 @@ export default function FormTriaje() {
                             </Checkbox>
                           )
                         )}
-                        <Input></Input>
                         <Checkbox isSelected={values.triajeAtencion.embarazo} onValueChange={()=>{
                           setValues((prev) => {
                             return {
@@ -270,6 +269,18 @@ export default function FormTriaje() {
                             }
                           })
                         }} >Embarazo</Checkbox>
+                        <Checkbox isSelected={values.complicacionesMedicas.dano_epatico} onValueChange={()=>{
+                          setValues((prev) => {
+                            return{
+                              ...prev,
+                              triajeAtencion:{
+                                ...prev.triajeAtencion,
+                                dano_epatico: !prev.triajeAtencion.dano_epatico
+                              }
+                            }
+                          })
+                        }}>Daño Epatico</Checkbox>
+                        <Input label='Otros'></Input>
                       </div>
                     </Tab>
                     <Tab
