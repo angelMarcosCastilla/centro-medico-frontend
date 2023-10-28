@@ -1,5 +1,9 @@
 import { Outlet } from 'react-router-dom'
-import Sidebar, { SidebarItem, SidebarList } from '../components/Sidebar'
+import Sidebar, {
+  SidebarItem,
+  SidebarList,
+  SidebarListv2
+} from '../components/Sidebar'
 import {
   Brain,
   Bone,
@@ -149,7 +153,7 @@ export default function Dashboard() {
                 { key: '3', label: 'Atenciones', route: 'atenciones' }
               ]}
             />
-            <SidebarList
+            <SidebarListv2
               icon={<UserCog size={20} />}
               text='Mantenimiento'
               route='mantenimiento'
@@ -158,6 +162,15 @@ export default function Dashboard() {
                 { key: '2', label: 'Empresas', route: 'empresas' }
               ]}
             />
+            {/* <SidebarList
+              icon={<UserCog size={20} />}
+              text='Mantenimiento'
+              route='mantenimiento'
+              items={[
+                { key: '1', label: 'Personas', route: 'personas' },
+                { key: '2', label: 'Empresas', route: 'empresas' }
+              ]}
+            /> */}
           </>
         )}
       </Sidebar>

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ChevronFirst, ChevronLast } from 'lucide-react'
+import { ChevronDown, ChevronFirst, ChevronLast } from 'lucide-react'
 import {
   Button,
   Dropdown,
@@ -146,7 +146,7 @@ export function SidebarItem({ icon, text, route, alert }) {
         className={`
         relative flex items-center py-2.5 px-3.5 my-1
         font-medium rounded-md cursor-pointer
-        transition-colors group
+        transition-colors group select-none
         ${
           isActive
             ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800'
@@ -285,19 +285,93 @@ export function SidebarList({ icon, text, route, items }) {
   )
 }
 
-export function SidebarListv2() {
-  const [isOpen, setIsOpen] = useState()
+export function SidebarListv2({ icon, text, route, items }) {
+  const { expanded } = useContext(SidebarContext)
+  const location = useLocation()
+
+  const itemActive = location.pathname.split('/')[2]
+  const [listOpen, setListOpen] = useState(!!itemActive)
 
   useEffect(() => {
-    console.log(isOpen)
-  }, [isOpen])
+    if (!itemActive) {
+      setListOpen(false)
+    }
+  }, [itemActive])
 
   return (
-    <div
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
-    >
-      Lista v2
-    </div>
+    <>
+      <li
+        className={`
+      relative flex items-center py-2.5 px-3.5 my-1
+      font-medium rounded-md cursor-pointer
+      transition-colors group select-none
+      ${
+        itemActive && !expanded
+          ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800'
+          : 'hover:bg-indigo-50 text-gray-600'
+      }
+    `}
+        onClick={() => {
+          if (expanded) setListOpen(!listOpen)
+        }}
+      >
+        {icon}
+        <span
+          className={`overflow-hidden h-5 text-[15px] transition-all ${
+            expanded ? 'w-[200px] ml-3' : 'w-0'
+          }`}
+        >
+          {text}
+        </span>
+
+        {items && expanded && (
+          <ChevronDown
+            size={20}
+            className={`transition-all ${listOpen && 'rotate-180'}`}
+          />
+        )}
+
+        {!expanded && (
+          <div
+            className={`
+              absolute left-full rounded-md px-2 py-1 ml-6 text-[15px]  
+              bg-indigo-100 text-indigo-800
+              invisible opacity-20 -translate-x-3 transition-all
+              whitespace-nowrap
+              group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+              z-50 capitalize
+            `}
+          >
+            {itemActive || text}
+          </div>
+        )}
+      </li>
+
+      {items && expanded && listOpen && (
+        <ul>
+          {items.map((item) => (
+            <li
+              key={item.key}
+              className={`
+              text-gray-600 text-[15px] flex items-center gap-x-4
+                my-1 rounded-md cursor-pointer select-none
+                ${
+                  itemActive === item.route
+                    ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800'
+                    : 'hover:bg-indigo-50'
+                }
+              `}
+            >
+              <Link
+                to={`${route}/${item.route}`}
+                className='w-full block px-3.5 py-1.5 pl-[46px]'
+              >
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   )
 }
