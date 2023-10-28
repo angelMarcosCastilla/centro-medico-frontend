@@ -164,6 +164,7 @@ export default function Personas() {
         </TableBody>
       </Table>
       <PersonModal
+        key={dataToEdit.current?.idpersona}
         isOpen={isOpen}
         refresh={refresh}
         onOpenChange={(open) => {

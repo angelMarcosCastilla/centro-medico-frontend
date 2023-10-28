@@ -38,7 +38,7 @@ export default function Graficos() {
   return (
     <div className='p-8 overflow-y-auto'>
       <h1 className='mb-5 text-xl '>Información del mes</h1>
-      <div className='gap-2 grid grid-cols-[repeat(auto-fill,minmax(270px,1fr))]'>
+      <div className='gap-2 grid grid-cols-[repeat(auto-fit,minmax(270px,1fr))]'>
         {totalByarea.map((item, index) => (
           <Card
             className={`h-[150px]  grid place-content-center border-l-4  ${
@@ -94,11 +94,11 @@ export default function Graficos() {
             </TableHeader>
             <TableBody>
               {ranking.map((el, index) => (
-                <TableRow key='4' className={classTop[index]}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{el.area}</TableCell>
-                  <TableCell>{el.nombre_servicio}</TableCell>
-                  <TableCell>{el.total}</TableCell>
+                <TableRow key='4' className={`${classTop[index]}`}>
+                  <TableCell >{index + 1}</TableCell>
+                  <TableCell >{el.area}</TableCell>
+                  <TableCell >{el.nombre_servicio}</TableCell>
+                  <TableCell >{el.total}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

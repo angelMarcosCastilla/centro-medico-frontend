@@ -48,12 +48,16 @@ export default function PersonModal({
         await refresh()
         toast.success('Se Registró correctamente')
       } else {
-        await updatePerson(dataToEdit.idpersona, {
-          ...dataTosend,
-          estado: isSelected
-        })
-        await refresh()
-        toast.success('Se Edito correctamente')
+        try {
+          await updatePerson(dataToEdit.idpersona, {
+            ...dataTosend,
+            estado: isSelected
+          })
+          toast.success('Se Edito correctamente')
+          await refresh()
+        } catch (error) {
+          toast.error('Error al momento de editar')
+        }
       }
       onClose()
       setLoading(false)
@@ -79,7 +83,7 @@ export default function PersonModal({
                 {dataToEdit && (
                   <Checkbox
                     onValueChange={setIsSelected}
-                    defaultSelected={Boolean(dataToEdit.estado)}
+                    isSelected={isSelected}
                     className='mr-10'
                   >
                     esta activo
@@ -150,7 +154,7 @@ export default function PersonModal({
                   className='mb-2'
                   label='Dirección'
                   name='direccion'
-                  defaultValue={dataToEdit ? dataToEdit.email : ''}
+                  defaultValue={dataToEdit ? dataToEdit.direccion : ''}
                 />
               </div>
               <div className='flex flex-row gap-x-4'>
@@ -160,7 +164,12 @@ export default function PersonModal({
                   name='correo'
                   defaultValue={dataToEdit ? dataToEdit.correo : ''}
                 />
-                <Input name='celular' className='mb-2' label='Celular' />
+                <Input
+                  name='celular'
+                  className='mb-2'
+                  label='Celular'
+                  defaultValue={dataToEdit ? dataToEdit.celular : ''}
+                />
               </div>
             </ModalBody>
             <ModalFooter>
