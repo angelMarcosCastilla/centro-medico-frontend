@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ChevronDown, ChevronFirst, ChevronLast } from 'lucide-react'
+import { ChevronDown, ChevronFirst } from 'lucide-react'
 import {
   Button,
   Dropdown,
@@ -52,7 +52,9 @@ export default function Sidebar({ children }) {
             src='/logo.png'
           />
           <Button
-            className='text-gray-600'
+            className={`text-gray-600 transition-all ${
+              !expanded && 'rotate-180'
+            }`}
             variant='light'
             isIconOnly
             onPress={() => setExpanded((curr) => !curr)}
@@ -62,12 +64,18 @@ export default function Sidebar({ children }) {
               }
             }}
           >
-            {expanded ? <ChevronFirst /> : <ChevronLast />}
+            {<ChevronFirst />}
           </Button>
         </div>
 
         <SidebarContext.Provider value={{ expanded }}>
-          <ul className='flex-1 px-3'>{children}</ul>
+          <ul
+            className={`flex-1 px-3 ${
+              expanded && 'scrollbar-hide overflow-y-auto'
+            }`}
+          >
+            {children}
+          </ul>
         </SidebarContext.Provider>
 
         <div className='border-t flex p-3'>
@@ -194,107 +202,18 @@ export function SidebarList({ icon, text, route, items }) {
   const { expanded } = useContext(SidebarContext)
   const location = useLocation()
 
-  const isActive = location.pathname.substring(1).startsWith(route)
+  const currentRoute = location.pathname.split('/')[1]
   const itemActive = location.pathname.split('/')[2]
+  const [open, setOpen] = useState(currentRoute === route)
 
-  return (
-    <Dropdown
-      showArrow
-      placement='left'
-      backdrop='opaque'
-      motionProps={{
-        variants: {
-          enter: {
-            opacity: 1,
-            duration: 0.1,
-            transition: {
-              opacity: {
-                duration: 0.15
-              }
-            }
-          },
-          exit: {
-            opacity: 0,
-            duration: 0,
-            transition: {
-              opacity: {
-                duration: 0.1
-              }
-            }
-          }
-        }
-      }}
-    >
-      <DropdownTrigger>
-        <li
-          className={`
-          relative flex items-center py-2.5 px-3.5 my-1
-          font-medium rounded-md cursor-pointer
-          transition-colors group
-          aria-[expanded=true]:opacity-100
-          ${
-            isActive
-              ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800'
-              : 'hover:bg-indigo-50 text-gray-600'
-          }
-        `}
-        >
-          {icon}
-          <span
-            className={`overflow-hidden h-5 text-[15px] transition-all ${
-              expanded ? 'w-[200px] ml-3' : 'w-0'
-            }`}
-          >
-            {text}
-          </span>
-
-          {!expanded && (
-            <div
-              className={`
-                absolute left-full rounded-md px-2 py-1 ml-6 text-[15px]  
-                bg-indigo-100 text-indigo-800
-                invisible opacity-20 -translate-x-3 transition-all
-                whitespace-nowrap
-                group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
-                z-50
-              `}
-            >
-              {text}
-            </div>
-          )}
-        </li>
-      </DropdownTrigger>
-      <DropdownMenu variant='' aria-label='Lista de items' items={items}>
-        {(item) => (
-          <DropdownItem
-            key={item.key}
-            className={`p-0 ${
-              itemActive === item.route
-                ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800'
-                : 'hover:bg-indigo-50'
-            }`}
-            textValue={item.label}
-          >
-            <Link to={`${route}/${item.route}`} className='p-2 w-full block'>
-              {item.label}
-            </Link>
-          </DropdownItem>
-        )}
-      </DropdownMenu>
-    </Dropdown>
-  )
-}
-
-export function SidebarListv2({ icon, text, route, items }) {
-  const { expanded } = useContext(SidebarContext)
-  const location = useLocation()
-
-  const itemActive = location.pathname.split('/')[2]
-  const [listOpen, setListOpen] = useState(!!itemActive)
+  /* me gustaría declararle mi amor
+  pero solo puedo declarar variables */
 
   useEffect(() => {
-    if (!itemActive) {
-      setListOpen(false)
+    if (!itemActive || currentRoute !== route) {
+      setOpen(false)
+    } else {
+      setOpen(true)
     }
   }, [itemActive])
 
@@ -302,17 +221,17 @@ export function SidebarListv2({ icon, text, route, items }) {
     <>
       <li
         className={`
-      relative flex items-center py-2.5 px-3.5 my-1
-      font-medium rounded-md cursor-pointer
-      transition-colors group select-none
-      ${
-        itemActive && !expanded && listOpen
-          ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800'
-          : 'hover:bg-indigo-50 text-gray-600'
-      }
-    `}
+          relative flex items-center py-2.5 px-3.5 my-1
+          font-medium rounded-md cursor-pointer
+          transition-colors group select-none
+          ${
+            currentRoute === route && itemActive && (!expanded || !open)
+              ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800'
+              : 'hover:bg-indigo-50 text-gray-600'
+          }
+        `}
         onClick={() => {
-          if (expanded) setListOpen(!listOpen)
+          if (expanded) setOpen(!open)
         }}
       >
         {icon}
@@ -327,33 +246,56 @@ export function SidebarListv2({ icon, text, route, items }) {
         {items && expanded && (
           <ChevronDown
             size={20}
-            className={`transition-all ${listOpen && 'rotate-180'}`}
+            className={`transition-all ${open && 'rotate-180'}`}
           />
         )}
 
         {!expanded && (
           <div
             className={`
-              absolute left-full rounded-md px-2 py-1 ml-6 text-[15px]  
-              bg-indigo-100 text-indigo-800
+              absolute left-full rounded-lg px-2 py-1 ml-4
+              bg-white w-48 border
               invisible opacity-20 -translate-x-3 transition-all
-              whitespace-nowrap
+              whitespace-nowrap cursor-auto
               group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
-              z-50 capitalize
+              z-50
             `}
           >
-            {itemActive || text}
+            <p className='px-2 py-1 text-gray-700'>{text}</p>
+            <ul>
+              {items.map((item) => (
+                <li
+                  key={item.key}
+                  className={`
+                    text-gray-600 text-sm flex items-center gap-x-4
+                    my-1 rounded-lg cursor-pointer select-none
+                    ${
+                      itemActive === item.route
+                        ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800'
+                        : 'hover:bg-indigo-50'
+                    }
+                  `}
+                >
+                  <Link
+                    to={`${route}/${item.route}`}
+                    className='w-full rounded-lg px-3 py-1.5'
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </li>
 
-      {items && expanded && listOpen && (
+      {items && expanded && open && (
         <ul>
           {items.map((item) => (
             <li
               key={item.key}
               className={`
-              text-gray-600 text-[15px] flex items-center gap-x-4
+                text-gray-600 text-sm flex items-center gap-x-4
                 my-1 rounded-md cursor-pointer select-none
                 ${
                   itemActive === item.route
