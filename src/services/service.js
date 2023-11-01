@@ -36,17 +36,3 @@ export const removeService = async (idService) => {
   const { data } = await axios.delete(`/servicios/${idService}`)
   return data
 }
-
-export const getListofPaymentsbyAgreement = async () => {
-  const {
-    data: { data }
-  } = await axios.get('/servicios/pagos/pendiente')
-  return data
-}
-
-export const getCompanyAgreement = async () => {
-  const {
-    data: { data }
-  } = await axios.get('/servicios/empresa/convenios')
-  return data
-}

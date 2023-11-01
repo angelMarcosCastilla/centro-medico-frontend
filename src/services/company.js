@@ -6,7 +6,7 @@ export const getAllCompany = async () => {
 }
 
 export const getCompany = async (idCompany) => {
-  const {data} = await axios.get(`empresas/${idCompany}`)
+  const { data } = await axios.get(`empresas/${idCompany}`)
   return data.data
 }
 
@@ -32,5 +32,12 @@ export const removeCompany = async (idCompany) => {
 
 export const updateCompany = async (idCompany, CompanyData) => {
   const { data } = await axios.put(`/empresas/${idCompany}`, CompanyData)
+  return data
+}
+
+export const getCompanyAgreement = async () => {
+  const {
+    data: { data }
+  } = await axios.get('/empresas/convenios')
   return data
 }
