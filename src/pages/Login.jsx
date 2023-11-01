@@ -25,14 +25,15 @@ export default function Login() {
     try {
       setLoading(true)
 
-      if (!username || !password)
+      if (!username.trim() || !password.trim())
         return toast.error('Por favor, complete los datos.')
 
-      const data = await loginServices(password, username)
-      if (data.isSuccess) {
-        setLoginData(data.data)
+      const result = await loginServices(password, username)
+
+      if (result.isSuccess) {
+        setLoginData(result.data)
       } else {
-        throw new Error(data.message)
+        throw new Error(result.message)
       }
     } catch (e) {
       toast.error('Credenciales incorrectas.')

@@ -17,6 +17,13 @@ export const getPaymentTypes = async () => {
   return data
 }
 
+export const getListofPaymentsbyAgreement = async () => {
+  const {
+    data: { data }
+  } = await axios.get('/pagos/pendientes')
+  return data
+}
+
 export const paymentConvenios = async (data) => {
   const {
     data: { data: response }

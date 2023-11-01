@@ -4,7 +4,6 @@ import Login from '../pages/Login.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Admision from '../pages/Admision'
 import Informes from '../pages/Informes'
-import Pagos from '../pages/Pagos'
 import Tomografia from '../pages/Tomografia'
 import Rayosx from '../pages/Rayosx'
 import Triaje from '../pages/Triaje'
@@ -26,7 +25,7 @@ import ReportePagos from '../pages/Reportes/ReportePagos/index.jsx'
 import Mantenimiento from '../pages/mantenimiento/mantenimiento.jsx'
 import Personas from '../pages/mantenimiento/personas/index.jsx'
 import Reembolsos from '../pages/Reembolsos'
-
+import PagosConvenio from '../pages/PagosConvenio'
 
 const router = createBrowserRouter([
   {
@@ -78,10 +77,10 @@ const router = createBrowserRouter([
             )
           },
           {
-            path: 'pagos',
+            path: 'pagosconvenio',
             element: (
               <RoleGard listRoles={listRoles.admision}>
-                <Pagos />
+                <PagosConvenio />
               </RoleGard>
             )
           },
@@ -90,6 +89,14 @@ const router = createBrowserRouter([
             element: (
               <RoleGard listRoles={listRoles.admision}>
                 <Reembolsos />
+              </RoleGard>
+            )
+          },
+          {
+            path: 'servicios',
+            element: (
+              <RoleGard listRoles={listRoles.admision}>
+                <Servicios />
               </RoleGard>
             )
           },
@@ -129,27 +136,11 @@ const router = createBrowserRouter([
                 path: 'personas',
                 element: <Personas />
               },
-                {
+              {
                 path: 'empresas',
                 element: <Empresa />
               }
             ]
-          },
-          {
-            path: 'servicios',
-            element: (
-              <RoleGard listRoles={listRoles.admision}>
-                <Servicios />
-              </RoleGard>
-            )
-          },
-          {
-            path: 'empresa',
-            element: (
-              <RoleGard listRoles={listRoles.admision}>
-                <Empresa/>
-              </RoleGard>
-            )
           },
           {
             path: 'tomografia',
@@ -178,7 +169,7 @@ const router = createBrowserRouter([
           {
             path: 'informeslaboratorio',
             element: (
-              <RoleGard listRoles={listRoles.informes}>
+              <RoleGard listRoles={listRoles.laboratorio}>
                 <InformesLaboratorio />
               </RoleGard>
             )
@@ -186,7 +177,7 @@ const router = createBrowserRouter([
           {
             path: 'informeslaboratorio/:id',
             element: (
-              <RoleGard listRoles={listRoles.informes}>
+              <RoleGard listRoles={listRoles.laboratorio}>
                 <ReportEditor />
               </RoleGard>
             )
@@ -194,7 +185,7 @@ const router = createBrowserRouter([
           {
             path: 'plantillas',
             element: (
-              <RoleGard listRoles={listRoles.plantillas}>
+              <RoleGard listRoles={listRoles.laboratorio}>
                 <Plantillas />
               </RoleGard>
             )
@@ -202,7 +193,7 @@ const router = createBrowserRouter([
           {
             path: 'plantillas/:id',
             element: (
-              <RoleGard listRoles={listRoles.plantillas}>
+              <RoleGard listRoles={listRoles.laboratorio}>
                 <TemplateEditor />
               </RoleGard>
             )

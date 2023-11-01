@@ -77,8 +77,8 @@ export default function Dashboard() {
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
           <SidebarItem
             icon={<Building2 size={20} />}
-            text='Convenios'
-            route='pagos'
+            text='Pagos por Convenio'
+            route='pagosconvenio'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
