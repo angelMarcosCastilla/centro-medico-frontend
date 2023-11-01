@@ -83,7 +83,7 @@ export default function PagosConvenio() {
     page,
     pages,
     setPage
-  } = usePagination(paymentsByCompany, 2)
+  } = usePagination(paymentsByCompany)
 
   const renderCell = useCallback((detail, columnKey) => {
     const cellValue = detail[columnKey]
