@@ -7,6 +7,8 @@ import {
 } from '../../../services/company'
 import {
   Button,
+  Checkbox,
+  CheckboxGroup,
   Input,
   Modal,
   ModalBody,
@@ -33,8 +35,8 @@ export default function ModalNewCompany({
 }) {
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({})
-  // const [selected, setSelected] = useState([])
-  // const { dataToSend, setDataToSend } = useDataContext()
+   const [selected, setSelected] = useState([])
+   // const { dataToSend, setDataToSend } = useDataContext()
 
   const handleInputChange = (e, type = 'text') => {
     setForm({
@@ -44,9 +46,12 @@ export default function ModalNewCompany({
     })
   }
 
-  /* const handleCheckBoxChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.checked })
-  } */
+  const handleCheckBoxChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.checked
+    })
+  }
 
   const handleSubmitCompany = async (e, onClose) => {
 
@@ -79,7 +84,7 @@ export default function ModalNewCompany({
   const handleClose = () => {
     if (operation === 'new') {
       setForm(INITIAL_FORM)    
-      // setSelected([])
+       setSelected([])
     }
     onOpenChange(false)
   }
@@ -92,16 +97,16 @@ export default function ModalNewCompany({
           razonSocial: res.razon_social,
           ruc: res.ruc,
           direccion: res.direccion,
-          registrarConvenio: Boolean(res.convenio)
+          registrarConvenio: Boolean(res.registrar_convenio)
         })
 
-        /* setSelected([
-          res.convenio === 1 ? 'Convenio' : '',
-        ]) */
+        setSelected([
+          res.registrar_convenio === 1 ? 'Convenio' : '',
+        ])
       })
     }else{
       setForm(INITIAL_FORM)
-      // setSelected([])
+       setSelected([])
     }
   },[operation, serviceToEdit])
 
@@ -169,25 +174,25 @@ export default function ModalNewCompany({
                     />
                   </div>
                   <div className='grid grid-cols-2 gap-x-4'>
-                    {/* <CheckboxGroup
+                     <CheckboxGroup
                       orientation='horizontal'
                       value={selected}
                       onValueChange={setSelected}
                     >
                       <Checkbox
-                        name='convenio'
-                        value='convenio'
+                        name='registrarConvenio'
+                        value='registrarconvenio'
                         onChange={handleCheckBoxChange}
                       >
                         Habilitar Convenio
                       </Checkbox>
-                    </CheckboxGroup> */}
+                    </CheckboxGroup> 
                   </div>
                 </ModalBody>
                 <ModalFooter>
                   <Button
                     color='danger'
-                    type='submit'
+                    type='button'
                     variant='light'
                     onPress={onClose}
                   >

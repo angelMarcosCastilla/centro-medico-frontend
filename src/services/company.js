@@ -10,8 +10,8 @@ export const getCompany = async (idCompany) => {
   return data.data
 }
 
-export const addCompanyService = async (body) => {
-  const { data } = await axios.post('/empresas', body)
+export const addCompanyService = async (CompanyData) => {
+  const { data } = await axios.post('/empresas', CompanyData)
   return data
 }
 

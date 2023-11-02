@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   CardBody,
+  Chip,
   Input,
   Pagination,
   Table,
@@ -28,6 +29,7 @@ const columns = [
   { name: 'RUC', uid: 'ruc', sortable: true },
   { name: 'DIRECCION', uid: 'direccion', sortable: true },
   { name: 'ESTADO', uid: 'estado' },
+  { name: 'CONVENIO', uid: 'convenio' },
   { name: 'ACCIONES', uid: 'acciones' }
 ]
 
@@ -36,6 +38,7 @@ const INITIAL_VISIBLE_COLUMNS = [
   'ruc',
   'direccion',
   'estado',
+  'convenio',
   'acciones'
 ]
 
@@ -65,7 +68,8 @@ export default function Empresa() {
       idempresa: empresa.idempresa,
       razon_social: empresa.razon_social,
       ruc: empresa.ruc,
-      estado: empresa.estado === 1 ? 'Activo' : 'Inactico',
+      estado: empresa.estado ,
+      convenio: empresa.convenio ,
       direccion: empresa.direccion || '',
       create_at: empresa.create_at,
       update_at: empresa.update_at || ''
@@ -133,41 +137,60 @@ export default function Empresa() {
 
   const renderCell = useCallback((empresa, columnKey) => {
     const cellValue = empresa[columnKey]
-    switch (columnKey) {
-      case 'acciones':
-        return (
-          <div className='relative flex items-center gap-2'>
-            <Tooltip content='Editar' color='primary' closeDelay={0}>
-              <Button
-                isIconOnly
-                color='primary'
-                size='sm'
-                variant='light'
-                onClick={() => handleEditClick(empresa.idempresa)}
-              >
-                <PenSquare size={20} />
-              </Button>
-            </Tooltip>
-            <Tooltip color='danger' content='Eliminar' closeDelay={0}>
-              <Button
-                isIconOnly
-                color='danger'
-                size='sm'
-                variant='light'
-                onClick={() => {
-                  companyID.current = empresa.idempresa
-                  onOpenQuestionDelete()
-                }}
-              >
-                <BadgeX size={20} />
-              </Button>
-            </Tooltip>
-          </div>
-        )
-      default:
-        return cellValue
-    }
+
+    if (columnKey === 'estado')
+      return empresa.estado ? (
+        <Chip color='primary' variant='flat'>
+          Activo
+        </Chip>
+      ) : (
+        <Chip color='danger' variant='flat'>
+          Inactivo
+        </Chip>
+      )
+    if (columnKey === 'convenio')
+      return empresa.convenio ? (
+        <Chip color='primary' variant='flat'>
+          Activo
+        </Chip>
+      ) : (
+        <Chip color='danger' variant='flat'>
+          Inactivo
+        </Chip>
+      )
+    if (columnKey === 'acciones')
+      return (
+        <div className='relative flex items-center gap-2'>
+          <Tooltip content='Editar' color='primary' closeDelay={0}>
+            <Button
+              isIconOnly
+              color='primary'
+              size='sm'
+              variant='light'
+              onClick={() => handleEditClick(empresa.idempresa)}
+            >
+              <PenSquare size={20} />
+            </Button>
+          </Tooltip>
+          <Tooltip color='danger' content='Eliminar' closeDelay={0}>
+            <Button
+              isIconOnly
+              color='danger'
+              size='sm'
+              variant='light'
+              onClick={() => {
+                companyID.current = empresa.idempresa
+                onOpenQuestionDelete()
+              }}
+            >
+              <BadgeX size={20} />
+            </Button>
+          </Tooltip>
+        </div>
+      )
+    return cellValue
   }, [])
+
   const onSearchChange = useCallback((value) => {
     if (value) {
       setFilterValue(value)
@@ -295,7 +318,7 @@ export default function Empresa() {
               {(item) => (
                 <TableRow key={crypto.randomUUID().toString()}>
                   {(columnKey) => (
-                    <TableCell>{renderCell(item, columnKey)}</TableCell>
+                    <TableCell>{renderCell(item, columnKey,true)}</TableCell>
                   )}
                 </TableRow>
               )}
