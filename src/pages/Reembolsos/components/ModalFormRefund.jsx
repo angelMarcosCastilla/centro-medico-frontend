@@ -15,7 +15,8 @@ import {
   TableRow,
   Tabs,
   Textarea,
-  getKeyValue
+  getKeyValue,
+  useDisclosure
 } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -23,6 +24,8 @@ import { createRefund } from '../../../services/refund'
 import { listState, statusColorMap } from '../../../constants/state'
 import { changeStatus } from '../../../services/admission'
 import { createPayment, createPaymentDetail } from '../../../services/pay'
+import Prompt from '../../../components/Prompt'
+import { validatePassword } from '../../../services/auth'
 
 const allowedStates = ['P', 'PT', 'PP']
 
@@ -58,6 +61,14 @@ export default function ModalFormRefund({
   const [disabledServices, setDisabledServices] = useState(new Set([]))
   const userInfo = JSON.parse(localStorage.getItem('userInfo'))
   const [loading, setLoading] = useState(false)
+
+  const [inputPassword, setInputPassword] = useState('')
+
+  const {
+    isOpen: isOpenPrompt,
+    onOpen: onOpenPrompt,
+    onOpenChange: onOpenChangePrompt
+  } = useDisclosure()
 
   const adjustPaymentDetails = (paymentDetails, totalRefundAmount) => {
     const updatedPaymentDetails = paymentDetails.map((detail) => ({
@@ -100,6 +111,10 @@ export default function ModalFormRefund({
     try {
       setLoading(true)
 
+      const isPasswordValid = await verifyPassword()
+
+      if (!isPasswordValid) return toast.error('Contraseña incorrecta')
+
       let totalRefundAmount = parseFloat(paymentData.monto_total)
       let updatedPaymentDetails
 
@@ -133,7 +148,6 @@ export default function ModalFormRefund({
       }
 
       const result = await createRefund(refundData)
-      setLoading(false)
 
       if (result.isSuccess) {
         toast.success(result.message)
@@ -172,6 +186,7 @@ export default function ModalFormRefund({
       }
     } catch (err) {
       toast.error('Problemas al guardar')
+    } finally {
       setLoading(false)
     }
   }
@@ -180,6 +195,17 @@ export default function ModalFormRefund({
     onOpenChange(false)
     setReason('')
     setSelectedServices(new Set([]))
+  }
+
+  const verifyPassword = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('userInfo')).nombre_usuario
+      const { data } = await validatePassword(user, inputPassword)
+
+      return data.isValid
+    } catch (err) {
+      toast.error('Problemas con el servidor')
+    }
   }
 
   const toogleSaveButton =
@@ -312,11 +338,23 @@ export default function ModalFormRefund({
                 color='primary'
                 isLoading={loading}
                 isDisabled={toogleSaveButton}
-                onPress={() => handleCreateRefund(onClose)}
+                onPress={() => {
+                  onOpenPrompt()
+                }}
               >
                 Guardar
               </Button>
             </ModalFooter>
+
+            <Prompt
+              placeholder='Escribe tu contraseña para confirmar'
+              type='password'
+              isOpen={isOpenPrompt}
+              onOpenChange={onOpenChangePrompt}
+              input={inputPassword}
+              setInput={setInputPassword}
+              onConfirm={() => handleCreateRefund(onClose)}
+            />
           </>
         )}
       </ModalContent>

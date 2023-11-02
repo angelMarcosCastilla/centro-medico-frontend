@@ -7,3 +7,11 @@ export const loginServices = async (claveAcceso, usuario) => {
   })
   return data
 }
+
+export const validatePassword = async (user, password) => {
+  const { data } = await axios.post('/auth/validatepassword', {
+    user,
+    password
+  })
+  return data
+}
