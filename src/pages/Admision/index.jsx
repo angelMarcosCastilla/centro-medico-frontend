@@ -31,7 +31,7 @@ import { calculatePersonAge } from '../../utils/date'
 import ServiceTable from './components/ServiceTable'
 import { useFetcher } from '../../hook/useFetcher'
 import MedicalServicesSummary from './components/MedicalServicesSummary'
-import { AutocompleteProvider } from '../../components/AutocompleteProvider'
+import { SearcherProvider } from '../../components/SearcherProvider'
 import { socket } from '../../components/Socket'
 
 export default function Admision() {
@@ -517,14 +517,14 @@ export default function Admision() {
         </Button>
       </CardFooter>
 
-      <AutocompleteProvider>
+      <SearcherProvider>
         <ModalServicios
           data={services}
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           onChange={handleAddServices}
         />
-      </AutocompleteProvider>
+      </SearcherProvider>
 
       <ModalNewPerson
         isPatient={isPatient.current}

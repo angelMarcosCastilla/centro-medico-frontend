@@ -158,7 +158,6 @@ export default function GestionInformes() {
                     <TableCell>
                       <Chip
                         className={`capitalize ${statusColorMap[el.estado]}`}
-                        size='sm'
                         variant='flat'
                       >
                         {listState[el.estado]}

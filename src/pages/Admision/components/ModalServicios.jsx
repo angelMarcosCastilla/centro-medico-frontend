@@ -12,8 +12,8 @@ import {
 import React, { useEffect, useMemo, useState } from 'react'
 import { useDataContext } from './DataContext'
 import { toast } from 'sonner'
-import Autocomplete from '../../../components/Autocomplete'
-import { useAutocompleteContext } from '../../../components/AutocompleteProvider'
+import Searcher from '../../../components/Searcher'
+import { useSearcherContext } from '../../../components/SearcherProvider'
 
 export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
   const [area, setArea] = useState(new Set([]))
@@ -29,7 +29,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
     }
   }, [area, categoria, servicio])
 
-  const { selectedItem, handleSelectItem } = useAutocompleteContext()
+  const { selectedItem, handleSelectItem } = useSearcherContext()
 
   useEffect(() => {
     if (
@@ -95,7 +95,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
               </ModalHeader>
               <ModalBody>
                 <div className='w-full'>
-                  <Autocomplete data={data} />
+                  <Searcher data={data} />
                 </div>
                 <div className='grid grid-cols-7 gap-4'>
                   <div className='grid col-span-5 gap-4'>

@@ -165,7 +165,7 @@ export default function Informes() {
     switch (columnKey) {
       case 'estado':
         return (
-          <Chip className={`capitalize ${classChip}`} size='sm' variant='flat'>
+          <Chip className={`capitalize ${classChip}`} variant='flat'>
             {capitalize(estadoTexto)}
           </Chip>
         )

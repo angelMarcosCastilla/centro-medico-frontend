@@ -14,7 +14,7 @@ export default function AreaChartLast7Days({ last7days }) {
       <h2 className='text-center font-semibold'>
         N° de atenciones de los últimos 7 días
       </h2>
-      <ResponsiveContainer width={'100%'} height={'95%'}>
+      <ResponsiveContainer width='100%' height='95%'>
         <AreaChart
           data={last7days}
           margin={{ top: 10, right: 30, left: -20, bottom: 0 }}
