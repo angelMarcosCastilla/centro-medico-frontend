@@ -98,27 +98,12 @@ export default function Empresa() {
         company.razon_social.toLowerCase().includes(filterValue.toLocaleLowerCase())
       )
     }
-    const filteredInactiveCompanies = filteredEmpresas.filter(
-      (empresa) =>
-        empresa.estado === 'Inactivo' && empresa.convenio === 'Inactivo'
-    )
-
-    const filteredActiveCompanies = filteredEmpresas.filter(
-      (empresa) =>
-        empresa.estado !== 'Activo' || empresa.convenio !== 'Activo'
-    )
-
-    const orderedItems = [
-      ...filteredActiveCompanies,
-      ...filteredInactiveCompanies
-    ]
-
-    return orderedItems
+    
+    return filteredEmpresas
   }, [transformedData, filterValue])
 
   const {
-    items,
-    
+    items,    
     page,
     pages,
     setPage
@@ -155,18 +140,18 @@ export default function Empresa() {
     const cellValue = empresa[columnKey]
     const tooltipContent = (
       <div>
-        <p>Fecha Inicio : {empresa.fecha_inicio ? formatDate(empresa.fecha_inicio): '------'}</p>
+        <p>Inicio : {empresa.fecha_inicio ? formatDate(empresa.fecha_inicio): '------'}</p>
         <p>
-          Fecha Fin :{empresa.fecha_fin ? formatDate(empresa.fecha_fin) : '-----'}
+          Fin :{empresa.fecha_fin ? formatDate(empresa.fecha_fin) : '-----'}
         </p>
       </div>
     )
     const tooltipContents1 = (
       <div>
-        <p>Fecha Creacion: {formatDate(empresa.create_at)}</p>
+        <p>Creacion: {formatDate(empresa.create_at)}</p>
         <p>
-          Fecha Actualizacion :
-          {empresa.update_at ? formatDate(empresa.update_at) : ' -----'}
+          Actualizacion : 
+          { empresa.update_at ? formatDate(empresa.update_at) : ' -----'}
         </p>
       </div>
     )
@@ -192,12 +177,10 @@ export default function Empresa() {
             Activo
           </Chip>
         </Tooltip>
-      ) : (
-        <Tooltip content={tooltipContent}>
+      ) : (   
           <Chip color='danger' variant='flat'>
             Inactivo
-          </Chip>
-        </Tooltip>
+          </Chip>        
       )
     }
 
@@ -211,7 +194,7 @@ export default function Empresa() {
               size='sm'
               variant='light'
               onClick={() => handleEditClick(empresa.idempresa)}
-              isDisabled={!empresa.estado  }
+              isDisabled={!empresa.estado}
             >
               <PenSquare size={20} />
             </Button>
@@ -226,6 +209,7 @@ export default function Empresa() {
                 companyID.current = empresa.idempresa
                 onOpenQuestionDelete()
               }}
+              isDisabled={!empresa.estado}
             >
               <BadgeX size={20} />
             </Button>
@@ -236,6 +220,7 @@ export default function Empresa() {
             color='danger'
             size='sm'
             variant='light'
+            isDisabled={!empresa.convenio}
             >
               <Trash size={20}/>
             </Button>
