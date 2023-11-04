@@ -26,6 +26,7 @@ import Mantenimiento from '../pages/mantenimiento/mantenimiento.jsx'
 import Personas from '../pages/mantenimiento/personas/index.jsx'
 import Reembolsos from '../pages/Reembolsos'
 import PagosConvenio from '../pages/PagosConvenio'
+import PersonalMedico from '../pages/mantenimiento/personalMedico/index.jsx'
 
 const router = createBrowserRouter([
   {
@@ -139,6 +140,9 @@ const router = createBrowserRouter([
               {
                 path: 'empresas',
                 element: <Empresa />
+              },{
+                path:"personal-medico",
+                element: <PersonalMedico/>
               }
             ]
           },

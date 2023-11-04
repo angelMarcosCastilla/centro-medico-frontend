@@ -9,6 +9,10 @@ export const searchPersonByNumDoc = async (numDocumento) => {
   const { data } = await axios.get(`/personas/numdocumento/${numDocumento}`)
   return data
 }
+export const searchPersonByNumDocPersonalMedico = async (numDocumento) => {
+  const { data } = await axios.get(`/personas/numdocumento/personal/${numDocumento}`)
+  return data
+}
 
 export const searchPersonById = async (idPersona) => {
   const { data } = await axios.get(`/personas/${idPersona}`)
