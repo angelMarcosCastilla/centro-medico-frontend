@@ -132,14 +132,16 @@ export default function Reembolsos() {
     socket.on('server:newAction', ({ action }) => {
       if (action === 'Change Atenciones') {
         refresh()
-        if(payment.idpago){
-          // si hay modal abierto se cierra 
-          const updatedPayment = data.find(item => item.idpago === payment.idpago)
-          if(updatedPayment){
+        if (payment.idpago) {
+          // si hay modal abierto se cierra
+          const updatedPayment = data.find(
+            (item) => item.idpago === payment.idpago
+          )
+          if (updatedPayment) {
             setPayment({})
           }
 
-          if(data.length === 0){
+          if (data.length === 0) {
             setPayment({})
           }
         }
@@ -148,6 +150,7 @@ export default function Reembolsos() {
 
     return () => socket.off('server:newAction')
   }, [data])
+  
   return (
     <>
       <CardHeader className='flex justify-between'>

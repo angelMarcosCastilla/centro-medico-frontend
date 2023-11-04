@@ -109,6 +109,7 @@ export default function GestionInformes() {
 
         if (result.isSuccess) {
           addResult(data)
+          socket.emit('client:newAction', { action: 'New Informe' })
           changeStatus(idDet.current, 'PE')
           onClose()
           toast.success(result.message)

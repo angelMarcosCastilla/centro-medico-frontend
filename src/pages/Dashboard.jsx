@@ -162,7 +162,8 @@ export default function Dashboard() {
             route='mantenimiento'
             items={[
               { key: '1', label: 'Personas', route: 'personas' },
-              { key: '2', label: 'Empresas', route: 'empresas' }
+              { key: '2', label: 'Empresas', route: 'empresas' },
+              { key: '3', label: 'Personal Médico', route: 'personal-medico' }
             ]}
           />
         </HasRole>

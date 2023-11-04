@@ -140,9 +140,10 @@ const router = createBrowserRouter([
               {
                 path: 'empresas',
                 element: <Empresa />
-              },{
-                path:"personal-medico",
-                element: <PersonalMedico/>
+              },
+              {
+                path: 'personal-medico',
+                element: <PersonalMedico />
               }
             ]
           },
@@ -201,10 +202,6 @@ const router = createBrowserRouter([
                 <TemplateEditor />
               </RoleGard>
             )
-          },
-          {
-            path: '*',
-            element: <h1>404</h1>
           }
         ]
       }
@@ -213,6 +210,10 @@ const router = createBrowserRouter([
   {
     path: 'no-autorizado',
     element: <h1>No estas autorizado</h1>
+  },
+  {
+    path: '*',
+    element: <h1>404</h1>
   }
 ])
 

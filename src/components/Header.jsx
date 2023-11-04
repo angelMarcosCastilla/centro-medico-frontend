@@ -43,7 +43,6 @@ export default function Header({ title }) {
           </DropdownTrigger>
           <DropdownMenu aria-label='User Actions' variant='flat'>
             <DropdownItem key='profile'>Perfil</DropdownItem>
-            <DropdownItem key='signature'>Firma</DropdownItem>
             <DropdownItem
               key='logout'
               color='danger'

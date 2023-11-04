@@ -165,9 +165,7 @@ export function ModalServicios({ isOpen, onOpenChange, data, onChange }) {
                       <div className='flex flex-col'>
                         <div className='font-bold mb-2'>Precio:</div>
                         <div className='flex items-center'>
-                          {currentServicio && (
-                            <span className='mr-1'>S/. </span>
-                          )}
+                          {currentServicio && <span className='mr-1'>S/ </span>}
                           {currentServicio && (
                             <span>{currentServicio.precio}</span>
                           )}

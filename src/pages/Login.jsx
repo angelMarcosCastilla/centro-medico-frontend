@@ -106,14 +106,14 @@ export default function Login() {
                 </button>
               }
             />
-            <div className='text-xs text-end hover:underline hover:text-primary-500'>
+            {/* <div className='text-xs text-end hover:underline hover:text-primary-500'>
               <a href='#'>¿Olvidaste tu contraseña?</a>
-            </div>
+            </div> */}
             <Button
               isLoading={loading}
               color='primary'
               onClick={login}
-              className='hover:bg-primary-600'
+              className='mt-3 hover:bg-primary-600'
             >
               Iniciar sesión
             </Button>
