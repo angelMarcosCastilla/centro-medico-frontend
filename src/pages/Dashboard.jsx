@@ -43,7 +43,7 @@ function LinkInforme({ userInfo }) {
     return () => socket.off('server:newAction')
   }, [])
   return (
-    <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
+    <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.informes}>
       <span
         onClick={() => {
           setHasNew(false)
@@ -74,21 +74,24 @@ export default function Dashboard() {
           />
         </HasRole>
         <LinkInforme userInfo={userInfo} />
-        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
+        <HasRole
+          rol={userInfo.nivel_acceso}
+          listRoles={listRoles.pagosconvenio}
+        >
           <SidebarItem
             icon={<Building2 size={20} />}
             text='Pagos por Convenio'
             route='pagosconvenio'
           />
         </HasRole>
-        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.reembolsos}>
           <SidebarItem
             icon={<HelpingHand size={20} />}
             text='Reembolsos'
             route='reembolsos'
           />
         </HasRole>
-        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.admision}>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.servicios}>
           <SidebarItem
             icon={<HeartHandshake size={20} />}
             text='Servicios'
@@ -116,7 +119,7 @@ export default function Dashboard() {
             route='laboratorio'
           />
         </HasRole>
-        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.informes}>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.laboratorio}>
           <SidebarItem
             icon={<Folders size={20} />}
             text='Informes'
@@ -137,29 +140,32 @@ export default function Dashboard() {
             route='triaje'
           />
         </HasRole>
-        {userInfo.nivel_acceso === 'A' && (
-          <>
-            <SidebarList
-              icon={<LineChart size={20} />}
-              text='Reportes'
-              route='reportes'
-              items={[
-                { key: '1', label: 'Gráficos', route: 'graficos' },
-                { key: '2', label: 'Pagos', route: 'pagos' },
-                { key: '3', label: 'Atenciones', route: 'atenciones' }
-              ]}
-            />
-            <SidebarList
-              icon={<UserCog size={20} />}
-              text='Mantenimiento'
-              route='mantenimiento'
-              items={[
-                { key: '1', label: 'Personas', route: 'personas' },
-                { key: '2', label: 'Empresas', route: 'empresas' }
-              ]}
-            />
-          </>
-        )}
+        <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.reportes}>
+          <SidebarList
+            icon={<LineChart size={20} />}
+            text='Reportes'
+            route='reportes'
+            items={[
+              { key: '1', label: 'Gráficos', route: 'graficos' },
+              { key: '2', label: 'Pagos', route: 'pagos' },
+              { key: '3', label: 'Atenciones', route: 'atenciones' }
+            ]}
+          />
+        </HasRole>
+        <HasRole
+          rol={userInfo.nivel_acceso}
+          listRoles={listRoles.mantenimiento}
+        >
+          <SidebarList
+            icon={<UserCog size={20} />}
+            text='Mantenimiento'
+            route='mantenimiento'
+            items={[
+              { key: '1', label: 'Personas', route: 'personas' },
+              { key: '2', label: 'Empresas', route: 'empresas' }
+            ]}
+          />
+        </HasRole>
       </Sidebar>
       <div className='bg-slate-100 flex-1 px-5 py-3 overflow-y-auto'>
         <DataProvider>

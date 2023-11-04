@@ -16,7 +16,7 @@ export function QuestionModal({
   onConfirm
 }) {
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='xs'>
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='sm'>
       <ModalContent>
         {(onClose) => (
           <>

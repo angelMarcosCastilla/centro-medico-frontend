@@ -51,8 +51,6 @@ export default function ModalCorrection({
               <Textarea
                 minRows={5}
                 maxRows={5}
-                label='Motivo'
-                labelPlacement='outside'
                 placeholder='Escribe el motivo de la correción'
                 value={correction}
                 onValueChange={setCorrection}

@@ -12,7 +12,7 @@ import {
 } from '@nextui-org/react'
 
 import { useLocation, useNavigate } from 'react-router-dom'
-import { createTriage } from '../../services/triaje'
+import { createTriage } from '../../services/triage'
 import { toast } from 'sonner'
 import Header from '../../components/Header'
 import { capitalize } from '../../utils'
@@ -45,6 +45,7 @@ export default function FormTriaje() {
     }, {})
   )
   const [isButtonEnabled, setIsButtonEnabled] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const currentAge =
     new Date().getFullYear() -
@@ -88,8 +89,10 @@ export default function FormTriaje() {
     })
   }
 
-  const handleAddTriaje = async () => {
+  const handleAddTriage = async () => {
     try {
+      setLoading(true)
+
       const data = {
         ...values,
         complicacionesMedicas: {
@@ -110,6 +113,8 @@ export default function FormTriaje() {
       }
     } catch (error) {
       toast.error('Ocurrió un error al registrar el triaje')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -126,9 +131,9 @@ export default function FormTriaje() {
   }, [values.triajeAtencion])
 
   return (
-    <section className='px-3 py-4 bg-slate-100 h-screen flex flex-col gap-y-4'>
+    <div className='bg-slate-100 h-screen flex flex-col p-5 gap-y-4'>
       <Header title='Identificación del paciente en Triaje' />
-      <Card className='flex-1'>
+      <Card className='h-full shadow-small rounded-2xl'>
         <CardBody>
           <form autoComplete='off'>
             <div className='lg:flex'>
@@ -295,6 +300,10 @@ export default function FormTriaje() {
                         <Input
                           label='Otros'
                           name='otros'
+                          color='primary'
+                          variant='bordered'
+                          radius='lg'
+                          className='col-start-1 col-span-2'
                           value={values.triajeAtencion.otros}
                           onChange={handleChange}
                         ></Input>
@@ -311,6 +320,7 @@ export default function FormTriaje() {
                           name='temperatura'
                           value={values.triajeAtencion.temperatura}
                           onChange={handleChange}
+                          color='primary'
                           variant='bordered'
                           radius='lg'
                         />
@@ -318,6 +328,7 @@ export default function FormTriaje() {
                           type='text'
                           label='Presión arterial (mm Hg)'
                           onChange={handleChange}
+                          color='primary'
                           variant='bordered'
                           name='presion_arterial'
                           value={values.triajeAtencion.presion_arterial}
@@ -326,6 +337,7 @@ export default function FormTriaje() {
                         <Input
                           type='text'
                           label='Frecuencia Cardiaca (lpm)'
+                          color='primary'
                           variant='bordered'
                           onChange={handleChange}
                           radius='lg'
@@ -336,6 +348,7 @@ export default function FormTriaje() {
                           type='text'
                           onChange={handleChange}
                           label='Frecuencia Respiratoria (rpm)'
+                          color='primary'
                           variant='bordered'
                           radius='lg'
                           name='frecuencia_respiratoria'
@@ -358,14 +371,15 @@ export default function FormTriaje() {
             Cancelar
           </Button>
           <Button
+            isLoading={loading}
             color='primary'
-            onClick={handleAddTriaje}
+            onClick={handleAddTriage}
             isDisabled={!isButtonEnabled}
           >
             Guardar
           </Button>
         </CardFooter>
       </Card>
-    </section>
+    </div>
   )
 }

@@ -1,14 +1,16 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   Button,
-  Card,
   CardBody,
+  CardHeader,
+  Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
   Input,
   Pagination,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -32,12 +34,13 @@ import ModalFormService from './components/ModalFormService'
 import { QuestionModal } from '../../components/QuestionModal'
 import { toast } from 'sonner'
 import { usePagination } from '../../hook/usePagination'
+import DateTimeClock from '../../components/DateTimeClock'
 
 const columns = [
   { name: 'ÁREA', uid: 'area', sortable: true },
   { name: 'CATEGORÍA', uid: 'categoria', sortable: true },
   { name: 'SERVICIO', uid: 'servicio', sortable: true },
-  { name: 'OBSERVACION', uid: 'observacion', sortable: true },
+  { name: 'OBSERVACIÓN', uid: 'observacion', sortable: true },
   { name: 'PRECIO', uid: 'precio', sortable: true },
   { name: 'ACCIONES', uid: 'acciones' }
 ]
@@ -70,7 +73,7 @@ export default function Servicios() {
     onOpenChange: onOpenChangeQuestionDelete
   } = useDisclosure()
 
-  const { data, refresh } = useFetcher(getAllServices)
+  const { data, loading, refresh } = useFetcher(getAllServices)
 
   const transformedData = useMemo(() => {
     return data
@@ -170,25 +173,31 @@ export default function Servicios() {
     switch (columnKey) {
       case 'acciones':
         return (
-          <div className='relative flex items-center gap-2'>
+          <div className='relative flex items-center gap-x-1'>
             <Tooltip content='Editar' color='primary' closeDelay={0}>
-              <span
-                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+              <Button
+                isIconOnly
+                color='primary'
+                variant='light'
+                size='sm'
                 onClick={() => handleEditClick(service.idservicio)}
               >
                 <PencilLine size={20} />
-              </span>
+              </Button>
             </Tooltip>
             <Tooltip color='danger' content='Eliminar' closeDelay={0}>
-              <span
-                className='text-lg text-danger cursor-pointer active:opacity-50'
+              <Button
+                isIconOnly
+                color='danger'
+                variant='light'
+                size='sm'
                 onClick={() => {
                   serviceId.current = service.idservicio
                   onOpenQuestionDelete()
                 }}
               >
                 <Trash2 size={20} />
-              </span>
+              </Button>
             </Tooltip>
           </div>
         )
@@ -345,49 +354,54 @@ export default function Servicios() {
 
   return (
     <>
-      <Card shadow='none'>
-        <CardBody>
-          <Table
-            isHeaderSticky
-            isStriped
-            aria-label='Example table with custom cells, pagination and sorting'
-            bottomContent={bottomContent}
-            bottomContentPlacement='outside'
-            classNames={{
-              wrapper: 'max-h-[600px]'
-            }}
-            sortDescriptor={sortDescriptor}
-            topContent={topContent}
-            topContentPlacement='outside'
-            shadow='none'
-            onSortChange={setSortDescriptor}
+      <CardHeader className='flex justify-between'>
+        <h2 className='text-2xl'>Servicios médicos</h2>
+        <DateTimeClock />
+      </CardHeader>
+      <Divider />
+      <CardBody>
+        <Table
+          isHeaderSticky
+          isStriped
+          removeWrapper
+          aria-label='Example table with custom cells, pagination and sorting'
+          bottomContent={bottomContent}
+          bottomContentPlacement='outside'
+          classNames={{
+            wrapper: 'max-h-[600px]'
+          }}
+          sortDescriptor={sortDescriptor}
+          topContent={topContent}
+          topContentPlacement='outside'
+          onSortChange={setSortDescriptor}
+        >
+          <TableHeader columns={headerColumns}>
+            {(column) => (
+              <TableColumn
+                key={column.uid}
+                align={column.uid === 'actions' ? 'center' : 'start'}
+                allowsSorting={column.sortable}
+              >
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            isLoading={loading}
+            loadingContent={<Spinner />}
+            emptyContent={'No se encontraron servicios'}
+            items={sortedItems}
           >
-            <TableHeader columns={headerColumns}>
-              {(column) => (
-                <TableColumn
-                  key={column.uid}
-                  align={column.uid === 'actions' ? 'center' : 'start'}
-                  allowsSorting={column.sortable}
-                >
-                  {column.name}
-                </TableColumn>
-              )}
-            </TableHeader>
-            <TableBody
-              emptyContent={'No se encontraron servicios'}
-              items={sortedItems}
-            >
-              {(item) => (
-                <TableRow key={crypto.randomUUID().toString()}>
-                  {(columnKey) => (
-                    <TableCell>{renderCell(item, columnKey)}</TableCell>
-                  )}
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardBody>
-      </Card>
+            {(item) => (
+              <TableRow key={crypto.randomUUID().toString()}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardBody>
 
       <ModalFormService
         isOpen={isOpen}
@@ -398,7 +412,7 @@ export default function Servicios() {
       />
 
       <QuestionModal
-        textContent='¿Seguro de eliminar?'
+        textContent='¿Está seguro de eliminar este servicio?'
         isOpen={isOpenQuestionDelete}
         onOpenChange={onOpenChangeQuestionDelete}
         data={serviceId}

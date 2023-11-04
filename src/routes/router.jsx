@@ -19,13 +19,14 @@ import Plantillas from '../pages/Plantillas/index.jsx'
 import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
 import PrivateRoute from './privateRoute.jsx'
 import ReporteAtenciones from '../pages/Reportes/ReporteAtenciones'
-import Graficos from '../pages/Reportes/Graficos/index.jsx'
+import Graficos from '../pages/Reportes/Graficos'
 import Empresa from '../pages/mantenimiento/empresas/index.jsx'
-import ReportePagos from '../pages/Reportes/ReportePagos/index.jsx'
+import ReportePagos from '../pages/Reportes/ReportePagos'
 import Mantenimiento from '../pages/mantenimiento/mantenimiento.jsx'
 import Personas from '../pages/mantenimiento/personas/index.jsx'
 import Reembolsos from '../pages/Reembolsos'
 import PagosConvenio from '../pages/PagosConvenio'
+import Reportes from '../pages/Reportes'
 
 const router = createBrowserRouter([
   {
@@ -79,7 +80,7 @@ const router = createBrowserRouter([
           {
             path: 'pagosconvenio',
             element: (
-              <RoleGard listRoles={listRoles.admision}>
+              <RoleGard listRoles={listRoles.pagosconvenio}>
                 <PagosConvenio />
               </RoleGard>
             )
@@ -87,7 +88,7 @@ const router = createBrowserRouter([
           {
             path: 'reembolsos',
             element: (
-              <RoleGard listRoles={listRoles.admision}>
+              <RoleGard listRoles={listRoles.reembolsos}>
                 <Reembolsos />
               </RoleGard>
             )
@@ -95,39 +96,38 @@ const router = createBrowserRouter([
           {
             path: 'servicios',
             element: (
-              <RoleGard listRoles={listRoles.admision}>
+              <RoleGard listRoles={listRoles.servicios}>
                 <Servicios />
               </RoleGard>
             )
           },
           {
-            path: '/reportes/graficos',
+            path: 'reportes',
             element: (
-              <RoleGard listRoles={['A']}>
-                <Graficos />
+              <RoleGard listRoles={listRoles.reportes}>
+                <Reportes />
               </RoleGard>
-            )
+            ),
+            children: [
+              {
+                path: 'graficos',
+                element: <Graficos />
+              },
+              {
+                path: 'pagos',
+                element: <ReportePagos />
+              },
+              {
+                path: 'atenciones',
+                element: <ReporteAtenciones />
+              }
+            ]
           },
-          {
-            path: '/reportes/pagos',
-            element: (
-              <RoleGard listRoles={['A']}>
-                <ReportePagos />
-              </RoleGard>
-            )
-          },
-          {
-            path: '/reportes/atenciones',
-            element: (
-              <RoleGard listRoles={['A']}>
-                <ReporteAtenciones />
-              </RoleGard>
-            )
-          },
+
           {
             path: '/mantenimiento',
             element: (
-              <RoleGard listRoles={['A']}>
+              <RoleGard listRoles={listRoles.mantenimiento}>
                 <Mantenimiento />
               </RoleGard>
             ),

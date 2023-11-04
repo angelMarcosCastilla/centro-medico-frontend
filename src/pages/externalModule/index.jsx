@@ -108,7 +108,7 @@ export default function ExternalModule() {
   return (
     <>
       <div className='px-3 py-4 bg-slate-100 h-screen flex flex-col gap-y-4'>
-        <Header />
+        <Header title='Informe'/>
         <section className='px-4 py-3 bg-[white] shadow h-full'>
           <div className='mb-3'>filtros</div>
           <div>

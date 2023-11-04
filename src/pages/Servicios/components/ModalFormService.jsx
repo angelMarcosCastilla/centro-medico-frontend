@@ -93,7 +93,6 @@ export default function ModalFormService({
       } else {
         result = await updateService(serviceToEdit, form)
       }
-      setLoading(false)
 
       if (result.isSuccess) {
         toast.success(result.message)
@@ -104,6 +103,7 @@ export default function ModalFormService({
       }
     } catch (err) {
       toast.error('Problemas al guardar')
+    } finally {
       setLoading(false)
     }
   }

@@ -4,9 +4,13 @@ export const listRoles = {
   tomografia: ['T', 'DT'],
   radiologia: ['R', 'DR'],
   laboratorio: ['L', 'DL'],
-  informes: ['L'],
+  informes: ['A'],
   plantillas: ['L'],
-  pagos: ['A']
+  pagosconvenio: ['A'],
+  reembolsos: ['A'],
+  servicios: ['A'],
+  reportes: ['A'],
+  mantenimiento: ['A']
 }
 
 export const redirectRoles = {

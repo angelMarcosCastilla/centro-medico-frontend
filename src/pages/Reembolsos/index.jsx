@@ -6,6 +6,7 @@ import {
   CardHeader,
   Divider,
   Pagination,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -46,7 +47,7 @@ export default function Reembolsos() {
     onOpenChange: onOpenChangeForm
   } = useDisclosure()
 
-  const { data, refresh } = useFetcher(listPaymentsForRefunds)
+  const { data, loading, refresh } = useFetcher(listPaymentsForRefunds)
   const [payment, setPayment] = useState({})
 
   const { items, page, pages, onNextPage, onPreviousPage, setPage } =
@@ -159,6 +160,8 @@ export default function Reembolsos() {
             )}
           </TableHeader>
           <TableBody
+            isLoading={loading}
+            loadingContent={<Spinner />}
             emptyContent='No se encontraron pagos en este día'
             items={items}
           >

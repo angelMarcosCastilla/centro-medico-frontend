@@ -1,12 +1,22 @@
 import axios from 'axios'
 
-export const getPaymentsByDateRange = async (startDate, endDate, numDocument) => {
+export const getAllChartData = async () => {
   const {
     data: { data }
-  } = await axios.get(
-    `/reportes/pagos/intervalo/${startDate}/${endDate}`,
-    { params: { documento: numDocument } }
-  )
+  } = await axios.get('/reportes/graficos')
+  return data
+}
+
+export const getPaymentsByDateRange = async (
+  startDate,
+  endDate,
+  numDocument
+) => {
+  const {
+    data: { data }
+  } = await axios.get(`/reportes/pagos/intervalo/${startDate}/${endDate}`, {
+    params: { documento: numDocument }
+  })
   return data
 }
 
