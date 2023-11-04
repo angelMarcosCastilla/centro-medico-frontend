@@ -15,7 +15,7 @@ import {
   Tooltip,
   useDisclosure
 } from '@nextui-org/react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { usePagination } from '../../hook/usePagination'
 import { formatDate } from '../../utils/date'
 import { Eye, RotateCcw } from 'lucide-react'
@@ -23,6 +23,7 @@ import ModalDetails from './components/ModalDetails'
 import ModalFormRefund from './components/ModalFormRefund'
 import { TIPO_COMPROBANTE } from '../../constants/state'
 import DateTimeClock from '../../components/DateTimeClock'
+import { socket } from '../../components/Socket'
 
 const columns = [
   { name: 'PACIENTE', uid: 'paciente', sortable: true },
@@ -126,6 +127,26 @@ export default function Reembolsos() {
     )
   }, [items.length, page, pages])
 
+  useEffect(() => {
+    socket.on('server:newAction', ({ action }) => {
+      if (action === 'Change Atenciones') {
+        refresh()
+        if(payment.idpago){
+          // si hay modal abierto se cierra 
+          const updatedPayment = data.find(item => item.idpago === payment.idpago)
+          if(updatedPayment){
+            setPayment({})
+          }
+
+          if(data.length === 0){
+            setPayment({})
+          }
+        }
+      }
+    })
+
+    return () => socket.off('server:newAction')
+  }, [data])
   return (
     <>
       <CardHeader className='flex justify-between'>
@@ -174,13 +195,13 @@ export default function Reembolsos() {
       </CardBody>
 
       <ModalDetails
-        isOpen={isOpen}
+        isOpen={isOpen && payment?.idpago}
         onOpenChange={onOpenChange}
         detail={payment}
       />
 
       <ModalFormRefund
-        isOpen={isOpenForm}
+        isOpen={isOpenForm && payment?.idpago}
         onOpenChange={onOpenChangeForm}
         paymentData={payment}
         refreshTable={refresh}

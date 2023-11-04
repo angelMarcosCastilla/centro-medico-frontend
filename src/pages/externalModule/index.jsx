@@ -86,6 +86,7 @@ export default function ExternalModule() {
       } else {
         const result = await updateResult(data)
         if (result.isSuccess) {
+          socket.emit('client:newAction', { action: "New Informe" })
           refresh()
           onClose()
           toast.success(result.message)

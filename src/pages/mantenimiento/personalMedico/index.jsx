@@ -1,5 +1,6 @@
 import {
   Button,
+  Chip,
   Input,
   Table,
   TableBody,
@@ -10,10 +11,11 @@ import {
 } from '@nextui-org/react'
 import React, { useCallback, useMemo, useState, useRef } from 'react'
 import { useFetcher } from '../../../hook/useFetcher'
-import { getPersonalMedico } from '../../../services/personalMedico'
+import { deletePersonalMedico, getPersonalMedico } from '../../../services/personalMedico'
 import { Edit, Search, Trash } from 'lucide-react'
 import PersonalMedicoModal from './modal'
 import { getAllEspecialidad } from '../../../services/especialidad'
+import { QuestionModal } from '../../../components/QuestionModal'
 
 export default function PersonalMedico() {
   const [search, setSearch] = useState('')
@@ -21,7 +23,7 @@ export default function PersonalMedico() {
   const [isOpen, setIsOpen] = useState(null)
   const dataToEdit = useRef()
 
-  const { data, refresh } = useFetcher(getPersonalMedico)
+  const { data, refresh, mutate } = useFetcher(getPersonalMedico)
   const { data: dataEspecialidad } = useFetcher(getAllEspecialidad)
 
   const renderCell = useCallback((columnKey, item) => {
@@ -40,7 +42,7 @@ export default function PersonalMedico() {
           >
             <Edit size={20} />
           </Button>
-          {/* <Button
+          <Button
             size='sm'
             isIconOnly
             color='danger'
@@ -50,21 +52,42 @@ export default function PersonalMedico() {
             }}
           >
             <Trash size={20} />
-          </Button> */}
+          </Button>
         </div>
-    )
+      )
 
-    if(columnKey === "especialidades"){
-      return item.especialidades.filter(el => el.estado === 1)
-      .map(el => el.nombre_especialidad).join(", ")
+    if (columnKey === 'especialidades') {
+      return item.especialidades
+        .filter((el) => el.estado === 1)
+        .map((el) => el.nombre_especialidad)
+        .join(', ')
+    }
+
+    if(columnKey === "estado_personal"){
+      if(item.estado_personal === 1){
+        return <Chip color='success' variant='flat'>Activo</Chip>
+      }else {
+        return <Chip color='danger' variant='flat'>Inactivo</Chip>
+      }
     }
     return item[columnKey]
   }, [])
+
   const items = useMemo(() => {
     return data.filter((el) => {
       return el.personal.toLowerCase().includes(search.toLowerCase())
     })
   }, [data, search])
+
+  const handleDelete = () => {
+    mutate((prevPersons) => {
+      return prevPersons.map((el) => {
+        if (el.idpersonal === deleteId) return { ...el, estado_personal: 0 }
+        return el
+      })
+    })
+    deletePersonalMedico(deleteId)
+  }
 
   return (
     <div>
@@ -99,6 +122,7 @@ export default function PersonalMedico() {
         <TableHeader>
           <TableColumn key='personal'>Nombres y Apellidos</TableColumn>
           <TableColumn key='especialidades'>Especialidad</TableColumn>
+          <TableColumn key='estado_personal'>estado</TableColumn>
           <TableColumn key='action'></TableColumn>
         </TableHeader>
         <TableBody items={items}>
@@ -121,6 +145,12 @@ export default function PersonalMedico() {
           setIsOpen(open)
         }}
         dataToEdit={dataToEdit.current}
+      />
+      <QuestionModal
+        textContent='¿Seguro de eliminar?'
+        isOpen={deleteId}
+        onOpenChange={setDeleteId}
+        onConfirm={handleDelete}
       />
     </div>
   )

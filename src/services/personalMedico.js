@@ -13,3 +13,8 @@ export const updatePersonalMedico = async (id, datos) => {
   })
   return data
 }
+
+export const deletePersonalMedico = async (id) => {
+  const { data } = await axios.delete(`/personalesmedicos/${id}`)
+  return data
+}

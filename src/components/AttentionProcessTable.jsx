@@ -186,6 +186,7 @@ export default function AttentionProcessTable({
           return item
         })
       })
+      socket.emit('client:newAction', { action: "Change Atenciones" })
     } else {
       toast.error('Error al cambiar el estado')
     }
@@ -202,8 +203,8 @@ export default function AttentionProcessTable({
 
     handleCancel()
     onClose()
-
     await updateMedicoByDetatencion(data, idDetAttention)
+    socket.emit('client:newAction', { action: "Change Atenciones" })
   }
 
   const handleCancel = () => {

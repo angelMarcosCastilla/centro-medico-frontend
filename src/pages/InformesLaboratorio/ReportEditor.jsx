@@ -163,6 +163,7 @@ export default function ReportEditor() {
 
     if (result.isSuccess) {
       toast.success(result.message)
+      socket.emit('client:newAction', { action: "New Informe" })
       navigate('/informeslaboratorio')
     } else {
       toast.error(result.message)

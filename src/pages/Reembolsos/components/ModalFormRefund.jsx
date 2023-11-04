@@ -26,6 +26,7 @@ import { changeStatus } from '../../../services/admission'
 import { createPayment, createPaymentDetail } from '../../../services/pay'
 import Prompt from '../../../components/Prompt'
 import { validatePassword } from '../../../services/auth'
+import { socket } from '../../../components/Socket'
 
 const allowedStates = ['P', 'PT', 'PP']
 
@@ -151,7 +152,8 @@ export default function ModalFormRefund({
 
       if (result.isSuccess) {
         toast.success(result.message)
-
+        socket.emit('client:newAction', { action: 'New Triaje' })
+        socket.emit('client:newAction', { action: 'New Admision' })
         if (refundData.tipoReembolso === 'P') {
           const canceledServices = [...selectedServices]
           canceledServices.forEach((id) => changeStatus(id, 'C'))
