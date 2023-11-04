@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export const listarTriajeService = async () => {
+export const getTriageList = async () => {
   const {
     data: { data }
   } = await axios.get(`/triajes`)

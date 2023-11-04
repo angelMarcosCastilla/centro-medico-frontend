@@ -1,6 +1,8 @@
 import {
   Button,
   CardBody,
+  CardHeader,
+  Divider,
   Input,
   Link,
   Pagination,
@@ -18,17 +20,24 @@ import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { formatDate } from '../../../utils/date'
 import { getPaymentsByDateRange } from '../../../services/report'
+import DateTimeClock from '../../../components/DateTimeClock'
 
 export default function ReportePagos() {
   const currentDate = new Date()
-    .toLocaleDateString()
+    .toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })
     .split('/')
     .reverse()
     .join('-')
+
   const [documentNumber, setDocumentNumber] = useState('')
   const [startDate, setStartDate] = useState(currentDate)
   const [endDate, setEndDate] = useState(currentDate)
   const [dataTable, setDataTable] = useState([])
+  const [loadingSearch, setLoadingSearch] = useState(false)
 
   const [isSearchEnabled, setIsSearchEnabled] = useState(false)
   const [searchData, setSearchData] = useState({
@@ -61,18 +70,26 @@ export default function ReportePagos() {
   }
 
   const handleSearch = async () => {
-    const result = await getPaymentsByDateRange(
-      startDate,
-      endDate,
-      documentNumber || null
-    )
+    try {
+      setLoadingSearch(true)
 
-    if (result.length) {
-      setDataTable(result)
-      saveSearchData()
-    } else {
-      setDataTable([])
-      toast.error('No se encontraron resultados.')
+      const result = await getPaymentsByDateRange(
+        startDate,
+        endDate,
+        documentNumber || null
+      )
+
+      if (result.length) {
+        setDataTable(result)
+        saveSearchData()
+      } else {
+        setDataTable([])
+        toast.error('No se encontraron resultados.')
+      }
+    } catch (err) {
+      toast.err('Problemas al buscar')
+    } finally {
+      setLoadingSearch(false)
     }
   }
 
@@ -97,138 +114,152 @@ export default function ReportePagos() {
   }, [searchData])
 
   return (
-    <CardBody>
-      <div className='grid grid-cols-5 items-center gap-4 mb-4'>
-        <Input
-          isClearable
-          type='text'
-          label='Número de documento'
-          placeholder='Enter para buscar'
-          maxLength={20}
-          value={documentNumber}
-          onValueChange={setDocumentNumber}
-          onKeyDown={(e) => {
-            if (e.keyCode === 13 && documentNumber.trim() !== '') {
-              handleSearch()
-            }
-          }}
-        />
-        <Input
-          type='date'
-          label='Fecha de inicio'
-          placeholder='dd/mm/aaaa'
-          value={startDate}
-          onValueChange={setStartDate}
-          max={currentDate}
-        />
-        <Input
-          type='date'
-          label='Fecha de fin'
-          placeholder='dd/mm/aaaa'
-          value={endDate}
-          onValueChange={setEndDate}
-          max={currentDate}
-        />
-        <div className='flex justify-center gap-4 col-span-2'>
-          <Button
-            isDisabled={!isSearchEnabled}
-            color='primary'
-            startContent={<Search size={20} />}
-            onPress={handleSearch}
-          >
-            Buscar
-          </Button>
-          <Button
-            isDisabled={!dataTable.length}
-            color='danger'
-            startContent={<SearchX size={20} />}
-            onPress={handleReset}
-          >
-            Limpiar
-          </Button>
-          <Button
-            href={URL}
-            target='_blank'
-            rel='noreferrer'
-            as={Link}
-            isDisabled={!dataTable.length}
-            color='primary'
-            startContent={<Share size={20} />}
-          >
-            Exportar
-          </Button>
-        </div>
-      </div>
-
-      <Table
-        isStriped
-        removeWrapper
-        aria-label='Tabla de pagos totales realizados o de un cliente en un intervalo de fechas'
-        bottomContent={
-          <div className='flex w-full justify-center'>
-            <Pagination
-              isCompact
-              showControls
-              showShadow
+    <>
+      <CardHeader className='flex justify-between'>
+        <h2 className='text-2xl'>Reporte de pagos</h2>
+        <DateTimeClock />
+      </CardHeader>
+      <Divider />
+      <CardBody>
+        <div className='grid grid-cols-5 items-center gap-4 mb-4'>
+          <Input
+            isClearable
+            type='text'
+            label='Número de documento'
+            placeholder='Enter para buscar'
+            maxLength={20}
+            value={documentNumber}
+            onValueChange={setDocumentNumber}
+            onKeyDown={(e) => {
+              if (e.keyCode === 13 && documentNumber.trim() !== '') {
+                handleSearch()
+              }
+            }}
+          />
+          <Input
+            type='date'
+            label='Fecha de inicio'
+            placeholder='dd/mm/aaaa'
+            value={startDate}
+            onValueChange={setStartDate}
+            max={currentDate}
+          />
+          <Input
+            type='date'
+            label='Fecha de fin'
+            placeholder='dd/mm/aaaa'
+            value={endDate}
+            onValueChange={setEndDate}
+            max={currentDate}
+          />
+          <div className='flex justify-center gap-4 col-span-2'>
+            <Button
+              isLoading={loadingSearch}
+              isDisabled={!isSearchEnabled}
               color='primary'
-              page={page}
-              total={pages}
-              onChange={(page) => setPage(page)}
-            />
+              startContent={<Search size={20} />}
+              onPress={handleSearch}
+            >
+              Buscar
+            </Button>
+            <Button
+              isDisabled={!dataTable.length}
+              color='danger'
+              startContent={<SearchX size={20} />}
+              onPress={handleReset}
+            >
+              Limpiar
+            </Button>
+            <Button
+              href={URL}
+              target='_blank'
+              rel='noreferrer'
+              as={Link}
+              isDisabled={!dataTable.length}
+              color='primary'
+              startContent={<Share size={20} />}
+            >
+              Exportar
+            </Button>
           </div>
-        }
-        classNames={{
-          wrapper: 'min-h-[222px]'
-        }}
-      >
-        <TableHeader>
-          <TableColumn key='cliente'>CLIENTE</TableColumn>
-          <TableColumn key='tipo_comprobante'>COMPROBANTE</TableColumn>
-          <TableColumn key='num_documento'>DOCUMENTO</TableColumn>
-          <TableColumn key='fecha_hora_emision'>
-            FECHA Y HORA EMISIÓN
-          </TableColumn>
-          <TableColumn key='fecha_hora_pago'>FECHA Y HORA PAGO</TableColumn>
-          <TableColumn key='monto_total'>MONTO TOTAL</TableColumn>
-        </TableHeader>
-        <TableBody
-          emptyContent='Realiza una búsqueda para ver los resultados'
-          items={items}
-        >
-          {(item) => (
-            <TableRow key={item?.idpago}>
-              {(columnKey) => {
-                let columnValue
+        </div>
 
-                switch (columnKey) {
-                  case 'tipo_comprobante':
-                    columnValue =
-                      getKeyValue(item, columnKey) === 'B'
-                        ? 'Boleta'
-                        : 'Factura'
-                    break
-                  case 'num_documento':
-                    columnValue =
-                      getKeyValue(item, 'tipo_comprobante') === 'B'
-                        ? getKeyValue(item, columnKey)
-                        : getKeyValue(item, 'ruc')
-                    break
-                  case 'fecha_hora_emision':
-                    columnValue = formatDate(getKeyValue(item, columnKey), true)
-                    break
-                  case 'fecha_hora_pago':
-                    columnValue = formatDate(getKeyValue(item, columnKey), true)
-                    break
-                  default:
-                    columnValue = getKeyValue(item, columnKey)
-                    break
-                }
-                return <TableCell>{columnValue}</TableCell>
-              }}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </CardBody>
+        <Table
+          isStriped
+          removeWrapper
+          aria-label='Tabla de pagos totales realizados o de un cliente en un intervalo de fechas'
+          bottomContent={
+            <div className='flex w-full justify-center'>
+              <Pagination
+                isCompact
+                showControls
+                showShadow
+                color='primary'
+                page={page}
+                total={pages}
+                onChange={(page) => setPage(page)}
+              />
+            </div>
+          }
+          classNames={{
+            wrapper: 'min-h-[222px]'
+          }}
+        >
+          <TableHeader>
+            <TableColumn key='cliente'>CLIENTE</TableColumn>
+            <TableColumn key='tipo_comprobante'>COMPROBANTE</TableColumn>
+            <TableColumn key='num_documento'>DOCUMENTO</TableColumn>
+            <TableColumn key='fecha_hora_emision'>
+              FECHA Y HORA EMISIÓN
+            </TableColumn>
+            <TableColumn key='fecha_hora_pago'>FECHA Y HORA PAGO</TableColumn>
+            <TableColumn key='monto_total'>MONTO TOTAL</TableColumn>
+          </TableHeader>
+          <TableBody
+            emptyContent='Realiza una búsqueda para ver los resultados'
+            items={items}
+          >
+            {(item) => (
+              <TableRow key={item?.idpago}>
+                {(columnKey) => {
+                  let columnValue
+
+                  switch (columnKey) {
+                    case 'tipo_comprobante':
+                      columnValue =
+                        getKeyValue(item, columnKey) === 'B'
+                          ? 'Boleta'
+                          : 'Factura'
+                      break
+                    case 'num_documento':
+                      columnValue =
+                        getKeyValue(item, 'tipo_comprobante') === 'B'
+                          ? getKeyValue(item, columnKey)
+                          : getKeyValue(item, 'ruc')
+                      break
+                    case 'fecha_hora_emision':
+                      columnValue = formatDate(
+                        getKeyValue(item, columnKey),
+                        true
+                      )
+                      break
+                    case 'fecha_hora_pago':
+                      columnValue = formatDate(
+                        getKeyValue(item, columnKey),
+                        true
+                      )
+                      break
+                    default:
+                      columnValue = getKeyValue(item, columnKey)
+                      break
+                  }
+                  return <TableCell>{columnValue}</TableCell>
+                }}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardBody>
+    </>
   )
 }

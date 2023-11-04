@@ -91,7 +91,7 @@ export default function AttentionProcessTable({
           return formatDate(cellValue, true)
         case 'estado':
           return (
-            <Chip className={classChip} size='sm' variant='flat'>
+            <Chip className={classChip} variant='flat'>
               {estadoTexto}
             </Chip>
           )
@@ -329,7 +329,7 @@ export default function AttentionProcessTable({
               </ModalHeader>
               <ModalBody>
                 <Select
-                  placeholder='Médico a redactar el informe'
+                  label='Médico a redactar el informe'
                   selectedKeys={medicoId}
                   onSelectionChange={setMedicoId}
                 >

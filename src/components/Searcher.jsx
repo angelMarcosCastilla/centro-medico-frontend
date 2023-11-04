@@ -1,6 +1,6 @@
 import { Search, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useAutocompleteContext } from './AutocompleteProvider'
+import { useSearcherContext } from './SearcherProvider'
 import { Chip } from '@nextui-org/react'
 
 const removeAccents = (str) => {
@@ -13,14 +13,14 @@ const areasColor = {
   'Rayos X': 'success'
 }
 
-export default function Autocomplete({ data }) {
+export default function Searcher({ data }) {
   const [items, setItems] = useState([])
   const [itemMatch, setItemMatch] = useState([])
   const [value, setValue] = useState('')
   const [selectedItemIndex, setSelectedItemIndex] = useState(-1)
   const [resultsFound, setResultsFound] = useState(true)
 
-  const { handleSelectItem } = useAutocompleteContext()
+  const { handleSelectItem } = useSearcherContext()
 
   const searchItems = (text) => {
     if (!text) {
@@ -72,14 +72,14 @@ export default function Autocomplete({ data }) {
     setSelectedItemIndex(-1)
   }
 
-  const resetAutocomplete = () => {
+  const resetSearcher = () => {
     setValue('')
     setItemMatch([])
   }
 
   const handleItemClick = (item) => {
     handleSelectItem(item)
-    resetAutocomplete()
+    resetSearcher()
   }
 
   useEffect(() => {
@@ -149,7 +149,7 @@ export default function Autocomplete({ data }) {
       {value && (
         <button
           className='absolute top-4 right-4'
-          onClick={resetAutocomplete}
+          onClick={resetSearcher}
           tabIndex={-1}
         >
           <X size={20} />
