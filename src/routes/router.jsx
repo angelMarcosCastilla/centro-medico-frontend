@@ -24,6 +24,7 @@ import Empresa from '../pages/mantenimiento/empresas/index.jsx'
 import ReportePagos from '../pages/Reportes/ReportePagos/index.jsx'
 import Mantenimiento from '../pages/mantenimiento/mantenimiento.jsx'
 import Personas from '../pages/mantenimiento/personas/index.jsx'
+import Categorias from '../pages/mantenimiento/categorias/index.jsx'
 import Reembolsos from '../pages/Reembolsos'
 import PagosConvenio from '../pages/PagosConvenio'
 
@@ -139,6 +140,10 @@ const router = createBrowserRouter([
               {
                 path: 'empresas',
                 element: <Empresa />
+              },
+              {
+                path: 'categorias',
+                element: <Categorias />
               }
             ]
           },

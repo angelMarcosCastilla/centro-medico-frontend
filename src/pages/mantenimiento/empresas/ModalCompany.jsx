@@ -22,11 +22,11 @@ const INITIAL_FORM = {
   idEmpresa: 0,
   razonSocial: '',
   ruc: '',
-  direccion: '',  
+  direccion: '',
   registrarConvenio: false
 }
 
-export default function ModalNewCompany({
+export default function ModalCompany({
   isOpen,
   onOpenChange,
   operation,
@@ -35,8 +35,8 @@ export default function ModalNewCompany({
 }) {
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({})
-   const [selected, setSelected] = useState([])
-   // const { dataToSend, setDataToSend } = useDataContext()
+  const [selected, setSelected] = useState([])
+  // const { dataToSend, setDataToSend } = useDataContext()
 
   const handleInputChange = (e, type = 'text') => {
     setForm({
@@ -54,25 +54,23 @@ export default function ModalNewCompany({
   }
 
   const handleSubmitCompany = async (e, onClose) => {
-
     e.preventDefault()
 
     try {
-
       setLoading(true)
 
       let result
       if (operation === 'new') {
         result = await addCompanyService(form)
-      }else{
-        result = await updateCompany(serviceToEdit,form)
+      } else {
+        result = await updateCompany(serviceToEdit, form)
       }
       setLoading(false)
-      if(result.isSuccess){
+      if (result.isSuccess) {
         toast.success(result.message)
         refreshTable()
         onClose()
-      }else{
+      } else {
         toast.error(result.message)
       }
     } catch (err) {
@@ -83,15 +81,15 @@ export default function ModalNewCompany({
 
   const handleClose = () => {
     if (operation === 'new') {
-      setForm(INITIAL_FORM)    
-       setSelected([])
+      setForm(INITIAL_FORM)
+      setSelected([])
     }
     onOpenChange(false)
   }
 
-  useEffect(()=>{
-    if (operation === 'edit' && serviceToEdit){
-      getCompany(serviceToEdit).then((res)=>{
+  useEffect(() => {
+    if (operation === 'edit' && serviceToEdit) {
+      getCompany(serviceToEdit).then((res) => {
         setForm({
           idEmpresa: res.idempresa,
           razonSocial: res.razon_social,
@@ -100,15 +98,13 @@ export default function ModalNewCompany({
           registrarConvenio: Boolean(res.registrar_convenio)
         })
 
-        setSelected([
-          res.registrar_convenio === 1 ? 'Convenio' : '',
-        ])
+        setSelected([res.registrar_convenio === 1 ? 'Convenio' : ''])
       })
-    }else{
+    } else {
       setForm(INITIAL_FORM)
-       setSelected([])
+      setSelected([])
     }
-  },[operation, serviceToEdit])
+  }, [operation, serviceToEdit])
 
   /* const handleAddCompany = async (e, onclose) => {
     e.preventDefault()
@@ -130,83 +126,83 @@ export default function ModalNewCompany({
   } */
 
   return (
-    <>
-      <Modal isOpen={isOpen} onOpenChange={handleClose} size='xl'>
-        <ModalContent>
-          {(onClose) => (
-            <form
-              onSubmit={(e) => handleSubmitCompany(e, onClose)}
-              autoComplete='off'
-            >
-              <>
-                <ModalHeader className='flex flex-col gap-1'>
-                  <h2 className='text-xl'>{operation=== 'edit'?'Editar Empresa': 'Registro de Empresa'}</h2>
-                </ModalHeader>
-                <ModalBody>
-                  <div className='flex flex-col gap-y-4'>
-                    <Input
-                      className='mb-2'
-                      label='RUC'
-                      maxLength={11}
-                      value={form.ruc}
-                      isRequired
-                      onChange={handleInputChange}
-                      name='ruc'
-                    />
-                    <Input
-                      className='mb-2'
-                      label='Razon Social'
-                      maxLength={50}
-                      value={form.razonSocial}
-                      isRequired
-                      onChange={handleInputChange}
-                      name='razonSocial'
-                    />
+    <Modal isOpen={isOpen} onOpenChange={handleClose} size='xl'>
+      <ModalContent>
+        {(onClose) => (
+          <form
+            onSubmit={(e) => handleSubmitCompany(e, onClose)}
+            autoComplete='off'
+          >
+            <ModalHeader className='flex flex-col gap-1'>
+              <h2 className='text-xl'>
+                {operation === 'edit'
+                  ? 'Editar Empresa'
+                  : 'Registrar Empresa'}
+              </h2>
+            </ModalHeader>
+            <ModalBody>
+              <div className='flex flex-col gap-y-4'>
+                <Input
+                  className='mb-2'
+                  label='RUC'
+                  maxLength={11}
+                  value={form.ruc}
+                  isRequired
+                  onChange={handleInputChange}
+                  name='ruc'
+                />
+                <Input
+                  className='mb-2'
+                  label='Razon Social'
+                  maxLength={50}
+                  value={form.razonSocial}
+                  isRequired
+                  onChange={handleInputChange}
+                  name='razonSocial'
+                />
 
-                    <Input
-                      className='mb-2'
-                      label='Dirección'
-                      maxLength={150}
-                      value={form.direccion}
-                      isRequired
-                      onChange={handleInputChange}
-                      name='direccion'
-                    />
-                  </div>
-                  <div className='grid grid-cols-2 gap-x-4'>
-                     <CheckboxGroup
-                      orientation='horizontal'
-                      value={selected}
-                      onValueChange={setSelected}
-                    >
-                      <Checkbox
-                        name='registrarConvenio'
-                        value='registrarconvenio'
-                        onChange={handleCheckBoxChange}
-                      >
-                        Habilitar Convenio
-                      </Checkbox>
-                    </CheckboxGroup> 
-                  </div>
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    color='danger'
-                    type='button'
-                    variant='light'
-                    onPress={onClose}
+                <Input
+                  className='mb-2'
+                  label='Dirección'
+                  maxLength={150}
+                  value={form.direccion}
+                  isRequired
+                  onChange={handleInputChange}
+                  name='direccion'
+                />
+              </div>
+              <div className='grid grid-cols-2 gap-x-4'>
+                <CheckboxGroup
+                  orientation='horizontal'
+                  value={selected}
+                  onValueChange={setSelected}
+                >
+                  <Checkbox
+                    name='registrarConvenio'
+                    value='registrarconvenio'
+                    onChange={handleCheckBoxChange}
                   >
-                    Cerrar
-                  </Button>
-                  <Button color='primary' type='submit' isLoading={loading}>
-                    Registrar
-                  </Button>
-                </ModalFooter>
-              </>
-            </form>
-          )}
-        </ModalContent>
-      </Modal>
-    </>
+                    Habilitar Convenio
+                  </Checkbox>
+                </CheckboxGroup>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                color='danger'
+                type='button'
+                variant='light'
+                onPress={onClose}
+              >
+                Cerrar
+              </Button>
+              <Button color='primary' type='submit' isLoading={loading}>
+                Registrar
+              </Button>
+            </ModalFooter>
+          </form>
+        )}
+      </ModalContent>
+    </Modal>
   )
 }

@@ -3,8 +3,9 @@ import {
   Button,
   Card,
   CardBody,
+  CardHeader,
   Chip,
-  Input,
+  Divider,
   Pagination,
   Table,
   TableBody,
@@ -15,36 +16,26 @@ import {
   Tooltip,
   useDisclosure
 } from '@nextui-org/react'
-import { BadgeX, PenSquare, Plus, SearchIcon, Trash } from 'lucide-react'
-
-import { getAllCompany, removeCompany } from '../../../services/company'
+import { getAllAreas, removeArea } from '../../../services/area'
+// import { getAllCategories, removeCategoria } from '../../../services/category'
 import { toast } from 'sonner'
 import { QuestionModal } from '../../../components/QuestionModal'
-import { useFetcher } from '../../../hook/useFetcher'
-import { formatDate } from '../../../utils/date'
+
 import { usePagination } from '../../../hook/usePagination'
-import ModalCompany from './ModalCompany'
+import ModalCategorie from './ModalCategorie'
+import DateTimeClock from '../../../components/DateTimeClock'
+import { BadgeX, PenSquare, Plus } from 'lucide-react'
+import { useFetcher } from '../../../hook/useFetcher'
 
 const columns = [
-  { name: 'EMPRESA', uid: 'razon_social', sortable: true },
-  { name: 'RUC', uid: 'ruc', sortable: true },
-  { name: 'DIRECCION', uid: 'direccion', sortable: true },
+  { name: 'AREA', uid: 'nombre_area', sortable: true },
   { name: 'ESTADO', uid: 'estado' },
-  { name: 'CONVENIO', uid: 'convenio' },
   { name: 'ACCIONES', uid: 'acciones' }
 ]
+const INITIAL_VISIBLE_COLUMNS = ['nombre_area', 'estado', 'acciones']
 
-const INITIAL_VISIBLE_COLUMNS = [
-  'razon_social',
-  'ruc',
-  'direccion',
-  'estado',
-  'convenio',
-  'acciones'
-]
-
-export default function Empresa() {
-  const [filterValue, setFilterValue] = useState('')
+export default function categorias() {
+  const [filterValue] = useState('')
   const [visibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS))
 
   const [sortDescriptor, setSortDescriptor] = useState({
@@ -52,8 +43,8 @@ export default function Empresa() {
     direction: 'descending'
   })
 
-  const [editCompany, setEditCompany] = useState(null)
-  const companyID = useRef(null)
+  const [editArea, setEditArea] = useState(null)
+  const areaID = useRef(null)
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const {
@@ -62,21 +53,15 @@ export default function Empresa() {
     onOpenChange: onOpenChangeQuestionDelete
   } = useDisclosure()
 
-  const { data, refresh } = useFetcher(getAllCompany)
+  const { data, refresh } = useFetcher(getAllAreas)
+  console.log("data", getAllAreas)
 
-  const transformedData = data.map((empresa) => {
+  const transformedData = data.map((area) => {
     return {
-      idempresa: empresa.idempresa,
-      razon_social: empresa.razon_social,
-      ruc: empresa.ruc,
-      estado: empresa.estado,
-      convenio: empresa.convenio,
-      direccion: empresa.direccion || '',
-      create_at: empresa.create_at,
-      update_at: empresa.update_at || '',
-      fecha_inicio: empresa.fecha_inicio || '',
-      fecha_fin: empresa.fecha_fin || ''
-    }
+      idarea: area.idarea,
+      nombre_area: area.nombre_area,
+      estado: area.estado
+    };
   })
 
   const hasSearchFilter = Boolean(filterValue)
@@ -90,39 +75,27 @@ export default function Empresa() {
   }, [visibleColumns])
 
   const filteredItems = useMemo(() => {
-    let filteredEmpresas = [...transformedData]
+    let filteredAreas = [...transformedData]
 
-    if (hasSearchFilter) {
-      // Filtrar por término de búsqueda en el campo "razon_social"
-      filteredEmpresas = filteredEmpresas.filter((company) =>
-        company.razon_social.toLowerCase().includes(filterValue.toLocaleLowerCase())
+    if (hasSearchFilter) {      
+      filteredAreas = filteredAreas.filter((area) =>
+        area.nombre_area.toLowerCase().includes(filterValue.toLowerCase())
       )
     }
-    const filteredInactiveCompanies = filteredEmpresas.filter(
-      (empresa) =>
-        empresa.estado === 'Inactivo' && empresa.convenio === 'Inactivo'
-    )
 
-    const filteredActiveCompanies = filteredEmpresas.filter(
-      (empresa) =>
-        empresa.estado !== 'Activo' || empresa.convenio !== 'Activo'
-    )
-
-    const orderedItems = [
-      ...filteredActiveCompanies,
-      ...filteredInactiveCompanies
-    ]
-
-    return orderedItems
+    return filteredAreas
   }, [transformedData, filterValue])
 
   const {
     items,
-    
+    onNextPage,
+    onPreviousPage,
+    rowsPerPage,
+    onRowsPerPageChange,
     page,
     pages,
     setPage
-  } = usePagination(filteredItems,26)
+  } = usePagination(filteredItems)
 
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
@@ -134,14 +107,13 @@ export default function Empresa() {
     })
   }, [sortDescriptor, items])
 
-  const handleEditClick = (company) => {  
-    console.log('Estado de la empresa:', company.estado)  
-      setEditCompany(company)      
-      onOpen()  
+  const handleEditClick = (area) => {
+    setEditArea(area)
+    onOpen()
   }
 
   const confirmDelete = async () => {
-    const result = await removeCompany(companyID.current)
+    const result = await removeArea(areaID.current)
 
     if (result.isSuccess) {
       toast.success(result.message)
@@ -151,56 +123,19 @@ export default function Empresa() {
     }
   }
 
-  const renderCell = useCallback((empresa, columnKey) => {
-    const cellValue = empresa[columnKey]
-    const tooltipContent = (
-      <div>
-        <p>Fecha Inicio : {empresa.fecha_inicio ? formatDate(empresa.fecha_inicio): '------'}</p>
-        <p>
-          Fecha Fin :{empresa.fecha_fin ? formatDate(empresa.fecha_fin) : '-----'}
-        </p>
-      </div>
-    )
-    const tooltipContents1 = (
-      <div>
-        <p>Fecha Creacion: {formatDate(empresa.create_at)}</p>
-        <p>
-          Fecha Actualizacion :
-          {empresa.update_at ? formatDate(empresa.update_at) : ' -----'}
-        </p>
-      </div>
-    )
+  const renderCell = useCallback((area, columnKey) => {
+    const cellValue = area[columnKey]
 
     if (columnKey === 'estado')
-      return empresa.estado ? (
-        <Tooltip content={tooltipContents1}>
-          <Chip color='primary' variant='flat'>
-            Activo
-          </Chip>
-        </Tooltip>
+      return area.estado ? (
+        <Chip color='primary' variant='flat'>
+          Activo
+        </Chip>
       ) : (
-        <Tooltip content={tooltipContents1}>
-          <Chip color='danger' variant='flat'>
-            Inactivo
-          </Chip>
-        </Tooltip>
+        <Chip color='danger' variant='flat'>
+          Inactivo
+        </Chip>
       )
-    if (columnKey === 'convenio') {
-      return empresa.convenio ? (
-        <Tooltip content={tooltipContent}>
-          <Chip color='primary' variant='flat'>
-            Activo
-          </Chip>
-        </Tooltip>
-      ) : (
-        <Tooltip content={tooltipContent}>
-          <Chip color='danger' variant='flat'>
-            Inactivo
-          </Chip>
-        </Tooltip>
-      )
-    }
-
     if (columnKey === 'acciones')
       return (
         <div className='relative flex items-center gap-2'>
@@ -210,8 +145,7 @@ export default function Empresa() {
               color='primary'
               size='sm'
               variant='light'
-              onClick={() => handleEditClick(empresa.idempresa)}
-              isDisabled={!empresa.estado  }
+              onClick={() => handleEditClick(area.idarea)}
             >
               <PenSquare size={20} />
             </Button>
@@ -223,21 +157,11 @@ export default function Empresa() {
               size='sm'
               variant='light'
               onClick={() => {
-                companyID.current = empresa.idempresa
+                areaID.current = area.idarea
                 onOpenQuestionDelete()
               }}
             >
               <BadgeX size={20} />
-            </Button>
-          </Tooltip>
-          <Tooltip color='danger' content='Eliminar Convenio' closeDelay={0}>
-            <Button
-            isIconOnly
-            color='danger'
-            size='sm'
-            variant='light'
-            >
-              <Trash size={20}/>
             </Button>
           </Tooltip>
         </div>
@@ -245,41 +169,20 @@ export default function Empresa() {
     return cellValue
   }, [])
 
-  const onSearchChange = useCallback((value) => {
-    if (value) {
-      setFilterValue(value)
-    } else {
-      setFilterValue('')
-    }
-  }, [])
-
-  const onClear = useCallback(() => {
-    setFilterValue('')
-  }, [])
-
   const topContent = useMemo(() => {
     return (
       <div className='flex flex-col gap-4'>
         <div className='flex justify-between gap-3 items-end'>
-          <Input
-            isClearable
-            className='w-full sm:max-w-[44%]'
-            placeholder='Buscar por razón social...'
-            startContent={<SearchIcon />}
-            value={filterValue}
-            onClear={() => onClear()}
-            onValueChange={onSearchChange}
-          />
           <div className='flex gap-3'>
             <Button
               color='primary'
               endContent={<Plus size={20} />}
               onPress={() => {
-                setEditCompany(null)
+                setEditArea(null)
                 onOpen()
               }}
             >
-              Nueva empresa
+              Nueva Area
             </Button>
           </div>
         </div>
@@ -287,17 +190,22 @@ export default function Empresa() {
           <span className='text-default-400 text-small'>
             Total: {transformedData.length} empresas
           </span>
-          
+          <label className='flex items-center text-default-400 text-small'>
+            Filas por página:
+            <select
+              className='bg-transparent outline-none text-default-400 text-small'
+              defaultValue={rowsPerPage}
+              onChange={onRowsPerPageChange}
+            >
+              <option value='5'>5</option>
+              <option value='10'>10</option>
+              <option value='15'>15</option>
+            </select>
+          </label>
         </div>
       </div>
     )
-  }, [
-    filterValue,
-    visibleColumns,
-    transformedData.length,
-    onSearchChange,
-    hasSearchFilter
-  ])
+  }, [filterValue, visibleColumns, onRowsPerPageChange, hasSearchFilter])
 
   const bottomContent = useMemo(() => {
     return (
@@ -311,14 +219,34 @@ export default function Empresa() {
           total={pages}
           onChange={setPage}
         />
-    
+        <div className='hidden sm:flex w-[30%] justify-end gap-2'>
+          <Button
+            isDisabled={pages === 1}
+            variant='flat'
+            onPress={onPreviousPage}
+          >
+            Anterior
+          </Button>
+          <Button isDisabled={pages === 1} variant='flat' onPress={onNextPage}>
+            Siguiente
+          </Button>
+        </div>
       </div>
     )
   }, [items.length, page, pages, hasSearchFilter])
+
   return (
     <>
-      <Card shadow='none'>
+      <Card>
+        <CardHeader className='flex justify-between'>
+          <h2 className='text-2xl'>AREAS - CATEGORIAS</h2>
+          <DateTimeClock />
+        </CardHeader>
+        <Divider />
         <CardBody>
+          <div className='mb-3'>
+            <h1 className='text-xl'>AREAS</h1>
+          </div>
           <Table
             isHeaderSticky
             isStriped
@@ -355,13 +283,15 @@ export default function Empresa() {
               )}
             </TableBody>
           </Table>
+
+          <Divider className='my-6' />
         </CardBody>
       </Card>
-      <ModalCompany
+      <ModalCategorie
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        operation={editCompany ? 'edit' : 'new'}
-        serviceToEdit={editCompany}
+        operation={editArea ? 'edit' : 'new'}
+        serviceToEdit={editArea}
         refreshTable={refresh}
       />
 
@@ -369,7 +299,7 @@ export default function Empresa() {
         textContent='¿Seguro de eliminar?'
         isOpen={isOpenQuestionDelete}
         onOpenChange={onOpenChangeQuestionDelete}
-        data={companyID}
+        data={areaID}
         onConfirm={confirmDelete}
       />
     </>
