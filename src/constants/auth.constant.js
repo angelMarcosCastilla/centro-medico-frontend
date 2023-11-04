@@ -18,7 +18,7 @@ export const redirectRoles = {
   L: '/laboratorio',
   R: '/rayosx',
   T: '/tomografia',
-  E: '/externalmodule',
+  E: '/gestion-informes',
   TR: '/triaje'
 }
 
@@ -27,6 +27,6 @@ export const mapRoles = {
   L: 'Laboratorio',
   R: 'Radiologia',
   T: 'Tomografia',
-  E: 'ExternalModule',
+  E: 'Gestión Informes',
   TR: 'Triaje'
 }

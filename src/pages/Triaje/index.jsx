@@ -21,12 +21,13 @@ import { useNavigate } from 'react-router-dom'
 import Header from '../../components/Header'
 import { useCallback, useEffect, useMemo } from 'react'
 import { socket } from '../../components/Socket'
+import { formatDate } from '../../utils/date'
 
 const columns = [
-  { name: '#', uid: 'index' },
   { name: 'NÚMERO DOCUMENTO', uid: 'num_documento' },
   { name: 'PACIENTE', uid: 'paciente' },
   { name: 'CANTIDAD SERVICIOS', uid: 'total_servicios' },
+  { name: 'FECHA Y HORA', uid: 'create_at' },
   { name: 'ESTADO', uid: 'estado' },
   { name: 'ACCIONES', uid: 'acciones' }
 ]
@@ -48,6 +49,8 @@ export default function Triaje() {
     switch (columnKey) {
       case 'paciente':
         return element.apellidos + ', ' + element.nombres
+      case 'create_at':
+        return formatDate(cellValue, true)
       case 'estado':
         return (
           <Chip className={`capitalize ${statusColorMap[cellValue]}`}>
@@ -89,6 +92,7 @@ export default function Triaje() {
       correo,
       direccion,
       fecha_nacimiento,
+      create_at,
       estado,
       ...rest
     } = triajeData
@@ -145,7 +149,7 @@ export default function Triaje() {
             <TableBody
               isLoading={loading}
               loadingContent={<Spinner />}
-              emptyContent='No hay pacientes para triaje en este momento'
+              emptyContent='En este momento, no hay pacientes que requieran triaje'
               items={items}
             >
               {(item) => (

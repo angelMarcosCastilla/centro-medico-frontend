@@ -108,11 +108,11 @@ export default function FormTriaje() {
       const result = await createTriage(data)
       if (result.isSuccess) {
         socket.emit('client:newAction', { action: 'New Admision' })
-        toast.success('Triaje registrado correctamente')
+        toast.success('Registrado correctamente')
         navigate('/triaje', { replace: true })
       }
     } catch (error) {
-      toast.error('Ocurrió un error al registrar el triaje')
+      toast.error('Ocurrió un error al registrar')
     } finally {
       setLoading(false)
     }

@@ -13,7 +13,7 @@ import Servicios from '../pages/Servicios'
 import FormTriaje from '../pages/Triaje/FormTriaje.jsx'
 import Laboratorio from '../pages/Laboratorio/index.jsx'
 import InformesLaboratorio from '../pages/InformesLaboratorio'
-import ExternalModule from '../pages/ExternalModule/index.jsx'
+import GestionInformes from '../pages/GestionInformes'
 import ReportEditor from '../pages/InformesLaboratorio/ReportEditor.jsx'
 import Plantillas from '../pages/Plantillas/index.jsx'
 import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
@@ -37,8 +37,8 @@ const router = createBrowserRouter([
     element: <PrivateRoute />,
     children: [
       {
-        path: '/externalmodule',
-        element: <ExternalModule />
+        path: '/gestion-informes',
+        element: <GestionInformes />
       },
 
       {

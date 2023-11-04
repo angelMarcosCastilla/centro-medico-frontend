@@ -9,7 +9,8 @@ import {
   TableCell,
   TableColumn,
   TableHeader,
-  TableRow
+  TableRow,
+  Tooltip
 } from '@nextui-org/react'
 import { getAllChartData } from '../../../services/report'
 import { useFetcher } from '../../../hook/useFetcher'
@@ -125,7 +126,7 @@ export default function Graficos() {
           <div className='lg:col-span-2 p-3 rounded-2xl shadow-small'>
             <AreaChartLast7Days last7days={last7days} />
           </div>
-          <div className='flex-1 p-3 rounded-2xl shadow-small'>
+          <div className='col-span-1 p-3 rounded-2xl shadow-small'>
             <h2 className='text-lg text-center font-semibold mb-4'>
               Top Servicios Más Solicitados
             </h2>
@@ -137,7 +138,6 @@ export default function Graficos() {
             >
               <TableHeader>
                 <TableColumn>#</TableColumn>
-                <TableColumn>ÁREA</TableColumn>
                 <TableColumn>SERVICIO</TableColumn>
                 <TableColumn>TOTAL</TableColumn>
               </TableHeader>
@@ -145,9 +145,8 @@ export default function Graficos() {
                 {ranking.map((el, index) => (
                   <TableRow key={index}>
                     <TableCell>
-                      <Button
-                        isIconOnly
-                        tabIndex={-1}
+                      <Tooltip
+                        content={el.area}
                         color={
                           el.area === 'Tomografía'
                             ? 'secondary'
@@ -155,14 +154,27 @@ export default function Graficos() {
                             ? 'success'
                             : 'primary'
                         }
-                        variant='flat'
-                        className='p-1 cursor-default'
-                        disableAnimation
+                        className={el.area === 'Rayos X' && 'text-white'}
+                        closeDelay={0}
                       >
-                        {cloneElement(AREAS[el.area].icon, { size: 20 })}
-                      </Button>
+                        <Button
+                          isIconOnly
+                          tabIndex={-1}
+                          color={
+                            el.area === 'Tomografía'
+                              ? 'secondary'
+                              : el.area === 'Rayos X'
+                              ? 'success'
+                              : 'primary'
+                          }
+                          variant='flat'
+                          className='p-1 cursor-default'
+                          disableAnimation
+                        >
+                          {cloneElement(AREAS[el.area].icon, { size: 20 })}
+                        </Button>
+                      </Tooltip>
                     </TableCell>
-                    <TableCell>{el.area}</TableCell>
                     <TableCell>{el.nombre_servicio}</TableCell>
                     <TableCell>{el.total}</TableCell>
                   </TableRow>

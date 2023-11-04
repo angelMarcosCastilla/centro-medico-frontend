@@ -1,4 +1,3 @@
-import React from 'react'
 import {
   Table,
   TableHeader,
@@ -15,7 +14,11 @@ import {
   ModalFooter,
   Input,
   Chip,
-  Tooltip
+  Tooltip,
+  Card,
+  CardBody,
+  Link,
+  Spinner
 } from '@nextui-org/react'
 import Editor from '../../components/Editor'
 import { useAuth } from '../../context/AuthContext'
@@ -28,8 +31,9 @@ import { AlertCircle, Eye, FileEdit } from 'lucide-react'
 import { redirectToResult } from '../../config'
 import Header from '../../components/Header'
 import { socket } from '../../components/Socket'
+import { useRef, useState } from 'react'
 
-export default function ExternalModule() {
+export default function GestionInformes() {
   const {
     isOpen: isOpenEditor,
     onOpen: onOpenEditor,
@@ -42,15 +46,20 @@ export default function ExternalModule() {
     onClose: onCloseInfo
   } = useDisclosure()
 
-  const ref = React.useRef()
-  const refTitulo = React.useRef()
-  const idDet = React.useRef()
-  const resultId = React.useRef()
-  const status = React.useRef()
-  const detailCurrent = React.useRef()
+  const [isSaving, setIsSaving] = useState(false)
 
-  const [json, setjson] = React.useState({ titulo: '', contenido: '' })
-  const [information, setInformation] = React.useState('')
+  const ref = useRef()
+  const refTitulo = useRef()
+  const idDet = useRef()
+  const resultId = useRef()
+  const status = useRef()
+  const detailCurrent = useRef()
+
+  const [medicalReportContent, setMedicalReportContent] = useState({
+    titulo: '',
+    contenido: ''
+  })
+  const [information, setInformation] = useState('')
 
   const { userInfo } = useAuth()
 
@@ -59,66 +68,73 @@ export default function ExternalModule() {
   )
 
   const handleSubmit = async (onClose) => {
-    const template = {
-      titulo: refTitulo.current,
-      contenido: ref.current.getHtml()
-    }
+    try {
+      setIsSaving(true)
 
-    let data = {
-      idDetAtencion: idDet.current,
-      diagnostico: JSON.stringify(template),
-      idReferencia: 0
-    }
+      const template = {
+        titulo: refTitulo.current,
+        contenido: ref.current.getHtml()
+      }
 
-    if (status.current !== 'PC') {
-      if (!resultId.current) {
-        const result = await addResult(data)
+      let data = {
+        idDetAtencion: idDet.current,
+        diagnostico: JSON.stringify(template),
+        idReferencia: 0
+      }
 
-        if (result.isSuccess) {
-          await changeStatus(idDet.current, 'PE')
-          refresh()
-          socket.emit('client:newAction', { action: "New Informe" })
-          onClose()
-          toast.success(result.message)
+      if (status.current !== 'PC') {
+        if (!resultId.current) {
+          const result = await addResult(data)
+
+          if (result.isSuccess) {
+            await changeStatus(idDet.current, 'PE')
+            refresh()
+            socket.emit('client:newAction', { action: 'New Informe' })
+            onClose()
+            toast.success(result.message)
+          } else {
+            toast.error(result.message)
+          }
         } else {
-          toast.error(result.message)
+          const result = await updateResult(data)
+          if (result.isSuccess) {
+            refresh()
+            onClose()
+            toast.success(result.message)
+          }
         }
       } else {
-        const result = await updateResult(data)
+        data = { ...data, idReferencia: resultId.current }
+        const result = await removeResult(idDet.current)
+
         if (result.isSuccess) {
-          refresh()
+          addResult(data)
+          changeStatus(idDet.current, 'PE')
           onClose()
           toast.success(result.message)
+          refresh()
         }
       }
-    } else {
-      data = { ...data, idReferencia: resultId.current }
-      const result = await removeResult(idDet.current)
-
-      if (result.isSuccess) {
-        addResult(data)
-        changeStatus(idDet.current, 'PE')
-        onClose()
-        toast.success(result.message)
-        refresh()
-      }
+    } catch {
+      toast.error('Ocurrió un error al guardar')
+    } finally {
+      setIsSaving(false)
     }
   }
 
   return (
     <>
-      <div className='px-3 py-4 bg-slate-100 h-screen flex flex-col gap-y-4'>
-        <Header title='Informe'/>
-        <section className='px-4 py-3 bg-[white] shadow h-full'>
-          <div className='mb-3'>filtros</div>
-          <div>
+      <div className='bg-slate-100 h-screen flex flex-col p-5 gap-y-4'>
+        <Header title='Gestión de Informes Médicos' />
+        <Card className='h-full shadow-small rounded-2xl'>
+          <CardBody>
             <Table
               isStriped
-              aria-label='Example static collection table'
-              shadow='none'
+              removeWrapper
+              tabIndex={-1}
+              aria-label='Tabla de informes pendientes de entrega'
             >
               <TableHeader>
-                <TableColumn>#</TableColumn>
                 <TableColumn>DNI</TableColumn>
                 <TableColumn>PACIENTE</TableColumn>
                 <TableColumn>ÁREA</TableColumn>
@@ -127,10 +143,13 @@ export default function ExternalModule() {
                 <TableColumn>ESTADO</TableColumn>
                 <TableColumn>ACCIONES</TableColumn>
               </TableHeader>
-              <TableBody isLoading={loading} loadingContent='cargando'>
+              <TableBody
+                isLoading={loading}
+                loadingContent={<Spinner />}
+                emptyContent='No hay informes médicos para redactar en este momento'
+              >
                 {data?.map((el, index) => (
                   <TableRow key={index}>
-                    <TableCell>{index + 1}</TableCell>
                     <TableCell>{el.num_documento}</TableCell>
                     <TableCell>{el.apellidos + ', ' + el.nombres}</TableCell>
                     <TableCell>{el.nombre_area}</TableCell>
@@ -146,7 +165,7 @@ export default function ExternalModule() {
                       </Chip>
                     </TableCell>
                     <TableCell>
-                      <div className='relative flex items-center gap-2'>
+                      <div className='relative flex items-center gap-x-1'>
                         <Tooltip
                           content={
                             el.estado === 'PI'
@@ -158,52 +177,76 @@ export default function ExternalModule() {
                           color='primary'
                           closeDelay={0}
                         >
-                          <span
-                            className='text-lg text-primary-400 cursor-pointer active:opacity-50'
-                            onClick={() => {
+                          <Button
+                            isIconOnly
+                            color='primary'
+                            variant='light'
+                            size='sm'
+                            onPress={() => {
                               if (el.idresultado) {
-                                setjson(JSON.parse(el.diagnostico))
+                                setMedicalReportContent(
+                                  JSON.parse(el.diagnostico)
+                                )
                               } else {
-                                setjson({ titulo: 'Informe de '+ el.nombre_area , contenido: '' })
+                                setMedicalReportContent({
+                                  titulo: `INFORME ${
+                                    el.nombre_area === 'Tomografía'
+                                      ? 'TOMOGRÁFICO'
+                                      : 'RADIOLÓGICO'
+                                  }`,
+                                  contenido: ''
+                                })
                               }
                               idDet.current = el.iddetatencion
                               resultId.current = el.idresultado
                               status.current = el.estado
-                              detailCurrent.current = el                                                                                         
-                              refTitulo.current=el.nombre_area
-                              onOpenEditor()                                                      
+                              detailCurrent.current = el
+                              refTitulo.current = `INFORME ${
+                                el.nombre_area === 'Tomografía'
+                                  ? 'TOMOGRÁFICO'
+                                  : 'RADIOLÓGICO'
+                              }`
+                              onOpenEditor()
                             }}
-                            >
+                          >
                             <FileEdit size={20} />
-                          </span>
+                          </Button>
                         </Tooltip>
                         {el.idresultado && (
                           <Tooltip content='Ver' color='primary' closeDelay={0}>
-                            <a
-                              className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+                            <Button
+                              isIconOnly
+                              as={Link}
                               href={redirectToResult(el.iddetatencion)}
                               target='_blank'
                               rel='noreferrer'
+                              color='primary'
+                              variant='light'
+                              size='sm'
                             >
                               <Eye size={20} />
-                            </a>
+                            </Button>
                           </Tooltip>
                         )}
                         {el.estado === 'PC' && (
                           <Tooltip
                             content='Información'
                             color='warning'
+                            className='text-white'
                             closeDelay={0}
                           >
-                            <span
-                              className='text-lg text-warning-400 cursor-pointer active:opacity-50'
-                              onClick={() => {
+                            <Button
+                              isIconOnly
+                              color='warning'
+                              variant='light'
+                              size='sm'
+                              onPress={() => {
                                 setInformation(el.observacion)
                                 onOpenInfo()
                               }}
                             >
                               <AlertCircle size={20} />
-                            </span>
+                            </Button>
                           </Tooltip>
                         )}
                       </div>
@@ -212,8 +255,8 @@ export default function ExternalModule() {
                 ))}
               </TableBody>
             </Table>
-          </div>
-        </section>
+          </CardBody>
+        </Card>
       </div>
 
       <Modal
@@ -226,15 +269,21 @@ export default function ExternalModule() {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className='flex  gap-1 justify-between'>
-                <h2>Redactar Informe</h2>
-                <div className='pr-7 font-normal'>
+              <ModalHeader className='flex gap-1 justify-between'>
+                <h2>
+                  {detailCurrent.current.estado === 'PI'
+                    ? 'Crear Informe Médico'
+                    : detailCurrent.current.estado === 'PE'
+                    ? 'Editar Informe Médico'
+                    : 'Corregir Informe Médico'}
+                </h2>
+                <div className='me-7 font-normal'>
                   <p className='text-sm'>
-                    <b>Paciente</b> {detailCurrent.current?.nombres}{' '}
+                    <b>Paciente:</b> {detailCurrent.current?.nombres}{' '}
                     {detailCurrent.current?.apellidos}
                   </p>
                   <p className='text-sm'>
-                    <b>servicio:</b> {detailCurrent.current?.nombre_servicio}
+                    <b>Servicio:</b> {detailCurrent.current?.nombre_servicio}
                   </p>
                 </div>
               </ModalHeader>
@@ -243,20 +292,24 @@ export default function ExternalModule() {
                   label='Título del informe'
                   className='mb-2'
                   labelPlacement='inside'
-                  defaultValue={json.titulo}
+                  defaultValue={medicalReportContent.titulo}
                   onChange={(e) => {
                     refTitulo.current = e.target.value
-                  }}                  
-                  key={json.titulo}
+                  }}
+                  key={medicalReportContent.titulo}
                 />
-                <Editor ref={ref} content={json.contenido} />
+                <Editor ref={ref} content={medicalReportContent.contenido} />
               </ModalBody>
               <ModalFooter>
                 <Button color='danger' variant='light' onPress={onClose}>
                   Cancelar
                 </Button>
-                <Button color='primary' onPress={() => handleSubmit(onClose)}>
-                  {resultId.current ? 'Actualizar informe' : 'Redactar informe'}
+                <Button
+                  isLoading={isSaving}
+                  color='primary'
+                  onPress={() => handleSubmit(onClose)}
+                >
+                  Guardar
                 </Button>
               </ModalFooter>
             </>

@@ -10,14 +10,14 @@ import {
 
 export default function AreaChartLast7Days({ last7days }) {
   return (
-    <div className='w-full h-[350px]'>
+    <div className='w-full h-full'>
       <h2 className='text-center font-semibold'>
         N° de atenciones de los últimos 7 días
       </h2>
-      <ResponsiveContainer className='h-full w-full'>
+      <ResponsiveContainer width={'100%'} height={'95%'}>
         <AreaChart
           data={last7days}
-          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+          margin={{ top: 10, right: 30, left: -20, bottom: 0 }}
         >
           <defs>
             <linearGradient id='total' x1='0' y1='0' x2='0' y2='1'>
