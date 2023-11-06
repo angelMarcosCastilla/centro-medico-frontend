@@ -24,6 +24,7 @@ import { socket } from '../../components/Socket'
 import { formatDate } from '../../utils/date'
 
 const columns = [
+  { name: '#', uid: 'index' },
   { name: 'NÚMERO DOCUMENTO', uid: 'num_documento' },
   { name: 'PACIENTE', uid: 'paciente' },
   { name: 'CANTIDAD SERVICIOS', uid: 'total_servicios' },
@@ -86,7 +87,7 @@ export default function Triaje() {
       num_documento,
       total_servicios,
       idpersona,
-      idcompliacionmed,
+      idcomplicacionmed,
       celular,
       idatencion,
       correo,
@@ -100,7 +101,7 @@ export default function Triaje() {
     const structureData = {
       datosPaciente: {
         idatencion,
-        idcompliacionmed,
+        idcomplicacionmed,
         apellidos,
         nombres,
         num_documento,

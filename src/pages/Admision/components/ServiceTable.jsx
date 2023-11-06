@@ -57,7 +57,9 @@ export default function ServiceTable({ detService, setDetService }) {
         <TableColumn className='bg-blue-100'>PRECIO</TableColumn>
         <TableColumn className='bg-blue-100'>DESCUENTO</TableColumn>
         <TableColumn className='bg-blue-100'>SUBTOTAL</TableColumn>
-        <TableColumn className='bg-blue-100'>ACCIONES</TableColumn>
+        <TableColumn className='bg-blue-100' align='end'>
+          ACCIONES
+        </TableColumn>
       </TableHeader>
       <TableBody emptyContent='Agregue algún servicio para visualizar'>
         {detService.map((service) => (
@@ -77,12 +79,13 @@ export default function ServiceTable({ detService, setDetService }) {
               {(service.precio - service.descuento).toFixed(2)}
             </TableCell>
             <TableCell>
-              <div className='relative flex items-center gap-2'>
+              <div className='relative flex items-center gap-x-1'>
                 <Tooltip content='Eliminar' color='danger' closeDelay={0}>
                   <Button
                     isIconOnly
                     variant='light'
                     color='danger'
+                    size='sm'
                     onClick={() => handleRemoveService(service.idservicio)}
                   >
                     <Trash2 size={20} />

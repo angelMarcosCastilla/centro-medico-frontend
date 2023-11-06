@@ -5,10 +5,17 @@ export const getPersonalMedico = async () => {
   return data
 }
 
+export const getDoctorsByArea = async (idarea) => {
+  const {
+    data: { data }
+  } = await axios.get(`/personalesmedicos/areas/${idarea}`)
+  return data
+}
+
 export const updatePersonalMedico = async (id, datos) => {
   const { data } = await axios.put(`/personalesmedicos/${id}`, datos, {
     headers: {
-      "Content-Type": "multipart/form-data"
+      'Content-Type': 'multipart/form-data'
     }
   })
   return data

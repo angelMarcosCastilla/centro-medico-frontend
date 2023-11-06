@@ -173,7 +173,12 @@ export default function Informes() {
         return (
           <div className='relative flex items-center gap-x-1'>
             {detail.estado === 'PE' && (
-              <Tooltip content='Entregar' color='success' closeDelay={0}>
+              <Tooltip
+                content='Entregar'
+                color='success'
+                className='text-white'
+                closeDelay={0}
+              >
                 <Button
                   isIconOnly
                   color='success'
@@ -188,7 +193,12 @@ export default function Informes() {
               </Tooltip>
             )}
             {detail.nombre_area !== 'Laboratorio' && detail.estado === 'F' && (
-              <Tooltip content='Corregir' color='warning' closeDelay={0}>
+              <Tooltip
+                content='Corregir'
+                color='warning'
+                className='text-white'
+                closeDelay={0}
+              >
                 <Button
                   isIconOnly
                   color='warning'

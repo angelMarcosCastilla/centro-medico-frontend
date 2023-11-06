@@ -20,13 +20,7 @@ import {
   Tooltip,
   useDisclosure
 } from '@nextui-org/react'
-import {
-  ChevronDownIcon,
-  PencilLine,
-  Plus,
-  SearchIcon,
-  Trash2
-} from 'lucide-react'
+import { ChevronDownIcon, Edit, Plus, SearchIcon, Trash } from 'lucide-react'
 import { getAllServices, removeService } from '../../services/service'
 import { useFetcher } from '../../hook/useFetcher'
 import { capitalize } from '../../utils'
@@ -180,9 +174,9 @@ export default function Servicios() {
                 color='primary'
                 variant='light'
                 size='sm'
-                onClick={() => handleEditClick(service.idservicio)}
+                onPress={() => handleEditClick(service.idservicio)}
               >
-                <PencilLine size={20} />
+                <Edit size={20} />
               </Button>
             </Tooltip>
             <Tooltip color='danger' content='Eliminar' closeDelay={0}>
@@ -191,12 +185,12 @@ export default function Servicios() {
                 color='danger'
                 variant='light'
                 size='sm'
-                onClick={() => {
+                onPress={() => {
                   serviceId.current = service.idservicio
                   onOpenQuestionDelete()
                 }}
               >
-                <Trash2 size={20} />
+                <Trash size={20} />
               </Button>
             </Tooltip>
           </div>
@@ -225,7 +219,7 @@ export default function Servicios() {
           <Input
             isClearable
             className='w-full sm:max-w-[44%]'
-            placeholder='Buscar por nombre...'
+            placeholder='Buscar por servicio...'
             startContent={<SearchIcon />}
             value={filterValue}
             onClear={() => onClear()}
@@ -273,14 +267,11 @@ export default function Servicios() {
                 selectionMode='multiple'
                 onSelectionChange={setVisibleColumns}
               >
-                {columns.map((column) => {
-                  if (column.uid === 'estado') return null
-                  return (
-                    <DropdownItem key={column.uid} className='capitalize'>
-                      {capitalize(column.name)}
-                    </DropdownItem>
-                  )
-                })}
+                {columns.map((column) => (
+                  <DropdownItem key={column.uid} className='capitalize'>
+                    {capitalize(column.name)}
+                  </DropdownItem>
+                ))}
               </DropdownMenu>
             </Dropdown>
             <Button
@@ -364,7 +355,8 @@ export default function Servicios() {
           isHeaderSticky
           isStriped
           removeWrapper
-          aria-label='Example table with custom cells, pagination and sorting'
+          tabIndex={-1}
+          aria-label='Tabla CRUD de servicios médicos'
           bottomContent={bottomContent}
           bottomContentPlacement='outside'
           classNames={{
@@ -377,11 +369,7 @@ export default function Servicios() {
         >
           <TableHeader columns={headerColumns}>
             {(column) => (
-              <TableColumn
-                key={column.uid}
-                align={column.uid === 'actions' ? 'center' : 'start'}
-                allowsSorting={column.sortable}
-              >
+              <TableColumn key={column.uid} allowsSorting={column.sortable}>
                 {column.name}
               </TableColumn>
             )}
@@ -389,7 +377,7 @@ export default function Servicios() {
           <TableBody
             isLoading={loading}
             loadingContent={<Spinner />}
-            emptyContent={'No se encontraron servicios'}
+            emptyContent='No se encontraron servicios'
             items={sortedItems}
           >
             {(item) => (
@@ -412,11 +400,16 @@ export default function Servicios() {
       />
 
       <QuestionModal
-        textContent='¿Está seguro de eliminar este servicio?'
+        title='Eliminar servicio'
+        textContent='¿Está seguro que quiere eliminar el servicio? Esta acción es irreversible.'
         isOpen={isOpenQuestionDelete}
         onOpenChange={onOpenChangeQuestionDelete}
         data={serviceId}
-        onConfirm={confirmDelete}
+        confirmConfig={{
+          text: 'Eliminar',
+          color: 'danger',
+          action: confirmDelete
+        }}
       />
     </>
   )

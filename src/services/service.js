@@ -15,13 +15,6 @@ export const getServicesByArea = async (idArea) => {
   return data.data
 }
 
-export const getAllPersonal = async (idArea) => {
-  const {
-    data: { data }
-  } = await axios.get(`/servicios/personal/${idArea}`)
-  return data
-}
-
 export const createService = async (serviceData) => {
   const { data } = await axios.post('/servicios', serviceData)
   return data

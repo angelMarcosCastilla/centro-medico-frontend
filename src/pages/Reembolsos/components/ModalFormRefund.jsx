@@ -349,6 +349,7 @@ export default function ModalFormRefund({
             </ModalFooter>
 
             <Prompt
+              title='Confirmación de contraseña'
               placeholder='Escribe tu contraseña para confirmar'
               type='password'
               isOpen={isOpenPrompt}

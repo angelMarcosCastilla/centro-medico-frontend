@@ -97,7 +97,7 @@ export default function FormTriaje() {
         ...values,
         complicacionesMedicas: {
           ...values.complicacionesMedicas,
-          idcompliacionmed: state.datosPaciente.idcompliacionmed
+          idcomplicacionmed: state.datosPaciente.idcomplicacionmed
         },
         triajeAtencion: {
           ...values.triajeAtencion,

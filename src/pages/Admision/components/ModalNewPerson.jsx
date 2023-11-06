@@ -10,7 +10,7 @@ import {
   SelectItem
 } from '@nextui-org/react'
 import { toast } from 'sonner'
-import { addPersonService, searchPersonById } from '../../../services/person'
+import { createPerson, searchPersonById } from '../../../services/person'
 import { useState } from 'react'
 import { useDataContext } from './DataContext'
 
@@ -35,14 +35,11 @@ export default function ModalNewPerson({
 
   const handleAddPerson = async (e, onClose) => {
     e.preventDefault()
+    setLoading(true)
 
     try {
       const formData = new FormData(e.target)
-      setLoading(true)
-
-      const result = await addPersonService(Object.fromEntries(formData))
-
-      setLoading(false)
+      const result = await createPerson(Object.fromEntries(formData))
 
       if (!result.isSuccess) {
         toast.error('Error al momento de registrar')
@@ -82,9 +79,10 @@ export default function ModalNewPerson({
         toast.success(result.message)
         onClose()
       }
-    } catch (error) {
-      setLoading(false)
+    } catch (err) {
       toast.error('Error al momento de registrar')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -114,7 +112,7 @@ export default function ModalNewPerson({
                       DNI
                     </SelectItem>
                     <SelectItem value='C' key={'C'}>
-                      Carnet de extranjeria
+                      Carnet de extranjería
                     </SelectItem>
                   </Select>
                   <Input
@@ -151,11 +149,26 @@ export default function ModalNewPerson({
                     placeholder='fecha nacimiento'
                     isRequired
                   />
-                  <Input className='mb-2' label='Dirección' name='direccion' />
+                  <Input
+                    className='mb-2'
+                    label='Dirección'
+                    name='direccion'
+                    maxLength={150}
+                  />
                 </div>
                 <div className='flex flex-row gap-x-4'>
-                  <Input className='mb-2' label='Correo' name='correo' />
-                  <Input name='celular' className='mb-2' label='Celular' />
+                  <Input
+                    className='mb-2'
+                    label='Correo'
+                    name='correo'
+                    maxLength={40}
+                  />
+                  <Input
+                    name='celular'
+                    className='mb-2'
+                    label='Celular'
+                    maxLength={9}
+                  />
                 </div>
               </ModalBody>
               <ModalFooter>

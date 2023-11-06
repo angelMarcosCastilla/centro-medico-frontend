@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
+  Avatar,
   Button,
   CardBody,
   CardHeader,
@@ -12,19 +13,22 @@ import {
   ModalHeader,
   Select,
   SelectItem,
+  Spinner,
   Table,
   TableBody,
   TableCell,
   TableColumn,
   TableHeader,
   TableRow,
-  Tooltip
+  Tooltip,
+  useDisclosure
 } from '@nextui-org/react'
 import {
   ArrowDownNarrowWide,
   ArrowUpNarrowWide,
-  MonitorPause,
-  UserCheck
+  Eye,
+  MonitorCheck,
+  MonitorPlay
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useFetcher } from '../hook/useFetcher'
@@ -38,6 +42,7 @@ import { useAuth } from '../context/AuthContext'
 import { socket } from './Socket'
 import { formatDate } from '../utils/date'
 import DateTimeClock from './DateTimeClock'
+import PatientDetailsModal from './PatientDetailsModal'
 
 const columns = [
   { name: '#', uid: 'index' },
@@ -58,8 +63,12 @@ export default function AttentionProcessTable({
 
   const { userInfo } = useAuth()
   const [medicoId, setMedicoId] = useState(new Set([]))
-  const { data, mutate, refresh } = useFetcher(useFecherFunction)
+  const { data, mutate, loading, refresh } = useFetcher(useFecherFunction)
   const { data: doctorData } = useFetcher(getDoctorByAreaFunction)
+  const [detAttention, setDetAttention] = useState({})
+  const [isSaving, setIsSaving] = useState(false)
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
   const dataToAtencion = useMemo(() => {
     return data
@@ -79,6 +88,16 @@ export default function AttentionProcessTable({
       }))
   }, [data])
 
+  const doctors = useMemo(() => {
+    return doctorData.map((doctor) => ({
+      ...doctor,
+      medico: doctor.nombres + ' ' + doctor.apellidos,
+      avatar: `https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true&name=${
+        doctor.nombres + ' ' + doctor.apellidos
+      }`
+    }))
+  }, [doctorData])
+
   const renderCell = useCallback(
     (detail, columnKey, isposponer) => {
       const cellValue = detail[columnKey]
@@ -97,13 +116,27 @@ export default function AttentionProcessTable({
           )
         case 'acciones':
           return (
-            <div className='relative flex items-center gap-x-2'>
+            <div className='relative flex items-center gap-x-1'>
+              {detail.triaje && (
+                <Tooltip content='Detalles' color='primary' closeDelay={0}>
+                  <Button
+                    isIconOnly
+                    color='primary'
+                    size='sm'
+                    variant='light'
+                    onPress={() => {
+                      setDetAttention(detail)
+                      onOpen()
+                    }}
+                  >
+                    <Eye size={20} />
+                  </Button>
+                </Tooltip>
+              )}
               {index === 1 && !isposponer && (
-                <div className='flex  items-center'>
+                <>
                   <Tooltip
-                    content={
-                      detail.estado === 'P' ? 'Atender' : 'Confirmar Atencion'
-                    }
+                    content={detail.estado === 'P' ? 'Atender' : 'Confirmar'}
                     color='primary'
                     closeDelay={0}
                   >
@@ -112,7 +145,7 @@ export default function AttentionProcessTable({
                       color='primary'
                       size='sm'
                       variant='light'
-                      onClick={() => {
+                      onPress={() => {
                         if (detail.estado === 'P') {
                           handleChangeStatus(
                             detail.iddetatencion,
@@ -124,9 +157,9 @@ export default function AttentionProcessTable({
                       }}
                     >
                       {detail.estado === 'P' ? (
-                        <MonitorPause size={20} />
+                        <MonitorPlay size={20} />
                       ) : (
-                        <UserCheck size={20} />
+                        <MonitorCheck size={20} />
                       )}
                     </Button>
                   </Tooltip>
@@ -137,7 +170,7 @@ export default function AttentionProcessTable({
                         isIconOnly
                         color='danger'
                         variant='light'
-                        onClick={() =>
+                        onPress={() =>
                           handleReorder(detail.iddetatencion, 'PP')
                         }
                       >
@@ -145,23 +178,21 @@ export default function AttentionProcessTable({
                       </Button>
                     </Tooltip>
                   )}
-                </div>
+                </>
               )}
               {isposponer && (
-                <div>
-                  <Tooltip content='Reanudar' color='primary' closeDelay={0}>
-                    <Button
-                      isIconOnly
-                      size='sm'
-                      isDisabled={verify}
-                      color='primary'
-                      variant='light'
-                      onClick={() => handleReorder(detail.iddetatencion, 'P')}
-                    >
-                      <ArrowUpNarrowWide size={20} />
-                    </Button>
-                  </Tooltip>
-                </div>
+                <Tooltip content='Reanudar' color='primary' closeDelay={0}>
+                  <Button
+                    isIconOnly
+                    size='sm'
+                    isDisabled={verify}
+                    color='primary'
+                    variant='light'
+                    onPress={() => handleReorder(detail.iddetatencion, 'P')}
+                  >
+                    <ArrowUpNarrowWide size={20} />
+                  </Button>
+                </Tooltip>
               )}
             </div>
           )
@@ -186,25 +217,34 @@ export default function AttentionProcessTable({
           return item
         })
       })
-      socket.emit('client:newAction', { action: "Change Atenciones" })
+      socket.emit('client:newAction', { action: 'Change Atenciones' })
     } else {
       toast.error('Error al cambiar el estado')
     }
   }
 
   const handleSuccess = async (onClose) => {
-    const data = {
-      idmedicoatendiente: userInfo.idpersonalmedico,
-      idmedicoinformante: parseInt(selectMedico)
-    }
-    mutate((prevData) => {
-      return prevData.filter((item) => item.iddetatencion !== idDetAttention)
-    })
+    try {
+      setIsSaving(true)
 
-    handleCancel()
-    onClose()
-    await updateMedicoByDetatencion(data, idDetAttention)
-    socket.emit('client:newAction', { action: "Change Atenciones" })
+      const data = {
+        idmedicoatendiente: userInfo.idpersonalmedico,
+        idmedicoinformante: parseInt(selectMedico)
+      }
+
+      mutate((prevData) => {
+        return prevData.filter((item) => item.iddetatencion !== idDetAttention)
+      })
+
+      handleCancel()
+      await updateMedicoByDetatencion(data, idDetAttention)
+      onClose()
+      socket.emit('client:newAction', { action: 'Change Atenciones' })
+    } catch (err) {
+      toast.error('Ocurrió un error al guardar')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleCancel = () => {
@@ -270,7 +310,12 @@ export default function AttentionProcessTable({
               </TableColumn>
             )}
           </TableHeader>
-          <TableBody emptyContent='No hay atenciones' items={dataToAtencion}>
+          <TableBody
+            isLoading={loading}
+            loadingContent={<Spinner />}
+            emptyContent='No hay atenciones en espera'
+            items={dataToAtencion}
+          >
             {(item) => (
               <TableRow key={crypto.randomUUID().toString()}>
                 {(columnKey) => (
@@ -303,6 +348,8 @@ export default function AttentionProcessTable({
             )}
           </TableHeader>
           <TableBody
+            isLoading={loading}
+            loadingContent={<Spinner />}
             emptyContent='No hay atenciones pospuestas'
             items={dataToEspera}
           >
@@ -317,6 +364,12 @@ export default function AttentionProcessTable({
         </Table>
       </CardBody>
 
+      <PatientDetailsModal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        detail={detAttention}
+      />
+
       <Modal
         isOpen={Boolean(idDetAttention)}
         onOpenChange={() => setIdDetAttention(null)}
@@ -324,23 +377,36 @@ export default function AttentionProcessTable({
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className='flex flex-col gap-1'>
-                Asignar Médico
-              </ModalHeader>
+              <ModalHeader>Seleccione el Médico para el Informe</ModalHeader>
               <ModalBody>
                 <Select
-                  label='Médico a redactar el informe'
+                  items={doctors}
+                  label='Asignar a'
+                  placeholder='Selecciona un doctor'
                   selectedKeys={medicoId}
                   onSelectionChange={setMedicoId}
                 >
-                  {doctorData.map((doctor) => (
+                  {(doctor) => (
                     <SelectItem
                       key={doctor.idpersonalmedico}
-                      value={doctor.iddoctor}
+                      textValue={doctor.medico}
                     >
-                      {doctor.medico}
+                      <div className='flex gap-2 items-center'>
+                        <Avatar
+                          alt={doctor.medico}
+                          className='flex-shrink-0'
+                          size='sm'
+                          src={doctor.avatar}
+                        />
+                        <div className='flex flex-col'>
+                          <span className='text-small'>{doctor.medico}</span>
+                          <span className='text-tiny text-default-400'>
+                            {doctor.correo}
+                          </span>
+                        </div>
+                      </div>
                     </SelectItem>
-                  ))}
+                  )}
                 </Select>
               </ModalBody>
               <ModalFooter>
@@ -355,13 +421,14 @@ export default function AttentionProcessTable({
                   Cancelar
                 </Button>
                 <Button
+                  isLoading={isSaving}
                   color='primary'
                   onPress={() => {
                     handleSuccess(onClose)
                   }}
                   isDisabled={!selectMedico}
                 >
-                  Asignar
+                  Guardar
                 </Button>
               </ModalFooter>
             </>

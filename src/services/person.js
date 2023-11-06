@@ -1,16 +1,10 @@
 import axios from 'axios'
 
-export const addPersonService = async (body) => {
-  const { data } = await axios.post('/personas', body)
-  return data
-}
+export const getAllPersons = async () => {
+  const {
+    data: { data }
+  } = await axios.get(`/personas`)
 
-export const searchPersonByNumDoc = async (numDocumento) => {
-  const { data } = await axios.get(`/personas/numdocumento/${numDocumento}`)
-  return data
-}
-export const searchPersonByNumDocPersonalMedico = async (numDocumento) => {
-  const { data } = await axios.get(`/personas/numdocumento/personal/${numDocumento}`)
   return data
 }
 
@@ -19,27 +13,34 @@ export const searchPersonById = async (idPersona) => {
   return data
 }
 
-export const getDoctorByAreaFunction = async (idarea) => {
-  const {
-    data: { data }
-  } = await axios.get(`/personalesmedicos/areas/${idarea}`)
+export const searchPersonByNumDoc = async (numDocumento) => {
+  const { data } = await axios.get(`/personas/numdocumento/${numDocumento}`)
   return data
 }
 
-export const getPerson = async () => {
-  const {
-    data: { data }
-  } = await axios.get(`/personas`)
-  
+export const searchPersonByNumDocPersonalMedico = async (numDocumento) => {
+  const { data } = await axios.get(
+    `/personas/numdocumento/personal/${numDocumento}`
+  )
   return data
 }
 
-export const deletePerson = async (personaId) => {
-  const data = axios.delete(`/personas/${personaId}`)
+export const createPerson = async (personData) => {
+  const { data } = await axios.post('/personas', personData)
   return data
 }
 
-export const updatePerson = async (idpersona, data) =>{
-  const res = axios.put(`/personas/${idpersona}`, data)
-  return res
+export const updatePerson = async (personId, personData) => {
+  const { data } = await axios.put(`/personas/${personId}`, personData)
+  return data
+}
+
+export const disablePerson = async (personId) => {
+  const { data } = await axios.delete(`/personas/${personId}`)
+  return data
+}
+
+export const enablePerson = async (personId) => {
+  const { data } = await axios.patch(`/personas/${personId}`)
+  return data
 }

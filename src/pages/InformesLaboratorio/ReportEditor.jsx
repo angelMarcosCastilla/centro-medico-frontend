@@ -163,7 +163,7 @@ export default function ReportEditor() {
 
     if (result.isSuccess) {
       toast.success(result.message)
-      socket.emit('client:newAction', { action: "New Informe" })
+      socket.emit('client:newAction', { action: 'New Informe' })
       navigate('/informeslaboratorio')
     } else {
       toast.error(result.message)
@@ -182,8 +182,8 @@ export default function ReportEditor() {
 
       setTemplate(loadedTemplate)
     } else if (templateData.isSuccess && !templateData.data) {
-      toast.error('Sin plantilla para este servicio. Por favor, cree una.')
-      navigate('/informeslaboratorio')
+      toast.error('No hay una plantilla disponible')
+      navigate('/informeslaboratorio', { replace: true })
     }
   }, [searchData])
 
@@ -312,7 +312,7 @@ export default function ReportEditor() {
         <Button
           color='danger'
           variant='light'
-          onPress={() => navigate('/informeslaboratorio')}
+          onPress={() => navigate('/informeslaboratorio', { replace: true })}
         >
           Cancelar
         </Button>

@@ -34,7 +34,7 @@ function LinkInforme({ userInfo }) {
         toast(
           <div className='flex justify-between text-blue-600'>
             <Info size={20} className='mr-2' />
-            <span>Hay nuevo informes</span>
+            <span>Nuevo informe disponible</span>
           </div>
         )
       }

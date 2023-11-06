@@ -27,7 +27,7 @@ import ModalNewPerson from './components/ModalNewPerson'
 import ModalNewCompany from './components/ModalNewCompany'
 import PaymentTable from './components/PaymentTable'
 import { validateFieldsFormAdmision } from './utils'
-import { calculatePersonAge } from '../../utils/date'
+import { isPersonAdult } from '../../utils/date'
 import ServiceTable from './components/ServiceTable'
 import { useFetcher } from '../../hook/useFetcher'
 import MedicalServicesSummary from './components/MedicalServicesSummary'
@@ -154,7 +154,7 @@ export default function Admision() {
       } = result.data
       const fechaFormateada = fechaNacimiento.split('T')[0]
 
-      if (!calculatePersonAge(fechaFormateada)) {
+      if (!isPersonAdult(fechaFormateada)) {
         return toast.error('El cliente debe ser mayor de edad.')
       }
 
@@ -479,7 +479,7 @@ export default function Admision() {
                   />
                 </div>
                 {dataToSend.pagoData.tipoComprobante !== 'F' &&
-                  calculatePersonAge(dataPaciente.fechaNacimiento) && (
+                  isPersonAdult(dataPaciente.fechaNacimiento) && (
                     <div className='justify-items-start'>
                       <Checkbox
                         size='sm'

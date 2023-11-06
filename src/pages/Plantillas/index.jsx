@@ -2,12 +2,15 @@ import { useCallback, useMemo, useState } from 'react'
 import {
   Button,
   CardBody,
+  CardHeader,
+  Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
   Input,
   Pagination,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -23,6 +26,7 @@ import { useFetcher } from '../../hook/useFetcher'
 import { capitalize } from '../../utils'
 import { useNavigate } from 'react-router-dom'
 import { LABORATORIO_ID } from '../../constants/areas'
+import DateTimeClock from '../../components/DateTimeClock'
 
 const columns = [
   { name: 'CATEGORIA', uid: 'categoria', sortable: true },
@@ -51,7 +55,7 @@ export default function Plantillas() {
     direction: 'ascending'
   })
 
-  const { data } = useFetcher(() => getServicesByArea(LABORATORIO_ID))
+  const { data, loading } = useFetcher(() => getServicesByArea(LABORATORIO_ID))
   const hasSearchFilter = Boolean(filterValue)
 
   const headerColumns = useMemo(() => {
@@ -100,36 +104,44 @@ export default function Plantillas() {
     switch (columnKey) {
       case 'acciones':
         return (
-          <div className='relative flex items-center gap-2'>
+          <div className='relative flex items-center gap-x-1'>
             <Tooltip content='Nuevo' color='primary' closeDelay={0}>
-              <span
-                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
-                onClick={() =>
+              <Button
+                isIconOnly
+                color='primary'
+                variant='light'
+                size='sm'
+                onPress={() =>
                   navigate(`/plantillas/${service.idservicio}`, {
                     state: {
                       service,
                       operation: 'new'
-                    }
+                    },
+                    replace: true
                   })
                 }
               >
                 <FilePlus2 size={20} />
-              </span>
+              </Button>
             </Tooltip>
             <Tooltip content='Editar' color='primary' closeDelay={0}>
-              <span
-                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
-                onClick={() =>
+              <Button
+                isIconOnly
+                color='primary'
+                variant='light'
+                size='sm'
+                onPress={() =>
                   navigate(`/plantillas/${service.idservicio}`, {
                     state: {
                       service,
                       operation: 'edit'
-                    }
+                    },
+                    replace: true
                   })
                 }
               >
                 <FileEdit size={20} />
-              </span>
+              </Button>
             </Tooltip>
           </div>
         )
@@ -157,7 +169,7 @@ export default function Plantillas() {
           <Input
             isClearable
             className='w-full sm:max-w-[44%]'
-            placeholder='Buscar por nombre...'
+            placeholder='Buscar por servicio...'
             startContent={<SearchIcon />}
             value={filterValue}
             onClear={() => onClear()}
@@ -250,46 +262,55 @@ export default function Plantillas() {
   }, [items.length, page, pages, hasSearchFilter])
 
   return (
-    <CardBody>
-      <Table
-        isHeaderSticky
-        isStriped
-        aria-label='Tabla de servicios de laboratorio para la creación o edición de plantillas personalizadas'
-        bottomContent={bottomContent}
-        bottomContentPlacement='outside'
-        classNames={{
-          wrapper: 'max-h-[600px]'
-        }}
-        sortDescriptor={sortDescriptor}
-        topContent={topContent}
-        topContentPlacement='outside'
-        shadow='none'
-        onSortChange={setSortDescriptor}
-      >
-        <TableHeader columns={headerColumns}>
-          {(column) => (
-            <TableColumn
-              key={column.uid}
-              align={column.uid === 'acciones' ? 'center' : 'start'}
-              allowsSorting={column.sortable}
-            >
-              {column.name}
-            </TableColumn>
-          )}
-        </TableHeader>
-        <TableBody
-          emptyContent={'No se encontraron servicios'}
-          items={sortedItems}
+    <>
+      <CardHeader className='flex justify-between'>
+        <h2 className='text-2xl'>Plantillas para Informes de Laboratorio</h2>
+        <DateTimeClock />
+      </CardHeader>
+      <Divider />
+      <CardBody>
+        <Table
+          isHeaderSticky
+          isStriped
+          removeWrapper
+          aria-label='Tabla de servicios de laboratorio para la creación o edición de plantillas personalizadas'
+          bottomContent={bottomContent}
+          bottomContentPlacement='outside'
+          classNames={{
+            wrapper: 'max-h-[600px]'
+          }}
+          sortDescriptor={sortDescriptor}
+          topContent={topContent}
+          topContentPlacement='outside'
+          onSortChange={setSortDescriptor}
         >
-          {(item) => (
-            <TableRow key={crypto.randomUUID().toString()}>
-              {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
-              )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </CardBody>
+          <TableHeader columns={headerColumns}>
+            {(column) => (
+              <TableColumn
+                key={column.uid}
+                align={column.uid === 'acciones' ? 'center' : 'start'}
+                allowsSorting={column.sortable}
+              >
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            isLoading={loading}
+            loadingContent={<Spinner />}
+            emptyContent='No se encontraron servicios'
+            items={sortedItems}
+          >
+            {(item) => (
+              <TableRow key={crypto.randomUUID().toString()}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardBody>
+    </>
   )
 }

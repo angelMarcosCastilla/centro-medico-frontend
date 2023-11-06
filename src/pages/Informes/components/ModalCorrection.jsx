@@ -10,6 +10,7 @@ import {
 } from '@nextui-org/react'
 import { changeStatus } from '../../../services/admission'
 import { updateResultForCorrection } from '../../../services/result'
+import { toast } from 'sonner'
 
 export default function ModalCorrection({
   isOpen,
@@ -18,6 +19,7 @@ export default function ModalCorrection({
   refreshTable
 }) {
   const [correction, setCorrection] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
 
   const handleClose = () => {
     setCorrection('')
@@ -25,17 +27,26 @@ export default function ModalCorrection({
   }
 
   const handleSaveCorrection = async (onClose) => {
-    const [statusChangeRes, updateResultRes] = await Promise.all([
-      changeStatus(idDetAttention, 'PC'),
-      updateResultForCorrection({
-        idDetAtencion: idDetAttention,
-        observacion: correction
-      })
-    ])
+    try {
+      setIsSaving(true)
 
-    if (statusChangeRes && updateResultRes) {
-      refreshTable()
-      onClose()
+      const [statusChangeRes, updateResultRes] = await Promise.all([
+        changeStatus(idDetAttention, 'PC'),
+        updateResultForCorrection({
+          idDetAtencion: idDetAttention,
+          observacion: correction
+        })
+      ])
+
+      if (statusChangeRes && updateResultRes) {
+        toast.success('Solicitud enviada con éxito')
+        refreshTable()
+        onClose()
+      }
+    } catch (err) {
+      toast.error('Error al enviar la solicitud')
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -61,6 +72,7 @@ export default function ModalCorrection({
                 Cancelar
               </Button>
               <Button
+                isLoading={isSaving}
                 color='primary'
                 onPress={() => handleSaveCorrection(onClose)}
                 isDisabled={correction === ''}
