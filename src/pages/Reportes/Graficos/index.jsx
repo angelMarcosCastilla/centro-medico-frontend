@@ -154,7 +154,7 @@ export default function Graficos() {
                             ? 'success'
                             : 'primary'
                         }
-                        className={el.area === 'Rayos X' && 'text-white'}
+                        className='text-white'
                         closeDelay={0}
                       >
                         <Button

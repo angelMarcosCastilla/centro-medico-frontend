@@ -23,7 +23,10 @@ import {
 import Editor from '../../components/Editor'
 import { useAuth } from '../../context/AuthContext'
 import { useFetcher } from '../../hook/useFetcher'
-import { changeStatus, getServiciesByDoctor } from '../../services/admission'
+import {
+  changeStatus,
+  getInProcessReportAttentionsByExternalDoctor
+} from '../../services/admission'
 import { listState, statusColorMap } from '../../constants/state'
 import { addResult, removeResult, updateResult } from '../../services/result'
 import { toast } from 'sonner'
@@ -31,7 +34,18 @@ import { AlertCircle, Eye, FileEdit } from 'lucide-react'
 import { redirectToResult } from '../../config'
 import Header from '../../components/Header'
 import { socket } from '../../components/Socket'
-import { useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+
+const columns = [
+  { name: '#', uid: 'index' },
+  { name: 'DNI', uid: 'num_documento' },
+  { name: 'PACIENTE', uid: 'paciente' },
+  { name: 'ÁREA', uid: 'nombre_area' },
+  { name: 'CATEGORÍA', uid: 'nombre_categoria' },
+  { name: 'SERVICIO', uid: 'nombre_servicio' },
+  { name: 'ESTADO', uid: 'estado' },
+  { name: 'ACCIONES', uid: 'acciones' }
+]
 
 export default function GestionInformes() {
   const {
@@ -64,8 +78,121 @@ export default function GestionInformes() {
   const { userInfo } = useAuth()
 
   const { data, loading, refresh } = useFetcher(() =>
-    getServiciesByDoctor(userInfo.idpersona)
+    getInProcessReportAttentionsByExternalDoctor(userInfo.idpersona)
   )
+
+  const items = useMemo(() => {
+    return data.map((el, index) => ({
+      ...el,
+      index: index + 1
+    }))
+  }, [data])
+
+  const renderCell = useCallback((element, columnKey) => {
+    const cellValue = element[columnKey]
+
+    switch (columnKey) {
+      case 'paciente':
+        return element.apellidos + ', ' + element.nombres
+      case 'estado':
+        return (
+          <Chip
+            className={`capitalize ${statusColorMap[cellValue]}`}
+            variant='flat'
+          >
+            {listState[cellValue]}
+          </Chip>
+        )
+      case 'acciones':
+        return (
+          <div className='relative flex items-center gap-x-1'>
+            <Tooltip
+              content={
+                element.estado === 'PI'
+                  ? 'Redactar'
+                  : element.estado === 'PE'
+                  ? 'Editar'
+                  : 'Corregir'
+              }
+              color='primary'
+              closeDelay={0}
+            >
+              <Button
+                isIconOnly
+                color='primary'
+                variant='light'
+                size='sm'
+                onPress={() => {
+                  if (element.idresultado) {
+                    setMedicalReportContent(JSON.parse(element.diagnostico))
+                  } else {
+                    setMedicalReportContent({
+                      titulo: `INFORME ${
+                        element.nombre_area === 'Tomografía'
+                          ? 'TOMOGRÁFICO'
+                          : 'RADIOLÓGICO'
+                      }`,
+                      contenido: ''
+                    })
+                  }
+                  idDet.current = element.iddetatencion
+                  resultId.current = element.idresultado
+                  status.current = element.estado
+                  detailCurrent.current = element
+                  refTitulo.current = `INFORME ${
+                    element.nombre_area === 'Tomografía'
+                      ? 'TOMOGRÁFICO'
+                      : 'RADIOLÓGICO'
+                  }`
+                  onOpenEditor()
+                }}
+              >
+                <FileEdit size={20} />
+              </Button>
+            </Tooltip>
+            {element.idresultado && (
+              <Tooltip content='Ver' color='primary' closeDelay={0}>
+                <Button
+                  isIconOnly
+                  as={Link}
+                  href={redirectToResult(element.iddetatencion)}
+                  target='_blank'
+                  rel='noreferrer'
+                  color='primary'
+                  variant='light'
+                  size='sm'
+                >
+                  <Eye size={20} />
+                </Button>
+              </Tooltip>
+            )}
+            {element.estado === 'PC' && (
+              <Tooltip
+                content='Información'
+                color='warning'
+                className='text-white'
+                closeDelay={0}
+              >
+                <Button
+                  isIconOnly
+                  color='warning'
+                  variant='light'
+                  size='sm'
+                  onPress={() => {
+                    setInformation(element.observacion)
+                    onOpenInfo()
+                  }}
+                >
+                  <AlertCircle size={20} />
+                </Button>
+              </Tooltip>
+            )}
+          </div>
+        )
+      default:
+        return cellValue
+    }
+  }, [])
 
   const handleSubmit = async (onClose) => {
     try {
@@ -135,124 +262,24 @@ export default function GestionInformes() {
               tabIndex={-1}
               aria-label='Tabla de informes pendientes de entrega'
             >
-              <TableHeader>
-                <TableColumn>DNI</TableColumn>
-                <TableColumn>PACIENTE</TableColumn>
-                <TableColumn>ÁREA</TableColumn>
-                <TableColumn>CATEGORÍA</TableColumn>
-                <TableColumn>SERVICIO</TableColumn>
-                <TableColumn>ESTADO</TableColumn>
-                <TableColumn>ACCIONES</TableColumn>
+              <TableHeader columns={columns}>
+                {(column) => (
+                  <TableColumn key={column.uid}>{column.name}</TableColumn>
+                )}
               </TableHeader>
               <TableBody
                 isLoading={loading}
                 loadingContent={<Spinner />}
                 emptyContent='No hay informes médicos para redactar en este momento'
+                items={items}
               >
-                {data?.map((el, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{el.num_documento}</TableCell>
-                    <TableCell>{el.apellidos + ', ' + el.nombres}</TableCell>
-                    <TableCell>{el.nombre_area}</TableCell>
-                    <TableCell>{el.nombre_categoria}</TableCell>
-                    <TableCell>{el.nombre_servicio}</TableCell>
-                    <TableCell>
-                      <Chip
-                        className={`capitalize ${statusColorMap[el.estado]}`}
-                        variant='flat'
-                      >
-                        {listState[el.estado]}
-                      </Chip>
-                    </TableCell>
-                    <TableCell>
-                      <div className='relative flex items-center gap-x-1'>
-                        <Tooltip
-                          content={
-                            el.estado === 'PI'
-                              ? 'Redactar'
-                              : el.estado === 'PE'
-                              ? 'Editar'
-                              : 'Corregir'
-                          }
-                          color='primary'
-                          closeDelay={0}
-                        >
-                          <Button
-                            isIconOnly
-                            color='primary'
-                            variant='light'
-                            size='sm'
-                            onPress={() => {
-                              if (el.idresultado) {
-                                setMedicalReportContent(
-                                  JSON.parse(el.diagnostico)
-                                )
-                              } else {
-                                setMedicalReportContent({
-                                  titulo: `INFORME ${
-                                    el.nombre_area === 'Tomografía'
-                                      ? 'TOMOGRÁFICO'
-                                      : 'RADIOLÓGICO'
-                                  }`,
-                                  contenido: ''
-                                })
-                              }
-                              idDet.current = el.iddetatencion
-                              resultId.current = el.idresultado
-                              status.current = el.estado
-                              detailCurrent.current = el
-                              refTitulo.current = `INFORME ${
-                                el.nombre_area === 'Tomografía'
-                                  ? 'TOMOGRÁFICO'
-                                  : 'RADIOLÓGICO'
-                              }`
-                              onOpenEditor()
-                            }}
-                          >
-                            <FileEdit size={20} />
-                          </Button>
-                        </Tooltip>
-                        {el.idresultado && (
-                          <Tooltip content='Ver' color='primary' closeDelay={0}>
-                            <Button
-                              isIconOnly
-                              as={Link}
-                              href={redirectToResult(el.iddetatencion)}
-                              target='_blank'
-                              rel='noreferrer'
-                              color='primary'
-                              variant='light'
-                              size='sm'
-                            >
-                              <Eye size={20} />
-                            </Button>
-                          </Tooltip>
-                        )}
-                        {el.estado === 'PC' && (
-                          <Tooltip
-                            content='Información'
-                            color='warning'
-                            className='text-white'
-                            closeDelay={0}
-                          >
-                            <Button
-                              isIconOnly
-                              color='warning'
-                              variant='light'
-                              size='sm'
-                              onPress={() => {
-                                setInformation(el.observacion)
-                                onOpenInfo()
-                              }}
-                            >
-                              <AlertCircle size={20} />
-                            </Button>
-                          </Tooltip>
-                        )}
-                      </div>
-                    </TableCell>
+                {(item) => (
+                  <TableRow key={item.iddetatencion}>
+                    {(columnKey) => (
+                      <TableCell>{renderCell(item, columnKey)}</TableCell>
+                    )}
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </CardBody>
@@ -279,8 +306,8 @@ export default function GestionInformes() {
                 </h2>
                 <div className='me-7 font-normal'>
                   <p className='text-sm'>
-                    <b>Paciente:</b> {detailCurrent.current?.nombres}{' '}
-                    {detailCurrent.current?.apellidos}
+                    <b>Paciente:</b> {detailCurrent.current?.apellidos}{' '}
+                    {detailCurrent.current?.nombres}
                   </p>
                   <p className='text-sm'>
                     <b>Servicio:</b> {detailCurrent.current?.nombre_servicio}
@@ -328,7 +355,9 @@ export default function GestionInformes() {
                 <p>{information}</p>
               </ModalBody>
               <ModalFooter>
-                <Button onPress={onClose}>Cerrar</Button>
+                <Button color='warning' variant='light' onPress={onClose}>
+                  Cerrar
+                </Button>
               </ModalFooter>
             </>
           )}

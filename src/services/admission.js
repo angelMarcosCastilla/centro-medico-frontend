@@ -6,12 +6,16 @@ export const addAdmissionAndData = async (body) => {
 }
 
 export const getInProcessAttentionsByArea = async (idArea) => {
-  const { data } = await axios.get(`/atenciones/areas/${idArea}`)
+  const {
+    data: { data }
+  } = await axios.get(`/atenciones/areas/${idArea}`)
   return data
 }
 
 export const getInProcessReportAttentionsByArea = async (idArea) => {
-  const { data } = await axios.get(`/atenciones/informes/area/${idArea}`)
+  const {
+    data: { data }
+  } = await axios.get(`/atenciones/informes/area/${idArea}`)
   return data
 }
 
@@ -22,6 +26,15 @@ export const getInProcessReportsPendingAndFinished = async () => {
   return data
 }
 
+export const getInProcessReportAttentionsByExternalDoctor = async (
+  idPersona
+) => {
+  const {
+    data: { data }
+  } = await axios.get(`/atenciones/gestion-informes/${idPersona}`)
+  return data
+}
+
 export const changeStatus = async (idDetAttention, newStatus) => {
   const { data } = await axios.put(`/atenciones/detalles/${idDetAttention}`, {
     estado: newStatus
@@ -29,19 +42,12 @@ export const changeStatus = async (idDetAttention, newStatus) => {
   return data
 }
 
-export const getServiciesByDoctor = async (idpersona) => {
-  const {
-    data: { data }
-  } = await axios.get(`/atenciones/externalModule/${idpersona}`)
-  return data
-}
-
-export const updateMedicoByDetatencion = async (data, iddetatencion) => {
-  const { data: dataResponse } = await axios.put(
-    `/atenciones/detalle/doctor/${iddetatencion}`,
-    data
+export const updateMedicoByDetatencion = async (idsMedicos, idDetAtencion) => {
+  const { data } = await axios.put(
+    `/atenciones/detalle/doctor/${idDetAtencion}`,
+    idsMedicos
   )
-  return dataResponse
+  return data
 }
 
 export const changeOrder = async (data) => {

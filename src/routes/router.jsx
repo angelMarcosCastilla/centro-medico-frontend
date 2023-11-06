@@ -22,12 +22,13 @@ import ReporteAtenciones from '../pages/Reportes/ReporteAtenciones'
 import Graficos from '../pages/Reportes/Graficos'
 import Empresa from '../pages/mantenimiento/empresas/index.jsx'
 import ReportePagos from '../pages/Reportes/ReportePagos'
-import Mantenimiento from '../pages/mantenimiento/mantenimiento.jsx'
-import Personas from '../pages/mantenimiento/personas/index.jsx'
+import Mantenimiento from '../pages/mantenimiento'
+import Personas from '../pages/mantenimiento/Personas'
 import Reembolsos from '../pages/Reembolsos'
 import PagosConvenio from '../pages/PagosConvenio'
 import PersonalMedico from '../pages/mantenimiento/personalMedico/index.jsx'
 import Reportes from '../pages/Reportes'
+import NotFound from '../pages/NotFound.jsx'
 
 const router = createBrowserRouter([
   {
@@ -213,7 +214,7 @@ const router = createBrowserRouter([
   },
   {
     path: '*',
-    element: <h1>404</h1>
+    element: <NotFound />
   }
 ])
 

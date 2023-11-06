@@ -23,8 +23,8 @@ export default function NoAuthorization() {
     <Modal backdrop='blur' isOpen={show}>
       <ModalContent className='py-6 px-5 flex flex-col gap-y-4 items-center'>
         <img src='./session.svg' className='w-64 aspect-square'></img>
-        <h3 className='text-2xl'>Su sesión a expirado</h3>
-        <Button onClick={handleClose}>Ir a login</Button>
+        <h3 className='text-2xl'>Tu sesión ha caducado</h3>
+        <Button onClick={handleClose}>Ir al inicio de sesión</Button>
       </ModalContent>
     </Modal>
   )

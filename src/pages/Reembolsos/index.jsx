@@ -149,7 +149,7 @@ export default function Reembolsos() {
       <Divider />
       <CardBody>
         <Table
-          aria-label='Example table with custom cells, pagination and sorting'
+          aria-label='Tabla que listará los pagos para posibles reembolsos'
           isHeaderSticky
           removeWrapper
           isStriped

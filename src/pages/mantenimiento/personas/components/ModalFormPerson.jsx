@@ -1,6 +1,5 @@
 import {
   Button,
-  Checkbox,
   Input,
   Modal,
   ModalBody,
@@ -11,12 +10,12 @@ import {
   SelectItem
 } from '@nextui-org/react'
 import React, { useState } from 'react'
-import { addPersonService, updatePerson } from '../../../services/person'
+import { createPerson, updatePerson } from '../../../../services/person'
 import { toast } from 'sonner'
 
 const parseDateToInput = (date) => {
   return date
-    .toLocaleDateString('es', {
+    .toLocaleDateString('es-ES', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
@@ -26,44 +25,36 @@ const parseDateToInput = (date) => {
     .join('-')
 }
 
-export default function PersonModal({
+export default function ModalFormPerson({
   isOpen,
   onOpenChange,
-  dataToEdit,
+  personToEdit,
   refresh
 }) {
   const [loading, setLoading] = useState(false)
-  const [isSelected, setIsSelected] = useState(Boolean(dataToEdit?.estado))
   const currentDate = parseDateToInput(new Date())
 
-  const handleAddPerson = async (e, onClose) => {
+  const handleAddOrEditPerson = async (e, onClose) => {
     e.preventDefault()
+    setLoading(true)
 
     try {
       const formData = new FormData(e.target)
       const dataTosend = Object.fromEntries(formData)
 
-      if (!dataToEdit) {
-        await addPersonService(dataTosend)
-        await refresh()
-        toast.success('Se Registró correctamente')
-      } else {
-        try {
-          await updatePerson(dataToEdit.idpersona, {
-            ...dataTosend,
-            estado: isSelected
-          })
-          toast.success('Se Edito correctamente')
-          await refresh()
-        } catch (error) {
-          toast.error('Error al momento de editar')
-        }
+      const result = !personToEdit
+        ? await createPerson(dataTosend)
+        : await updatePerson(personToEdit.idpersona, dataTosend)
+
+      if (result.isSuccess) {
+        toast.success(result.message)
+        onClose()
+        refresh()
       }
-      onClose()
+    } catch (err) {
+      toast.error('Ocurrió un problema al guardar')
+    } finally {
       setLoading(false)
-    } catch (error) {
-      setLoading(false)
-      toast.error('Error al momento de registrar')
     }
   }
 
@@ -72,31 +63,20 @@ export default function PersonModal({
       <ModalContent>
         {(onClose) => (
           <form
+            onSubmit={(e) => handleAddOrEditPerson(e, onClose)}
             autoComplete='off'
-            onSubmit={(e) => handleAddPerson(e, onClose)}
           >
             <ModalHeader className='flex flex-col gap-1'>
-              <div className='flex justify-between items-center'>
-                <h2 className='text-xl'>
-                  <span>{!dataToEdit ? 'Registrar' : 'Editar'} Personas</span>
-                </h2>
-                {dataToEdit && (
-                  <Checkbox
-                    onValueChange={setIsSelected}
-                    isSelected={isSelected}
-                    className='mr-10'
-                  >
-                    esta activo
-                  </Checkbox>
-                )}
-              </div>
+              <h2 className='text-xl'>
+                {!personToEdit ? 'Nuevo Registro' : 'Editar Registro'}
+              </h2>
             </ModalHeader>
             <ModalBody>
               <div className='flex flex-row gap-x-4'>
                 <Select
                   label='Tipo documento'
                   defaultSelectedKeys={[
-                    dataToEdit ? dataToEdit.tipo_documento : 'D'
+                    personToEdit ? personToEdit.tipo_documento : 'D'
                   ]}
                   name='tipoDocumento'
                   isRequired
@@ -105,14 +85,14 @@ export default function PersonModal({
                     DNI
                   </SelectItem>
                   <SelectItem value='C' key={'C'}>
-                    Carnet de extranjeria
+                    Carnet de extranjería
                   </SelectItem>
                 </Select>
                 <Input
                   className='mb-2'
                   label='Número documento'
                   name='numDocumento'
-                  defaultValue={dataToEdit ? dataToEdit.num_documento : ''}
+                  defaultValue={personToEdit ? personToEdit.num_documento : ''}
                   maxLength={20}
                   isRequired
                 />
@@ -121,7 +101,7 @@ export default function PersonModal({
                 <Input
                   className='mb-2'
                   label='Nombres'
-                  defaultValue={dataToEdit ? dataToEdit.nombres : ''}
+                  defaultValue={personToEdit ? personToEdit.nombres : ''}
                   name='nombres'
                   maxLength={50}
                   isRequired
@@ -129,7 +109,7 @@ export default function PersonModal({
                 <Input
                   className='mb-2'
                   label='Apellidos'
-                  defaultValue={dataToEdit ? dataToEdit.apellidos : ''}
+                  defaultValue={personToEdit ? personToEdit.apellidos : ''}
                   name='apellidos'
                   maxLength={50}
                   isRequired
@@ -140,8 +120,8 @@ export default function PersonModal({
                   name='fechaNacimiento'
                   type='date'
                   defaultValue={
-                    dataToEdit
-                      ? parseDateToInput(new Date(dataToEdit.fecha_nacimiento))
+                    personToEdit
+                      ? parseDateToInput(new Date(personToEdit.fecha_nacimiento))
                       : ''
                   }
                   max={currentDate}
@@ -154,7 +134,8 @@ export default function PersonModal({
                   className='mb-2'
                   label='Dirección'
                   name='direccion'
-                  defaultValue={dataToEdit ? dataToEdit.direccion : ''}
+                  maxLength={150}
+                  defaultValue={personToEdit ? personToEdit.direccion : ''}
                 />
               </div>
               <div className='flex flex-row gap-x-4'>
@@ -162,13 +143,15 @@ export default function PersonModal({
                   className='mb-2'
                   label='Correo'
                   name='correo'
-                  defaultValue={dataToEdit ? dataToEdit.correo : ''}
+                  maxLength={40}
+                  defaultValue={personToEdit ? personToEdit.correo : ''}
                 />
                 <Input
                   name='celular'
                   className='mb-2'
                   label='Celular'
-                  defaultValue={dataToEdit ? dataToEdit.celular : ''}
+                  maxLength={9}
+                  defaultValue={personToEdit ? personToEdit.celular : ''}
                 />
               </div>
             </ModalBody>
@@ -179,10 +162,10 @@ export default function PersonModal({
                 variant='light'
                 onPress={onClose}
               >
-                Cerrar
+                Cancelar
               </Button>
               <Button color='primary' type='submit' isLoading={loading}>
-                Registrar
+                Guardar
               </Button>
             </ModalFooter>
           </form>
