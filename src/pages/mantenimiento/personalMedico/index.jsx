@@ -7,12 +7,17 @@ import {
   TableCell,
   TableColumn,
   TableHeader,
-  TableRow
+  TableRow,
+  Tooltip
 } from '@nextui-org/react'
 import React, { useCallback, useMemo, useState, useRef } from 'react'
 import { useFetcher } from '../../../hook/useFetcher'
-import { deletePersonalMedico, getPersonalMedico } from '../../../services/personalMedico'
-import { Edit, Search, Trash } from 'lucide-react'
+import {
+  activarPersonalMedico,
+  deletePersonalMedico,
+  getPersonalMedico
+} from '../../../services/personalMedico'
+import { Edit, Search, Trash , CheckSquare } from 'lucide-react'
 import PersonalMedicoModal from './modal'
 import { getAllEspecialidad } from '../../../services/especialidad'
 import { QuestionModal } from '../../../components/QuestionModal'
@@ -20,40 +25,59 @@ import { QuestionModal } from '../../../components/QuestionModal'
 export default function PersonalMedico() {
   const [search, setSearch] = useState('')
   const [deleteId, setDeleteId] = useState(null)
+  const [activarId, setActivarId] = useState(null)
   const [isOpen, setIsOpen] = useState(null)
   const dataToEdit = useRef()
 
-  const { data, refresh, mutate } = useFetcher(getPersonalMedico)
+  const { data, refresh } = useFetcher(getPersonalMedico)
   const { data: dataEspecialidad } = useFetcher(getAllEspecialidad)
 
   const renderCell = useCallback((columnKey, item) => {
     if (columnKey === 'action')
       return (
-        <div className='flex gap-x-2'>
-          <Button
-            size='sm'
-            isIconOnly
-            color='warning'
-            variant='flat'
-            onClick={() => {
-              dataToEdit.current = item
-              setIsOpen(true)
-            }}
-          >
-            <Edit size={20} />
-          </Button>
-          <Button
-            size='sm'
-            isIconOnly
-            color='danger'
-            variant='light'
-            onClick={() => {
-              setDeleteId(item.idpersona)
-            }}
-          >
-            <Trash size={20} />
-          </Button>
-        </div>
+        <>
+          {item.estado_personal ? (
+            <div className='flex gap-x-2'>
+              <Button
+                size='sm'
+                isIconOnly
+                color='warning'
+                variant='flat'
+                onClick={() => {
+                  dataToEdit.current = item
+                  setIsOpen(true)
+                }}
+              >
+                <Edit size={20} />
+              </Button>
+              <Button
+                size='sm'
+                isIconOnly
+                color='danger'
+                variant='light'
+                onClick={() => {
+                  setDeleteId(item.idpersona)
+                }}
+              >
+                <Trash size={20} />
+              </Button>
+            </div>
+          ) : (
+            <Tooltip content="Activar" color='primary'>
+              <Button
+                size='sm'
+                isIconOnly
+                color='primary'
+                variant='light'
+                onClick={() => {
+                  setActivarId(item.idpersona)
+                }}
+              >
+                <CheckSquare  size={20} />
+              </Button>
+            </Tooltip>
+          )}
+        </>
       )
 
     if (columnKey === 'especialidades') {
@@ -63,11 +87,19 @@ export default function PersonalMedico() {
         .join(', ')
     }
 
-    if(columnKey === "estado_personal"){
-      if(item.estado_personal === 1){
-        return <Chip color='success' variant='flat'>Activo</Chip>
-      }else {
-        return <Chip color='danger' variant='flat'>Inactivo</Chip>
+    if (columnKey === 'estado_personal') {
+      if (item.estado_personal === 1) {
+        return (
+          <Chip color='success' variant='flat'>
+            Activo
+          </Chip>
+        )
+      } else {
+        return (
+          <Chip color='danger' variant='flat'>
+            Inactivo
+          </Chip>
+        )
       }
     }
     return item[columnKey]
@@ -79,16 +111,15 @@ export default function PersonalMedico() {
     })
   }, [data, search])
 
-  const handleDelete = () => {
-    mutate((prevPersons) => {
-      return prevPersons.map((el) => {
-        if (el.idpersonal === deleteId) return { ...el, estado_personal: 0 }
-        return el
-      })
-    })
-    deletePersonalMedico(deleteId)
+  const handleDelete = async () => {
+    await deletePersonalMedico(deleteId)
+    refresh()
   }
 
+  const handleActivar = async () => {
+    await activarPersonalMedico(activarId)
+    refresh()
+  }
   return (
     <div>
       <Table
@@ -151,6 +182,13 @@ export default function PersonalMedico() {
         isOpen={deleteId}
         onOpenChange={setDeleteId}
         onConfirm={handleDelete}
+      />
+
+      <QuestionModal
+        textContent='¿Estás Seguro de Activar al personal médico?'
+        isOpen={activarId}
+        onOpenChange={setActivarId}
+        onConfirm={handleActivar}
       />
     </div>
   )

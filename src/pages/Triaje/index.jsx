@@ -110,7 +110,8 @@ export default function Triaje() {
         celular,
         correo,
         direccion,
-        fecha_nacimiento
+        fecha_nacimiento,
+        idpago: triajeData.idpago
       },
       complicaciones: rest
     }
