@@ -47,7 +47,7 @@ export default function PersonalMedicoModal({
     e.preventDefault()
     const formData = new FormData()
     if (!dataToEdit) {
-      if (person?.idpersona && Array.from(especialidad).length > 0) {
+      if (person?.idpersona && Array.from(especialidad).length === 0) {
         return toast.error('Falta llenar campos')
       }
       formData.append('idpersonalmedico', person.idpersona)
