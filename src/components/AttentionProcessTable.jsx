@@ -55,6 +55,7 @@ export default function AttentionProcessTable({
   getDoctorByAreaFunction
 }) {
   const [idDetAttention, setIdDetAttention] = useState(null)
+  const [idpago, setIdPago] = useState(null)
 
   const { userInfo } = useAuth()
   const [medicoId, setMedicoId] = useState(new Set([]))
@@ -116,10 +117,11 @@ export default function AttentionProcessTable({
                         if (detail.estado === 'P') {
                           handleChangeStatus(
                             detail.iddetatencion,
-                            detail.estado
+                            detail.idpago
                           )
                         } else {
                           setIdDetAttention(detail.iddetatencion)
+                          setIdPago(detail.idpago)
                         }
                       }}
                     >
@@ -174,7 +176,7 @@ export default function AttentionProcessTable({
 
   const selectMedico = Array.from(medicoId)[0]
 
-  const handleChangeStatus = async (idDetAttention) => {
+  const handleChangeStatus = async (idDetAttention, idpago) => {
     const result = await changeStatus(idDetAttention, 'A')
 
     if (result) {
@@ -186,7 +188,7 @@ export default function AttentionProcessTable({
           return item
         })
       })
-      socket.emit('client:newAction', { action: "Change Atenciones" })
+      socket.emit('client:newAction', { action: 'Change Atenciones', idpago })
     } else {
       toast.error('Error al cambiar el estado')
     }
@@ -204,7 +206,7 @@ export default function AttentionProcessTable({
     handleCancel()
     onClose()
     await updateMedicoByDetatencion(data, idDetAttention)
-    socket.emit('client:newAction', { action: "Change Atenciones" })
+    socket.emit('client:newAction', { action: 'Change Atenciones', idpago })
   }
 
   const handleCancel = () => {

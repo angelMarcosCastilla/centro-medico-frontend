@@ -129,28 +129,17 @@ export default function Reembolsos() {
   }, [items.length, page, pages])
 
   useEffect(() => {
-    socket.on('server:newAction', ({ action }) => {
+    socket.on('server:newAction', async ({ action, idpago }) => {
       if (action === 'Change Atenciones') {
-        refresh()
-        if (payment.idpago) {
-          // si hay modal abierto se cierra
-          const updatedPayment = data.find(
-            (item) => item.idpago === payment.idpago
-          )
-          if (updatedPayment) {
-            setPayment({})
-          }
-
-          if (data.length === 0) {
-            setPayment({})
-          }
+        if(payment.idpago === idpago){
+          setPayment({})
         }
       }
     })
 
     return () => socket.off('server:newAction')
-  }, [data])
-  
+  }, [])
+
   return (
     <>
       <CardHeader className='flex justify-between'>
