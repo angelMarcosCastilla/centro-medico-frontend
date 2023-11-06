@@ -95,6 +95,7 @@ export default function Triaje() {
       fecha_nacimiento,
       create_at,
       estado,
+      idpago,
       ...rest
     } = triajeData
 
@@ -111,7 +112,7 @@ export default function Triaje() {
         correo,
         direccion,
         fecha_nacimiento,
-        idpago: triajeData.idpago
+        idpago
       },
       complicaciones: rest
     }

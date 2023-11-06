@@ -131,14 +131,14 @@ export default function Reembolsos() {
   useEffect(() => {
     socket.on('server:newAction', async ({ action, idpago }) => {
       if (action === 'Change Atenciones') {
-        if(payment.idpago === idpago){
+        if (payment.idpago === idpago) {
           setPayment({})
         }
       }
     })
 
     return () => socket.off('server:newAction')
-  }, [])
+  }, [payment])
 
   return (
     <>

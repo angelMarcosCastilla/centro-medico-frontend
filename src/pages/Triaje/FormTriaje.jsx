@@ -105,7 +105,10 @@ export default function FormTriaje() {
       }
       const result = await createTriage(data)
       if (result.isSuccess) {
-        socket.emit('client:newAction', { action: 'Change Atenciones', idpago: state.datosPaciente.idpago  })
+        socket.emit('client:newAction', {
+          action: 'Change Atenciones',
+          idpago: state.datosPaciente.idpago
+        })
         socket.emit('client:newAction', { action: 'New Admision' })
         toast.success('Registrado correctamente')
         navigate('/triaje', { replace: true })

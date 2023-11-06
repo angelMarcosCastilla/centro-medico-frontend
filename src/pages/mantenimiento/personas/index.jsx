@@ -403,7 +403,7 @@ export default function Personas() {
           if (!open) dataToEdit.current = null
           setIsOpen(open)
         }}
-        dataToEdit={dataToEdit.current}
+        personToEdit={dataToEdit.current}
         refresh={refresh}
       />
 
