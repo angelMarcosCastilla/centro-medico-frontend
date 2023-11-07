@@ -32,7 +32,7 @@ export default function ModalDetails({ isOpen, onOpenChange, detail }) {
               <div className='gap-4'>
                 <div className='mb-4'>
                   <h3 className='text-lg font-semibold mb-1'>
-                    Información general
+                    Información General
                   </h3>
                   <table className='w-full'>
                     <tbody>

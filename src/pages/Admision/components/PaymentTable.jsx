@@ -168,12 +168,13 @@ export default function PaymentTable({
                 <TableCell>{pago.tipo_pago}</TableCell>
                 <TableCell>{pago.cantidad.toFixed(2)}</TableCell>
                 <TableCell>
-                  <div className='relative flex items-center gap-2'>
+                  <div className='relative flex items-center gap-x-1'>
                     <Tooltip content='Eliminar' color='danger' closeDelay={0}>
                       <Button
                         isIconOnly
                         color='danger'
                         variant='light'
+                        size='sm'
                         onClick={() => {
                           handleRemovePayment(index)
                         }}

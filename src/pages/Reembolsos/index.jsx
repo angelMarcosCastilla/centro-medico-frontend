@@ -6,6 +6,7 @@ import {
   CardHeader,
   Divider,
   Pagination,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -15,7 +16,7 @@ import {
   Tooltip,
   useDisclosure
 } from '@nextui-org/react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { usePagination } from '../../hook/usePagination'
 import { formatDate } from '../../utils/date'
 import { Eye, RotateCcw } from 'lucide-react'
@@ -23,6 +24,7 @@ import ModalDetails from './components/ModalDetails'
 import ModalFormRefund from './components/ModalFormRefund'
 import { TIPO_COMPROBANTE } from '../../constants/state'
 import DateTimeClock from '../../components/DateTimeClock'
+import { socket } from '../../components/Socket'
 
 const columns = [
   { name: 'PACIENTE', uid: 'paciente', sortable: true },
@@ -46,7 +48,7 @@ export default function Reembolsos() {
     onOpenChange: onOpenChangeForm
   } = useDisclosure()
 
-  const { data, refresh } = useFetcher(listPaymentsForRefunds)
+  const { data, loading, refresh } = useFetcher(listPaymentsForRefunds)
   const [payment, setPayment] = useState({})
 
   const { items, page, pages, onNextPage, onPreviousPage, setPage } =
@@ -126,6 +128,18 @@ export default function Reembolsos() {
     )
   }, [items.length, page, pages])
 
+  useEffect(() => {
+    socket.on('server:newAction', async ({ action, idpago }) => {
+      if (action === 'Change Atenciones') {
+        if (payment.idpago === idpago) {
+          setPayment({})
+        }
+      }
+    })
+
+    return () => socket.off('server:newAction')
+  }, [payment])
+
   return (
     <>
       <CardHeader className='flex justify-between'>
@@ -135,7 +149,7 @@ export default function Reembolsos() {
       <Divider />
       <CardBody>
         <Table
-          aria-label='Example table with custom cells, pagination and sorting'
+          aria-label='Tabla que listará los pagos para posibles reembolsos'
           isHeaderSticky
           removeWrapper
           isStriped
@@ -159,6 +173,8 @@ export default function Reembolsos() {
             )}
           </TableHeader>
           <TableBody
+            isLoading={loading}
+            loadingContent={<Spinner />}
             emptyContent='No se encontraron pagos en este día'
             items={items}
           >
@@ -174,13 +190,13 @@ export default function Reembolsos() {
       </CardBody>
 
       <ModalDetails
-        isOpen={isOpen}
+        isOpen={isOpen && payment?.idpago}
         onOpenChange={onOpenChange}
         detail={payment}
       />
 
       <ModalFormRefund
-        isOpen={isOpenForm}
+        isOpen={isOpenForm && payment?.idpago}
         onOpenChange={onOpenChangeForm}
         paymentData={payment}
         refreshTable={refresh}

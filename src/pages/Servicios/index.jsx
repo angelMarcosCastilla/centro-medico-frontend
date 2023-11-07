@@ -1,14 +1,16 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   Button,
-  Card,
   CardBody,
+  CardHeader,
+  Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
   Input,
   Pagination,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -18,13 +20,7 @@ import {
   Tooltip,
   useDisclosure
 } from '@nextui-org/react'
-import {
-  ChevronDownIcon,
-  PencilLine,
-  Plus,
-  SearchIcon,
-  Trash2
-} from 'lucide-react'
+import { ChevronDownIcon, Edit, Plus, SearchIcon, Trash } from 'lucide-react'
 import { getAllServices, removeService } from '../../services/service'
 import { useFetcher } from '../../hook/useFetcher'
 import { capitalize } from '../../utils'
@@ -32,12 +28,13 @@ import ModalFormService from './components/ModalFormService'
 import { QuestionModal } from '../../components/QuestionModal'
 import { toast } from 'sonner'
 import { usePagination } from '../../hook/usePagination'
+import DateTimeClock from '../../components/DateTimeClock'
 
 const columns = [
   { name: 'ÁREA', uid: 'area', sortable: true },
   { name: 'CATEGORÍA', uid: 'categoria', sortable: true },
   { name: 'SERVICIO', uid: 'servicio', sortable: true },
-  { name: 'OBSERVACION', uid: 'observacion', sortable: true },
+  { name: 'OBSERVACIÓN', uid: 'observacion', sortable: true },
   { name: 'PRECIO', uid: 'precio', sortable: true },
   { name: 'ACCIONES', uid: 'acciones' }
 ]
@@ -70,7 +67,7 @@ export default function Servicios() {
     onOpenChange: onOpenChangeQuestionDelete
   } = useDisclosure()
 
-  const { data, refresh } = useFetcher(getAllServices)
+  const { data, loading, refresh } = useFetcher(getAllServices)
 
   const transformedData = useMemo(() => {
     return data
@@ -170,25 +167,31 @@ export default function Servicios() {
     switch (columnKey) {
       case 'acciones':
         return (
-          <div className='relative flex items-center gap-2'>
+          <div className='relative flex items-center gap-x-1'>
             <Tooltip content='Editar' color='primary' closeDelay={0}>
-              <span
-                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
-                onClick={() => handleEditClick(service.idservicio)}
+              <Button
+                isIconOnly
+                color='primary'
+                variant='light'
+                size='sm'
+                onPress={() => handleEditClick(service.idservicio)}
               >
-                <PencilLine size={20} />
-              </span>
+                <Edit size={20} />
+              </Button>
             </Tooltip>
             <Tooltip color='danger' content='Eliminar' closeDelay={0}>
-              <span
-                className='text-lg text-danger cursor-pointer active:opacity-50'
-                onClick={() => {
+              <Button
+                isIconOnly
+                color='danger'
+                variant='light'
+                size='sm'
+                onPress={() => {
                   serviceId.current = service.idservicio
                   onOpenQuestionDelete()
                 }}
               >
-                <Trash2 size={20} />
-              </span>
+                <Trash size={20} />
+              </Button>
             </Tooltip>
           </div>
         )
@@ -216,7 +219,7 @@ export default function Servicios() {
           <Input
             isClearable
             className='w-full sm:max-w-[44%]'
-            placeholder='Buscar por nombre...'
+            placeholder='Buscar por servicio...'
             startContent={<SearchIcon />}
             value={filterValue}
             onClear={() => onClear()}
@@ -264,14 +267,11 @@ export default function Servicios() {
                 selectionMode='multiple'
                 onSelectionChange={setVisibleColumns}
               >
-                {columns.map((column) => {
-                  if (column.uid === 'estado') return null
-                  return (
-                    <DropdownItem key={column.uid} className='capitalize'>
-                      {capitalize(column.name)}
-                    </DropdownItem>
-                  )
-                })}
+                {columns.map((column) => (
+                  <DropdownItem key={column.uid} className='capitalize'>
+                    {capitalize(column.name)}
+                  </DropdownItem>
+                ))}
               </DropdownMenu>
             </Dropdown>
             <Button
@@ -345,49 +345,51 @@ export default function Servicios() {
 
   return (
     <>
-      <Card shadow='none'>
-        <CardBody>
-          <Table
-            isHeaderSticky
-            isStriped
-            aria-label='Example table with custom cells, pagination and sorting'
-            bottomContent={bottomContent}
-            bottomContentPlacement='outside'
-            classNames={{
-              wrapper: 'max-h-[600px]'
-            }}
-            sortDescriptor={sortDescriptor}
-            topContent={topContent}
-            topContentPlacement='outside'
-            shadow='none'
-            onSortChange={setSortDescriptor}
+      <CardHeader className='flex justify-between'>
+        <h2 className='text-2xl'>Servicios médicos</h2>
+        <DateTimeClock />
+      </CardHeader>
+      <Divider />
+      <CardBody>
+        <Table
+          isHeaderSticky
+          isStriped
+          removeWrapper
+          tabIndex={-1}
+          aria-label='Tabla CRUD de servicios médicos'
+          bottomContent={bottomContent}
+          bottomContentPlacement='outside'
+          classNames={{
+            wrapper: 'max-h-[600px]'
+          }}
+          sortDescriptor={sortDescriptor}
+          topContent={topContent}
+          topContentPlacement='outside'
+          onSortChange={setSortDescriptor}
+        >
+          <TableHeader columns={headerColumns}>
+            {(column) => (
+              <TableColumn key={column.uid} allowsSorting={column.sortable}>
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            isLoading={loading}
+            loadingContent={<Spinner />}
+            emptyContent='No se encontraron servicios'
+            items={sortedItems}
           >
-            <TableHeader columns={headerColumns}>
-              {(column) => (
-                <TableColumn
-                  key={column.uid}
-                  align={column.uid === 'actions' ? 'center' : 'start'}
-                  allowsSorting={column.sortable}
-                >
-                  {column.name}
-                </TableColumn>
-              )}
-            </TableHeader>
-            <TableBody
-              emptyContent={'No se encontraron servicios'}
-              items={sortedItems}
-            >
-              {(item) => (
-                <TableRow key={crypto.randomUUID().toString()}>
-                  {(columnKey) => (
-                    <TableCell>{renderCell(item, columnKey)}</TableCell>
-                  )}
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardBody>
-      </Card>
+            {(item) => (
+              <TableRow key={crypto.randomUUID().toString()}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardBody>
 
       <ModalFormService
         isOpen={isOpen}
@@ -398,11 +400,16 @@ export default function Servicios() {
       />
 
       <QuestionModal
-        textContent='¿Seguro de eliminar?'
+        title='Eliminar servicio'
+        textContent='¿Está seguro que quiere eliminar el servicio? Esta acción es irreversible.'
         isOpen={isOpenQuestionDelete}
         onOpenChange={onOpenChangeQuestionDelete}
         data={serviceId}
-        onConfirm={confirmDelete}
+        confirmConfig={{
+          text: 'Eliminar',
+          color: 'danger',
+          action: confirmDelete
+        }}
       />
     </>
   )

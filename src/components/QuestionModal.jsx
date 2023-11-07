@@ -6,6 +6,8 @@ import {
   ModalFooter,
   ModalHeader
 } from '@nextui-org/react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 export function QuestionModal({
   title = 'Centro Médico Melchorita',
@@ -13,10 +15,23 @@ export function QuestionModal({
   isOpen,
   onOpenChange,
   onCancel,
-  onConfirm
+  confirmConfig = { text: 'Aceptar', color: 'primary' }
 }) {
+  const [loading, setLoading] = useState(false)
+
+  const handleConfirm = async (onClose) => {
+    setLoading(true)
+    try {
+      await confirmConfig.action()
+      onClose()
+    } catch (err) {
+      toast.error('Ocurrió un problema, intente más tarde')
+    } finally {
+      setLoading(false)
+    }
+  }
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='xs'>
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='sm'>
       <ModalContent>
         {(onClose) => (
           <>
@@ -26,7 +41,6 @@ export function QuestionModal({
             </ModalBody>
             <ModalFooter>
               <Button
-                color='danger'
                 variant='light'
                 onPress={() => {
                   onCancel && onCancel()
@@ -36,13 +50,12 @@ export function QuestionModal({
                 Cancelar
               </Button>
               <Button
-                color='primary'
-                onPress={() => {
-                  onConfirm()
-                  onClose()
-                }}
+                isLoading={loading}
+                color={confirmConfig.color}
+                onPress={() => handleConfirm(onClose)}
+                className='text-white'
               >
-                Confirmar
+                {confirmConfig.text}
               </Button>
             </ModalFooter>
           </>

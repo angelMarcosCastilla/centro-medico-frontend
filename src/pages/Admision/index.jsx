@@ -27,16 +27,17 @@ import ModalNewPerson from './components/ModalNewPerson'
 import ModalNewCompany from './components/ModalNewCompany'
 import PaymentTable from './components/PaymentTable'
 import { validateFieldsFormAdmision } from './utils'
-import { calculatePersonAge } from '../../utils/date'
+import { isPersonAdult } from '../../utils/date'
 import ServiceTable from './components/ServiceTable'
 import { useFetcher } from '../../hook/useFetcher'
 import MedicalServicesSummary from './components/MedicalServicesSummary'
-import { AutocompleteProvider } from '../../components/AutocompleteProvider'
+import { SearcherProvider } from '../../components/SearcherProvider'
 import { socket } from '../../components/Socket'
 
 export default function Admision() {
   const [serviceDetails, setServiceDetails] = useState([])
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
+  const [loading, setLoading] = useState(false)
   const [selected, setSelected] = useState('informacion-paciente')
   const [resetTable, setResetTable] = useState(crypto.randomUUID())
   const { data: services } = useFetcher(getAllServices)
@@ -153,7 +154,7 @@ export default function Admision() {
       } = result.data
       const fechaFormateada = fechaNacimiento.split('T')[0]
 
-      if (!calculatePersonAge(fechaFormateada)) {
+      if (!isPersonAdult(fechaFormateada)) {
         return toast.error('El cliente debe ser mayor de edad.')
       }
 
@@ -205,32 +206,39 @@ export default function Admision() {
   }
 
   const handleAddAdmissionAndData = async () => {
-    const updatedDataToSend = {
-      ...dataToSend,
-      pagoData: {
-        ...dataToSend.pagoData,
-        saldo: 0,
-        convenio: dataCliente.convenio
+    try {
+      setLoading(true)
+      const updatedDataToSend = {
+        ...dataToSend,
+        pagoData: {
+          ...dataToSend.pagoData,
+          saldo: 0,
+          convenio: dataCliente.convenio
+        }
       }
-    }
-    const result = await addAdmissionAndData(updatedDataToSend)
+      const result = await addAdmissionAndData(updatedDataToSend)
 
-    if (result.isSuccess) {
-      const action =
-        dataToSend.detalleAtencion[0].estado === 'PT'
-          ? 'New Triaje'
-          : 'New Admision'
-      socket.emit('client:newAction', { action })
-      toast.success(result.message)
-      setDataPaciente({})
-      setDataCliente({})
-      setServiceDetails([])
-      setIsSamePatient(false)
-      setSelected('informacion-paciente')
-      setResetTable(crypto.randomUUID())
-      resetDataToSend()
-    } else {
-      toast.error(result.message)
+      if (result.isSuccess) {
+        const action =
+          dataToSend.detalleAtencion[0].estado === 'PT'
+            ? 'New Triaje'
+            : 'New Admision'
+        socket.emit('client:newAction', { action })
+        toast.success(result.message)
+        setDataPaciente({})
+        setDataCliente({})
+        setServiceDetails([])
+        setIsSamePatient(false)
+        setSelected('informacion-paciente')
+        setResetTable(crypto.randomUUID())
+        resetDataToSend()
+      } else {
+        toast.error(result.message)
+      }
+    } catch (err) {
+      toast.error('Ocurrió un problema al guardar')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -471,7 +479,7 @@ export default function Admision() {
                   />
                 </div>
                 {dataToSend.pagoData.tipoComprobante !== 'F' &&
-                  calculatePersonAge(dataPaciente.fechaNacimiento) && (
+                  isPersonAdult(dataPaciente.fechaNacimiento) && (
                     <div className='justify-items-start'>
                       <Checkbox
                         size='sm'
@@ -503,19 +511,20 @@ export default function Admision() {
           color='primary'
           onClick={handleAddAdmissionAndData}
           isDisabled={!isSaveButtonDisabled || !isPaymentValid}
+          isLoading={loading}
         >
           Guardar
         </Button>
       </CardFooter>
 
-      <AutocompleteProvider>
+      <SearcherProvider>
         <ModalServicios
           data={services}
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           onChange={handleAddServices}
         />
-      </AutocompleteProvider>
+      </SearcherProvider>
 
       <ModalNewPerson
         isPatient={isPatient.current}

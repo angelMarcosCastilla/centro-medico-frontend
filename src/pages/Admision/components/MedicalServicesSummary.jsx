@@ -17,14 +17,14 @@ export default function MedicalServicesSummary({ detService, totalAmount }) {
         >
           <span>{service.nombre}</span>
           <span className='text-right'>
-            S/. {(service.precio - service.descuento).toFixed(2)}
+            S/ {(service.precio - service.descuento).toFixed(2)}
           </span>
         </div>
       ))}
 
       <div className='text-lg mt-10 px-5 font-bold rounded-lg py-5 bg-blue-100 flex text-blue-700 justify-between items-center gap-x-2'>
         <span>Total</span>
-        S/. {totalAmount ? totalAmount.toFixed(2) : '0'}
+        S/ {totalAmount ? totalAmount.toFixed(2) : '0'}
       </div>
     </div>
   )

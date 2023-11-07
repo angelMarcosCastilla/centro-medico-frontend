@@ -8,7 +8,7 @@ export const createQueryParams = (paramsObj) => {
   return `?${params.toString()}`
 }
 
-export const calculatePersonAge = (date) => {
+/* export const calculatePersonAge = (date) => {
   const dateFormat = date?.split('/')
   if (dateFormat) {
     const fechaInvertida = `${dateFormat[2]}-${dateFormat[1]}-${dateFormat[0]}`
@@ -27,6 +27,33 @@ export const calculatePersonAge = (date) => {
       return false
     }
   }
+} */
+
+export const calculatePersonAge = (date) => {
+  let birthDate
+
+  if (typeof date === 'string') {
+    const dateFormat = date.split('/')
+    if (dateFormat.length === 3) {
+      birthDate = new Date(`${dateFormat[2]}-${dateFormat[1]}-${dateFormat[0]}`)
+    } else {
+      birthDate = new Date(date)
+    }
+  } else if (date instanceof Date) {
+    birthDate = date
+  } else {
+    return null
+  }
+
+  const currentDate = new Date()
+  const millisecondsDiff = currentDate - birthDate
+  const age = millisecondsDiff / (365.25 * 24 * 60 * 60 * 1000)
+  return Math.floor(age)
+}
+
+export const isPersonAdult = (date, minimumAge = 18) => {
+  const age = calculatePersonAge(date)
+  return age !== null && age >= minimumAge
 }
 
 export const formatDate = (dateString, includeTime = false) => {
