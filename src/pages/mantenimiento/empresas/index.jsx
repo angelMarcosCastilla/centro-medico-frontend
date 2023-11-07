@@ -100,26 +100,12 @@ export default function Empresa() {
           .includes(filterValue.toLocaleLowerCase())
       )
     }
-    const filteredInactiveCompanies = filteredEmpresas.filter(
-      (empresa) =>
-        empresa.estado === 'Inactivo' && empresa.convenio === 'Inactivo'
-    )
-
-    const filteredActiveCompanies = filteredEmpresas.filter(
-      (empresa) => empresa.estado !== 'Activo' || empresa.convenio !== 'Activo'
-    )
-
-    const orderedItems = [
-      ...filteredActiveCompanies,
-      ...filteredInactiveCompanies
-    ]
-
-    return orderedItems
+    
+    return filteredEmpresas
   }, [transformedData, filterValue])
 
   const {
     items,
-
     page,
     pages,
     setPage
@@ -156,9 +142,9 @@ export default function Empresa() {
     const cellValue = empresa[columnKey]
     const tooltipContent = (
       <div>
+        <p>Inicio : {empresa.fecha_inicio ? formatDate(empresa.fecha_inicio): '------'}</p>
         <p>
-          Inicio :{' '}
-          {empresa.fecha_inicio ? formatDate(empresa.fecha_inicio) : '---'}
+          Fin :{empresa.fecha_fin ? formatDate(empresa.fecha_fin) : '-----'}
         </p>
         <p>Fin :{empresa.fecha_fin ? formatDate(empresa.fecha_fin) : '---'}</p>
       </div>
@@ -167,8 +153,8 @@ export default function Empresa() {
       <div>
         <p>Creacion: {formatDate(empresa.create_at)}</p>
         <p>
-          Actualizacion :
-          {empresa.update_at ? formatDate(empresa.update_at) : ' ---'}
+          Actualizacion : 
+          { empresa.update_at ? formatDate(empresa.update_at) : ' -----'}
         </p>
       </div>
     )
@@ -194,12 +180,10 @@ export default function Empresa() {
             Activo
           </Chip>
         </Tooltip>
-      ) : (
-        <Tooltip content={tooltipContent}>
+      ) : (   
           <Chip color='danger' variant='flat'>
             Inactivo
-          </Chip>
-        </Tooltip>
+          </Chip>        
       )
     }
 
@@ -230,7 +214,8 @@ export default function Empresa() {
                   companyID.current = empresa.idempresa
                   onOpenQuestionDelete()
                 }}
-              >
+                isDisabled={!empresa.estado}
+            >
                 <BadgeX size={20} />
               </Button>
             )}
@@ -244,6 +229,7 @@ export default function Empresa() {
               onClick={() => {
                 
               }}
+            isDisabled={!empresa.convenio}
             >
               <Trash size={20} />
             </Button>
