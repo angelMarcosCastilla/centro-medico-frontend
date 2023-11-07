@@ -95,7 +95,9 @@ export default function Empresa() {
     if (hasSearchFilter) {
       // Filtrar por término de búsqueda en el campo "razon_social"
       filteredEmpresas = filteredEmpresas.filter((company) =>
-        company.razon_social.toLowerCase().includes(filterValue.toLocaleLowerCase())
+        company.razon_social
+          .toLowerCase()
+          .includes(filterValue.toLocaleLowerCase())
       )
     }
     const filteredInactiveCompanies = filteredEmpresas.filter(
@@ -104,8 +106,7 @@ export default function Empresa() {
     )
 
     const filteredActiveCompanies = filteredEmpresas.filter(
-      (empresa) =>
-        empresa.estado !== 'Activo' || empresa.convenio !== 'Activo'
+      (empresa) => empresa.estado !== 'Activo' || empresa.convenio !== 'Activo'
     )
 
     const orderedItems = [
@@ -118,11 +119,11 @@ export default function Empresa() {
 
   const {
     items,
-    
+
     page,
     pages,
     setPage
-  } = usePagination(filteredItems,26)
+  } = usePagination(filteredItems, 50)
 
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
@@ -134,10 +135,10 @@ export default function Empresa() {
     })
   }, [sortDescriptor, items])
 
-  const handleEditClick = (company) => {  
-    console.log('Estado de la empresa:', company.estado)  
-      setEditCompany(company)      
-      onOpen()  
+  const handleEditClick = (company) => {
+    console.log('Estado de la empresa:', company.estado)
+    setEditCompany(company)
+    onOpen()
   }
 
   const confirmDelete = async () => {
@@ -155,18 +156,19 @@ export default function Empresa() {
     const cellValue = empresa[columnKey]
     const tooltipContent = (
       <div>
-        <p>Fecha Inicio : {empresa.fecha_inicio ? formatDate(empresa.fecha_inicio): '------'}</p>
         <p>
-          Fecha Fin :{empresa.fecha_fin ? formatDate(empresa.fecha_fin) : '-----'}
+          Inicio :{' '}
+          {empresa.fecha_inicio ? formatDate(empresa.fecha_inicio) : '---'}
         </p>
+        <p>Fin :{empresa.fecha_fin ? formatDate(empresa.fecha_fin) : '---'}</p>
       </div>
     )
     const tooltipContents1 = (
       <div>
-        <p>Fecha Creacion: {formatDate(empresa.create_at)}</p>
+        <p>Creacion: {formatDate(empresa.create_at)}</p>
         <p>
-          Fecha Actualizacion :
-          {empresa.update_at ? formatDate(empresa.update_at) : ' -----'}
+          Actualizacion :
+          {empresa.update_at ? formatDate(empresa.update_at) : ' ---'}
         </p>
       </div>
     )
@@ -205,39 +207,45 @@ export default function Empresa() {
       return (
         <div className='relative flex items-center gap-2'>
           <Tooltip content='Editar' color='primary' closeDelay={0}>
-            <Button
-              isIconOnly
-              color='primary'
-              size='sm'
-              variant='light'
-              onClick={() => handleEditClick(empresa.idempresa)}
-              isDisabled={!empresa.estado  }
-            >
-              <PenSquare size={20} />
-            </Button>
+            {empresa.estado && (
+              <Button
+                isIconOnly
+                color='primary'
+                size='sm'
+                variant='light'
+                onClick={() => handleEditClick(empresa.idempresa)}
+              >
+                <PenSquare size={20} />
+              </Button>
+            )}
           </Tooltip>
           <Tooltip color='danger' content='Eliminar' closeDelay={0}>
+            {empresa.estado && (
+              <Button
+                isIconOnly
+                color='danger'
+                size='sm'
+                variant='light'
+                onClick={() => {
+                  companyID.current = empresa.idempresa
+                  onOpenQuestionDelete()
+                }}
+              >
+                <BadgeX size={20} />
+              </Button>
+            )}
+          </Tooltip>
+          <Tooltip content='ELiminar convenio' color='danger' closeDelay={0}>
             <Button
               isIconOnly
               color='danger'
               size='sm'
               variant='light'
               onClick={() => {
-                companyID.current = empresa.idempresa
-                onOpenQuestionDelete()
+                
               }}
             >
-              <BadgeX size={20} />
-            </Button>
-          </Tooltip>
-          <Tooltip color='danger' content='Eliminar Convenio' closeDelay={0}>
-            <Button
-            isIconOnly
-            color='danger'
-            size='sm'
-            variant='light'
-            >
-              <Trash size={20}/>
+              <Trash size={20} />
             </Button>
           </Tooltip>
         </div>
@@ -287,7 +295,6 @@ export default function Empresa() {
           <span className='text-default-400 text-small'>
             Total: {transformedData.length} empresas
           </span>
-          
         </div>
       </div>
     )
@@ -311,7 +318,6 @@ export default function Empresa() {
           total={pages}
           onChange={setPage}
         />
-    
       </div>
     )
   }, [items.length, page, pages, hasSearchFilter])

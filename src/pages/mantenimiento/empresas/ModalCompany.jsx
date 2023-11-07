@@ -23,7 +23,9 @@ const INITIAL_FORM = {
   razonSocial: '',
   ruc: '',
   direccion: '',
-  registrarConvenio: false
+  registrarConvenio: false,
+  fechaInicio: '',
+  fechaFin: ''
 }
 
 export default function ModalCompany({
@@ -34,7 +36,7 @@ export default function ModalCompany({
   refreshTable
 }) {
   const [loading, setLoading] = useState(false)
-  const [form, setForm] = useState({})
+  const [form, setForm] = useState({ INITIAL_FORM })
   const [selected, setSelected] = useState([])
   // const { dataToSend, setDataToSend } = useDataContext()
 
@@ -47,14 +49,33 @@ export default function ModalCompany({
   }
 
   const handleCheckBoxChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.checked
-    })
+    const { name, checked } = e.target
+    if (!checked) {
+      setForm(INITIAL_FORM) // Resetear los valores del formulario a su estado inicial cuando se desmarca el checkbox
+    } else {
+      setForm({ ...form, [name]: checked })
+    }
   }
 
   const handleSubmitCompany = async (e, onClose) => {
     e.preventDefault()
+    const currentDate = new Date()
+    const formattedCurrentDate = currentDate.toISOString().split('T')[0]
+
+    // Validar las fechas solo si registrarConvenio está habilitado
+    if (form.registrarConvenio) {
+      if (form.fechaInicio < formattedCurrentDate) {
+        toast.error(
+          'La fecha de inicio debe ser igual o mayor a la fecha actual.'
+        )
+        return
+      }
+
+      if (form.fechaFin && form.fechaFin <= formattedCurrentDate) {
+        toast.error('La fecha de fin debe ser mayor a la fecha actual.')
+        return
+      }
+    }
 
     try {
       setLoading(true)
@@ -95,14 +116,13 @@ export default function ModalCompany({
           razonSocial: res.razon_social,
           ruc: res.ruc,
           direccion: res.direccion,
-          registrarConvenio: Boolean(res.registrar_convenio)
+          registrarConvenio: Boolean(res.registrar_convenio),
+          fechaInicio: res.fecha_inicio || '', // Asegúrate de que fechaInicio tenga un valor definido
+          fechaFin: res.fecha_fin || ''
         })
-
-        setSelected([res.registrar_convenio === 1 ? 'Convenio' : ''])
       })
     } else {
       setForm(INITIAL_FORM)
-      setSelected([])
     }
   }, [operation, serviceToEdit])
 
@@ -135,9 +155,7 @@ export default function ModalCompany({
           >
             <ModalHeader className='flex flex-col gap-1'>
               <h2 className='text-xl'>
-                {operation === 'edit'
-                  ? 'Editar Empresa'
-                  : 'Registrar Empresa'}
+                {operation === 'edit' ? 'Editar Empresa' : 'Registrar Empresa'}
               </h2>
             </ModalHeader>
             <ModalBody>
@@ -171,21 +189,50 @@ export default function ModalCompany({
                   name='direccion'
                 />
               </div>
-              <div className='grid grid-cols-2 gap-x-4'>
-                <CheckboxGroup
-                  orientation='horizontal'
-                  value={selected}
-                  onValueChange={setSelected}
-                >
-                  <Checkbox
-                    name='registrarConvenio'
-                    value='registrarconvenio'
-                    onChange={handleCheckBoxChange}
+              {operation === 'new' && (
+                <div className='grid grid-cols-2 gap-x-4'>
+                  <CheckboxGroup
+                    orientation='horizontal'
+                    value={selected}
+                    onValueChange={setSelected}
                   >
-                    Habilitar Convenio
-                  </Checkbox>
-                </CheckboxGroup>
-              </div>
+                    <Checkbox
+                      name='registrarConvenio'
+                      value='registrarconvenio'
+                      onChange={handleCheckBoxChange}
+                    >
+                      Habilitar Convenio
+                    </Checkbox>
+                  </CheckboxGroup>
+                </div>
+              )}
+              {form.registrarConvenio && (
+                <div className='flex flex-row gap-x-4'>
+                  <Input
+                    name='fechaInicio'
+                    type='date'
+                    className='mb-2'
+                    label='Fecha Inicio'
+                    placeholder='Fecha Inicio'
+                    isRequired
+                    value={form.fechaInicio}
+                    onChange={(e) =>
+                      setForm({ ...form, fechaInicio: e.target.value })
+                    }
+                  />
+                  <Input
+                    className='mb-2'
+                    label='Fecha Fin'
+                    name='fechaFin'
+                    type='date'
+                    placeholder='Fecha Fin'
+                    value={form.fechaFin}
+                    onChange={(e) =>
+                      setForm({ ...form, fechaFin: e.target.value })
+                    }
+                  />
+                </div>
+              )}
             </ModalBody>
             <ModalFooter>
               <Button

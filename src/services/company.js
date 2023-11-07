@@ -29,6 +29,10 @@ export const removeCompany = async (idCompany) => {
   const { data } = await axios.delete(`/empresas/${idCompany}`)
   return data
 }
+export const removeAgreement = async (idCompany) => {
+  const { data } = await axios.delete(`/empresas/${idCompany}`)
+  return data
+}
 
 export const updateCompany = async (idCompany, CompanyData) => {
   const { data } = await axios.put(`/empresas/${idCompany}`, CompanyData)
