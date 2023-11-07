@@ -10,8 +10,8 @@ export const getCompany = async (idCompany) => {
   return data.data
 }
 
-export const addCompanyService = async (CompanyData) => {
-  const { data } = await axios.post('/empresas', CompanyData)
+export const addCompanyService = async (companyData) => {
+  const { data } = await axios.post('/empresas', companyData)
   return data
 }
 
@@ -26,6 +26,10 @@ export const searchCompanyById = async (idEmpresa) => {
 }
 
 export const removeCompany = async (idCompany) => {
+  const { data } = await axios.delete(`/empresas/${idCompany}`)
+  return data
+}
+export const removeAgreement = async (idCompany) => {
   const { data } = await axios.delete(`/empresas/${idCompany}`)
   return data
 }

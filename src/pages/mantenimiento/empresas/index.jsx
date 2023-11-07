@@ -15,12 +15,13 @@ import {
   Tooltip,
   useDisclosure
 } from '@nextui-org/react'
-import { BadgeX, PenSquare, Plus, SearchIcon } from 'lucide-react'
+import { BadgeX, PenSquare, Plus, SearchIcon, Trash } from 'lucide-react'
 
 import { getAllCompany, removeCompany } from '../../../services/company'
 import { toast } from 'sonner'
 import { QuestionModal } from '../../../components/QuestionModal'
 import { useFetcher } from '../../../hook/useFetcher'
+import { formatDate } from '../../../utils/date'
 import { usePagination } from '../../../hook/usePagination'
 import ModalCompany from './ModalCompany'
 
@@ -47,7 +48,7 @@ export default function Empresa() {
   const [visibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS))
 
   const [sortDescriptor, setSortDescriptor] = useState({
-    column: 'idempresa',
+    column: 'id',
     direction: 'descending'
   })
 
@@ -61,18 +62,20 @@ export default function Empresa() {
     onOpenChange: onOpenChangeQuestionDelete
   } = useDisclosure()
 
-  const { data = [], refresh } = useFetcher(getAllCompany)
+  const { data, refresh } = useFetcher(getAllCompany)
 
   const transformedData = data.map((empresa) => {
     return {
       idempresa: empresa.idempresa,
       razon_social: empresa.razon_social,
       ruc: empresa.ruc,
-      estado: empresa.estado ,
-      convenio: empresa.convenio ,
+      estado: empresa.estado,
+      convenio: empresa.convenio,
       direccion: empresa.direccion || '',
       create_at: empresa.create_at,
-      update_at: empresa.update_at || ''
+      update_at: empresa.update_at || '',
+      fecha_inicio: empresa.fecha_inicio || '',
+      fecha_fin: empresa.fecha_fin || ''
     }
   })
 
@@ -80,6 +83,7 @@ export default function Empresa() {
 
   const headerColumns = useMemo(() => {
     if (visibleColumns === 'all') return columns
+
     return columns.filter((column) =>
       Array.from(visibleColumns).includes(column.uid)
     )
@@ -91,23 +95,21 @@ export default function Empresa() {
     if (hasSearchFilter) {
       // Filtrar por término de búsqueda en el campo "razon_social"
       filteredEmpresas = filteredEmpresas.filter((company) =>
-        company.razon_social.toLowerCase().includes(filterValue.toLowerCase())
+        company.razon_social
+          .toLowerCase()
+          .includes(filterValue.toLocaleLowerCase())
       )
     }
-
+    
     return filteredEmpresas
   }, [transformedData, filterValue])
 
   const {
     items,
-    onNextPage,
-    onPreviousPage,
-    rowsPerPage,
-    onRowsPerPageChange,
     page,
     pages,
     setPage
-  } = usePagination(filteredItems)
+  } = usePagination(filteredItems, 50)
 
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
@@ -120,6 +122,7 @@ export default function Empresa() {
   }, [sortDescriptor, items])
 
   const handleEditClick = (company) => {
+    console.log('Estado de la empresa:', company.estado)
     setEditCompany(company)
     onOpen()
   }
@@ -137,53 +140,98 @@ export default function Empresa() {
 
   const renderCell = useCallback((empresa, columnKey) => {
     const cellValue = empresa[columnKey]
+    const tooltipContent = (
+      <div>
+        <p>Inicio : {empresa.fecha_inicio ? formatDate(empresa.fecha_inicio): '------'}</p>
+        <p>
+          Fin :{empresa.fecha_fin ? formatDate(empresa.fecha_fin) : '-----'}
+        </p>
+        <p>Fin :{empresa.fecha_fin ? formatDate(empresa.fecha_fin) : '---'}</p>
+      </div>
+    )
+    const tooltipContents1 = (
+      <div>
+        <p>Creacion: {formatDate(empresa.create_at)}</p>
+        <p>
+          Actualizacion : 
+          { empresa.update_at ? formatDate(empresa.update_at) : ' -----'}
+        </p>
+      </div>
+    )
 
     if (columnKey === 'estado')
       return empresa.estado ? (
-        <Chip color='primary' variant='flat'>
-          Activo
-        </Chip>
+        <Tooltip content={tooltipContents1}>
+          <Chip color='primary' variant='flat'>
+            Activo
+          </Chip>
+        </Tooltip>
       ) : (
-        <Chip color='danger' variant='flat'>
-          Inactivo
-        </Chip>
+        <Tooltip content={tooltipContents1}>
+          <Chip color='danger' variant='flat'>
+            Inactivo
+          </Chip>
+        </Tooltip>
       )
-    if (columnKey === 'convenio')
+    if (columnKey === 'convenio') {
       return empresa.convenio ? (
-        <Chip color='primary' variant='flat'>
-          Activo
-        </Chip>
-      ) : (
-        <Chip color='danger' variant='flat'>
-          Inactivo
-        </Chip>
+        <Tooltip content={tooltipContent}>
+          <Chip color='primary' variant='flat'>
+            Activo
+          </Chip>
+        </Tooltip>
+      ) : (   
+          <Chip color='danger' variant='flat'>
+            Inactivo
+          </Chip>        
       )
+    }
+
     if (columnKey === 'acciones')
       return (
         <div className='relative flex items-center gap-2'>
           <Tooltip content='Editar' color='primary' closeDelay={0}>
-            <Button
-              isIconOnly
-              color='primary'
-              size='sm'
-              variant='light'
-              onClick={() => handleEditClick(empresa.idempresa)}
-            >
-              <PenSquare size={20} />
-            </Button>
+            {empresa.estado && (
+              <Button
+                isIconOnly
+                color='primary'
+                size='sm'
+                variant='light'
+                onClick={() => handleEditClick(empresa.idempresa)}
+              >
+                <PenSquare size={20} />
+              </Button>
+            )}
           </Tooltip>
           <Tooltip color='danger' content='Eliminar' closeDelay={0}>
+            {empresa.estado && (
+              <Button
+                isIconOnly
+                color='danger'
+                size='sm'
+                variant='light'
+                onClick={() => {
+                  companyID.current = empresa.idempresa
+                  onOpenQuestionDelete()
+                }}
+                isDisabled={!empresa.estado}
+            >
+                <BadgeX size={20} />
+              </Button>
+            )}
+          </Tooltip>
+          <Tooltip content='ELiminar convenio' color='danger' closeDelay={0}>
             <Button
               isIconOnly
               color='danger'
               size='sm'
               variant='light'
               onClick={() => {
-                companyID.current = empresa.idempresa
-                onOpenQuestionDelete()
+                
               }}
+            isDisabled={!empresa.convenio}
             >
-              <BadgeX size={20} />
+              <Trash size={20} />
             </Button>
           </Tooltip>
         </div>
@@ -233,25 +281,12 @@ export default function Empresa() {
           <span className='text-default-400 text-small'>
             Total: {transformedData.length} empresas
           </span>
-          <label className='flex items-center text-default-400 text-small'>
-            Filas por página:
-            <select
-              className='bg-transparent outline-none text-default-400 text-small'
-              defaultValue={rowsPerPage}
-              onChange={onRowsPerPageChange}
-            >
-              <option value='5'>5</option>
-              <option value='10'>10</option>
-              <option value='15'>15</option>
-            </select>
-          </label>
         </div>
       </div>
     )
   }, [
     filterValue,
     visibleColumns,
-    onRowsPerPageChange,
     transformedData.length,
     onSearchChange,
     hasSearchFilter
@@ -269,18 +304,6 @@ export default function Empresa() {
           total={pages}
           onChange={setPage}
         />
-        <div className='hidden sm:flex w-[30%] justify-end gap-2'>
-          <Button
-            isDisabled={pages === 1}
-            variant='flat'
-            onPress={onPreviousPage}
-          >
-            Anterior
-          </Button>
-          <Button isDisabled={pages === 1} variant='flat' onPress={onNextPage}>
-            Siguiente
-          </Button>
-        </div>
       </div>
     )
   }, [items.length, page, pages, hasSearchFilter])
@@ -318,7 +341,7 @@ export default function Empresa() {
               {(item) => (
                 <TableRow key={crypto.randomUUID().toString()}>
                   {(columnKey) => (
-                    <TableCell>{renderCell(item, columnKey,true)}</TableCell>
+                    <TableCell>{renderCell(item, columnKey)}</TableCell>
                   )}
                 </TableRow>
               )}

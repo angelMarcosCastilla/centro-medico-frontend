@@ -24,6 +24,7 @@ import Empresa from '../pages/mantenimiento/empresas/index.jsx'
 import ReportePagos from '../pages/Reportes/ReportePagos'
 import Mantenimiento from '../pages/mantenimiento'
 import Personas from '../pages/mantenimiento/Personas'
+import Categorias from '../pages/mantenimiento/categorias/index.jsx'
 import Reembolsos from '../pages/Reembolsos'
 import PagosConvenio from '../pages/PagosConvenio'
 import PersonalMedico from '../pages/mantenimiento/personalMedico/index.jsx'
@@ -145,6 +146,11 @@ const router = createBrowserRouter([
               {
                 path: 'personal-medico',
                 element: <PersonalMedico />
+
+              },
+              {
+                 path: 'categorias',
+                element: <Categorias />
               }
             ]
           },
