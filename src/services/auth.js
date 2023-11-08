@@ -15,3 +15,12 @@ export const validatePassword = async (user, password) => {
   })
   return data
 }
+
+export const changePassword = async (user, oldPassword, newPassword) => {
+  const { data } = await axios.post('/auth/changepassword', {
+    user,
+    oldPassword,
+    newPassword
+  })
+  return data
+}

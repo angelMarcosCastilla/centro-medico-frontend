@@ -7,16 +7,12 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
   User,
   useDisclosure
 } from '@nextui-org/react'
 import { useAuth } from '../context/AuthContext'
 import { mapRoles } from '../constants/auth.constant'
+import Profile from './Profile'
 
 export const SidebarContext = createContext()
 
@@ -85,7 +81,9 @@ export default function Sidebar({ children }) {
                 as='button'
                 avatarProps={{
                   isBordered: true,
-                  src: `https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true&name=${userInfo.nombres}`
+                  src: `https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true&name=${
+                    userInfo.nombres + ' ' + userInfo.apellidos
+                  }`
                 }}
                 {...(expanded && {
                   className: 'transition-transform',
@@ -97,32 +95,6 @@ export default function Sidebar({ children }) {
             <DropdownMenu aria-label='User Actions' variant='flat'>
               <DropdownItem key='profile' onPress={onOpen}>
                 Perfil
-                <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-                  <ModalContent>
-                    {(onClose) => (
-                      <>
-                        <ModalHeader className='flex flex-col gap-1'>
-                          Modal Title
-                        </ModalHeader>
-                        <ModalBody>
-                          <p>perfil</p>
-                        </ModalBody>
-                        <ModalFooter>
-                          <Button
-                            color='danger'
-                            variant='light'
-                            onPress={onClose}
-                          >
-                            Close
-                          </Button>
-                          <Button color='primary' onPress={onClose}>
-                            Action
-                          </Button>
-                        </ModalFooter>
-                      </>
-                    )}
-                  </ModalContent>
-                </Modal>
               </DropdownItem>
               <DropdownItem
                 key='logout'
@@ -136,6 +108,7 @@ export default function Sidebar({ children }) {
               </DropdownItem>
             </DropdownMenu>
           </Dropdown>
+          <Profile isOpen={isOpen} onOpenChange={onOpenChange} />
         </div>
       </nav>
     </aside>
