@@ -3,13 +3,16 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  User
+  User,
+  useDisclosure
 } from '@nextui-org/react'
 import { useAuth } from '../context/AuthContext'
 import { mapRoles } from '../constants/auth.constant'
+import Profile from './Profile'
 
 export default function Header({ title }) {
   const { userInfo, logout } = useAuth()
+  const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
   return (
     <header className='bg-white grid grid-cols-3 items-center sticky top-4 p-5 rounded-2xl shadow-small'>
@@ -42,7 +45,7 @@ export default function Header({ title }) {
             />
           </DropdownTrigger>
           <DropdownMenu aria-label='User Actions' variant='flat'>
-            <DropdownItem key='profile'>Perfil</DropdownItem>
+            <DropdownItem key='profile'  onPress={onOpen}>Perfil</DropdownItem>
             <DropdownItem
               key='logout'
               color='danger'
@@ -55,6 +58,7 @@ export default function Header({ title }) {
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
+        <Profile isOpen={isOpen} onOpenChange={onOpenChange} />
       </div>
     </header>
   )

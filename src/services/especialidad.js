@@ -1,9 +1,9 @@
-import  axios  from 'axios'
+import axios from 'axios'
 export const getAllEspecialidad = async () => {
-  try {
-    const { data } = await axios.get('/especialidades')
-    return data
-  } catch {}
+  const {
+    data: { data }
+  } = await axios.get('/especialidades')
+  return data
 }
 
 export const createPersonalMedico = async (personalMedico) => {
@@ -15,5 +15,4 @@ export const createPersonalMedico = async (personalMedico) => {
     })
     return data
   } catch {}
-
 }
