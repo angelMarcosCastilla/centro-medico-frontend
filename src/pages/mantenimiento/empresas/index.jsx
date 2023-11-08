@@ -1,36 +1,50 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   Button,
-  Card,
   CardBody,
+  CardHeader,
   Chip,
+  Divider,
   Input,
   Pagination,
+  Spinner,
   Table,
   TableBody,
   TableCell,
   TableColumn,
   TableHeader,
   TableRow,
-  Tooltip,
-  useDisclosure
+  Tooltip
 } from '@nextui-org/react'
-import { BadgeX, PenSquare, Plus, SearchIcon, Trash } from 'lucide-react'
-
-import { getAllCompany, removeCompany } from '../../../services/company'
+import {
+  HeartPulse,
+  PenSquare,
+  Plus,
+  RotateCcw,
+  SearchIcon,
+  Trash
+} from 'lucide-react'
+import {
+  disableCompany,
+  enableCompany,
+  getAllCompany
+} from '../../../services/company'
 import { toast } from 'sonner'
 import { QuestionModal } from '../../../components/QuestionModal'
 import { useFetcher } from '../../../hook/useFetcher'
 import { formatDate } from '../../../utils/date'
 import { usePagination } from '../../../hook/usePagination'
-import ModalCompany from './ModalCompany'
+import DateTimeClock from '../../../components/DateTimeClock'
+import ModalFormCompany from './components/ModalFormCompany'
+import ModalFormAgreement from './components/ModalFormAgreement'
+import { removeAgreement } from '../../../services/agreement'
 
 const columns = [
   { name: 'EMPRESA', uid: 'razon_social', sortable: true },
   { name: 'RUC', uid: 'ruc', sortable: true },
   { name: 'DIRECCION', uid: 'direccion', sortable: true },
-  { name: 'ESTADO', uid: 'estado' },
-  { name: 'CONVENIO', uid: 'convenio' },
+  { name: 'CONVENIO', uid: 'convenio', sortable: true },
+  { name: 'ESTADO', uid: 'estado', sortable: true },
   { name: 'ACCIONES', uid: 'acciones' }
 ]
 
@@ -38,46 +52,28 @@ const INITIAL_VISIBLE_COLUMNS = [
   'razon_social',
   'ruc',
   'direccion',
-  'estado',
   'convenio',
+  'estado',
   'acciones'
 ]
 
-export default function Empresa() {
+export default function Empresas() {
   const [filterValue, setFilterValue] = useState('')
   const [visibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS))
-
   const [sortDescriptor, setSortDescriptor] = useState({
     column: 'id',
     direction: 'descending'
   })
 
-  const [editCompany, setEditCompany] = useState(null)
-  const companyID = useRef(null)
+  const { data, loading, mutate, refresh } = useFetcher(getAllCompany)
+  const [disableOrEnableId, setDisableOrEnableId] = useState(null)
+  const operation = useRef('')
+  const [isOpen, setIsOpen] = useState(null)
+  const dataToEdit = useRef()
 
-  const { isOpen, onOpen, onOpenChange } = useDisclosure()
-  const {
-    isOpen: isOpenQuestionDelete,
-    onOpen: onOpenQuestionDelete,
-    onOpenChange: onOpenChangeQuestionDelete
-  } = useDisclosure()
-
-  const { data, refresh } = useFetcher(getAllCompany)
-
-  const transformedData = data.map((empresa) => {
-    return {
-      idempresa: empresa.idempresa,
-      razon_social: empresa.razon_social,
-      ruc: empresa.ruc,
-      estado: empresa.estado,
-      convenio: empresa.convenio,
-      direccion: empresa.direccion || '',
-      create_at: empresa.create_at,
-      update_at: empresa.update_at || '',
-      fecha_inicio: empresa.fecha_inicio || '',
-      fecha_fin: empresa.fecha_fin || ''
-    }
-  })
+  const [isOpenAgreement, setIsOpenAgreement] = useState(null)
+  const [companyId, setCompanyId] = useState(-1)
+  const [deleteAgreementId, setDeleteAgreementId] = useState(null)
 
   const hasSearchFilter = Boolean(filterValue)
 
@@ -90,26 +86,31 @@ export default function Empresa() {
   }, [visibleColumns])
 
   const filteredItems = useMemo(() => {
-    let filteredEmpresas = [...transformedData]
+    let filteredEmpresas = [...data]
 
     if (hasSearchFilter) {
-      // Filtrar por término de búsqueda en el campo "razon_social"
-      filteredEmpresas = filteredEmpresas.filter((company) =>
-        company.razon_social
-          .toLowerCase()
-          .includes(filterValue.toLocaleLowerCase())
+      filteredEmpresas = filteredEmpresas.filter(
+        (company) =>
+          company.razon_social
+            .toLowerCase()
+            .includes(filterValue.toLocaleLowerCase()) ||
+          company.ruc.toLowerCase().includes(filterValue.toLocaleLowerCase())
       )
     }
-    
+
     return filteredEmpresas
-  }, [transformedData, filterValue])
+  }, [data, filterValue])
 
   const {
     items,
+    onNextPage,
+    onPreviousPage,
+    rowsPerPage,
+    onRowsPerPageChange,
     page,
     pages,
     setPage
-  } = usePagination(filteredItems, 50)
+  } = usePagination(filteredItems)
 
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
@@ -121,122 +122,208 @@ export default function Empresa() {
     })
   }, [sortDescriptor, items])
 
-  const handleEditClick = (company) => {
-    console.log('Estado de la empresa:', company.estado)
-    setEditCompany(company)
-    onOpen()
-  }
-
-  const confirmDelete = async () => {
-    const result = await removeCompany(companyID.current)
+  const deleteAgreement = async () => {
+    const result = await removeAgreement(deleteAgreementId)
 
     if (result.isSuccess) {
       toast.success(result.message)
-      refresh()
-    } else {
-      toast.error(result.message)
+
+      mutate((prevCompanies) => {
+        const updatedCompanies = prevCompanies.map((company) => {
+          if (company.idconvenio === deleteAgreementId) {
+            return {
+              ...company,
+              convenio: null,
+              idconvenio: null,
+              fecha_inicio: null,
+              fecha_fin: null
+            }
+          }
+          return company
+        })
+        return updatedCompanies
+      })
     }
   }
 
-  const renderCell = useCallback((empresa, columnKey) => {
-    const cellValue = empresa[columnKey]
-    const tooltipContent = (
-      <div>
-        <p>Inicio : {empresa.fecha_inicio ? formatDate(empresa.fecha_inicio): '------'}</p>
-        <p>
-          Fin :{empresa.fecha_fin ? formatDate(empresa.fecha_fin) : '-----'}
-        </p>
-        <p>Fin :{empresa.fecha_fin ? formatDate(empresa.fecha_fin) : '---'}</p>
-      </div>
-    )
-    const tooltipContents1 = (
-      <div>
-        <p>Creacion: {formatDate(empresa.create_at)}</p>
-        <p>
-          Actualizacion : 
-          { empresa.update_at ? formatDate(empresa.update_at) : ' -----'}
-        </p>
-      </div>
-    )
+  const toogleState = async () => {
+    const result =
+      operation.current === 'disable'
+        ? await disableCompany(disableOrEnableId)
+        : await enableCompany(disableOrEnableId)
 
-    if (columnKey === 'estado')
-      return empresa.estado ? (
-        <Tooltip content={tooltipContents1}>
-          <Chip color='primary' variant='flat'>
-            Activo
-          </Chip>
-        </Tooltip>
-      ) : (
-        <Tooltip content={tooltipContents1}>
-          <Chip color='danger' variant='flat'>
-            Inactivo
-          </Chip>
-        </Tooltip>
-      )
-    if (columnKey === 'convenio') {
-      return empresa.convenio ? (
-        <Tooltip content={tooltipContent}>
-          <Chip color='primary' variant='flat'>
-            Activo
-          </Chip>
-        </Tooltip>
-      ) : (   
-          <Chip color='danger' variant='flat'>
-            Inactivo
-          </Chip>        
-      )
+    if (result.isSuccess) {
+      toast.success(result.message)
+
+      mutate((prevCompanies) => {
+        const updatedCompanies = prevCompanies.map((company) => {
+          if (company.idempresa === disableOrEnableId) {
+            return {
+              ...company,
+              estado: operation.current === 'disable' ? 0 : 1,
+              convenio: null
+            }
+          }
+          return company
+        })
+        return updatedCompanies
+      })
     }
+  }
 
-    if (columnKey === 'acciones')
-      return (
-        <div className='relative flex items-center gap-2'>
-          <Tooltip content='Editar' color='primary' closeDelay={0}>
-            {empresa.estado && (
-              <Button
-                isIconOnly
-                color='primary'
-                size='sm'
-                variant='light'
-                onClick={() => handleEditClick(empresa.idempresa)}
-              >
-                <PenSquare size={20} />
-              </Button>
-            )}
-          </Tooltip>
-          <Tooltip color='danger' content='Eliminar' closeDelay={0}>
-            {empresa.estado && (
-              <Button
-                isIconOnly
-                color='danger'
-                size='sm'
-                variant='light'
-                onClick={() => {
-                  companyID.current = empresa.idempresa
-                  onOpenQuestionDelete()
-                }}
-                isDisabled={!empresa.estado}
-            >
-                <BadgeX size={20} />
-              </Button>
-            )}
-          </Tooltip>
-          <Tooltip content='ELiminar convenio' color='danger' closeDelay={0}>
-            <Button
-              isIconOnly
-              color='danger'
-              size='sm'
-              variant='light'
-              onClick={() => {
-                
-              }}
-            isDisabled={!empresa.convenio}
-            >
-              <Trash size={20} />
-            </Button>
-          </Tooltip>
+  const renderCell = useCallback((company, columnKey) => {
+    const cellValue = company[columnKey]
+
+    const agreementContent = (
+      <div>
+        <div>
+          Inicio:{' '}
+          {company.fecha_inicio ? formatDate(company.fecha_inicio) : '---'}
         </div>
-      )
-    return cellValue
+        <div>
+          Fin: {company.fecha_fin ? formatDate(company.fecha_fin) : '---'}
+        </div>
+      </div>
+    )
+
+    const companyDateInfo = (
+      <div>
+        <div>Creación: {formatDate(company.create_at, true, false)}</div>
+        {company.update_at && (
+          <div>
+            Últ. actu:{' '}
+            {company.update_at
+              ? formatDate(company.update_at, true, false)
+              : ' ---'}
+          </div>
+        )}
+      </div>
+    )
+
+    switch (columnKey) {
+      case 'convenio':
+        return company.convenio ? (
+          <Tooltip
+            content={agreementContent}
+            color='success'
+            className='text-white'
+            closeDelay={0}
+          >
+            <Chip color='success' variant='flat'>
+              Activo
+            </Chip>
+          </Tooltip>
+        ) : (
+          <Chip color='danger' variant='flat'>
+            Inactivo
+          </Chip>
+        )
+      case 'estado':
+        return company.estado ? (
+          <Tooltip
+            content={companyDateInfo}
+            color='success'
+            className='text-white'
+            closeDelay={0}
+          >
+            <Chip color='success' variant='flat'>
+              Activo
+            </Chip>
+          </Tooltip>
+        ) : (
+          <Chip color='danger' variant='flat'>
+            Inactivo
+          </Chip>
+        )
+      case 'acciones':
+        return (
+          <div className='relative flex items-center gap-x-1'>
+            <Tooltip content='Editar' color='primary' closeDelay={0}>
+              {company.estado && (
+                <Button
+                  isIconOnly
+                  color='primary'
+                  variant='light'
+                  size='sm'
+                  onPress={() => {
+                    dataToEdit.current = company
+                    setIsOpen(true)
+                  }}
+                >
+                  <PenSquare size={20} />
+                </Button>
+              )}
+            </Tooltip>
+            {company.estado ? (
+              !company.convenio ? (
+                <Tooltip
+                  content='Agregar convenio'
+                  color='primary'
+                  closeDelay={0}
+                >
+                  <Button
+                    isIconOnly
+                    color='primary'
+                    size='sm'
+                    variant='light'
+                    onPress={() => {
+                      setCompanyId(company.idempresa)
+                      setIsOpenAgreement(true)
+                    }}
+                  >
+                    <HeartPulse size={20} />
+                  </Button>
+                </Tooltip>
+              ) : (
+                <Tooltip
+                  content='Eliminar convenio'
+                  color='danger'
+                  closeDelay={0}
+                >
+                  <Button
+                    isIconOnly
+                    color='danger'
+                    size='sm'
+                    variant='light'
+                    onPress={() => {
+                      setDeleteAgreementId(company.idconvenio)
+                    }}
+                  >
+                    <HeartPulse size={20} />
+                  </Button>
+                </Tooltip>
+              )
+            ) : null}
+
+            <Tooltip
+              content={company.estado === 1 ? 'Eliminar' : 'Activar'}
+              color={company.estado === 1 ? 'danger' : 'success'}
+              className='text-white'
+              closeDelay={0}
+            >
+              <Button
+                isIconOnly
+                size='sm'
+                color={company.estado === 1 ? 'danger' : 'success'}
+                variant='light'
+                onPress={() => {
+                  setDisableOrEnableId(company.idempresa)
+                  operation.current =
+                    company.estado === 1 ? 'disable' : 'enable'
+                }}
+              >
+                {company.estado === 1 ? (
+                  <Trash size={20} />
+                ) : (
+                  <RotateCcw size={20} />
+                )}
+              </Button>
+            </Tooltip>
+          </div>
+        )
+      default:
+        return cellValue
+    }
   }, [])
 
   const onSearchChange = useCallback((value) => {
@@ -258,7 +345,7 @@ export default function Empresa() {
           <Input
             isClearable
             className='w-full sm:max-w-[44%]'
-            placeholder='Buscar por razón social...'
+            placeholder='Buscar por empresa...'
             startContent={<SearchIcon />}
             value={filterValue}
             onClear={() => onClear()}
@@ -269,25 +356,37 @@ export default function Empresa() {
               color='primary'
               endContent={<Plus size={20} />}
               onPress={() => {
-                setEditCompany(null)
-                onOpen()
+                setIsOpen(true)
               }}
             >
-              Nueva empresa
+              Agregar nuevo
             </Button>
           </div>
         </div>
         <div className='flex justify-between items-center'>
           <span className='text-default-400 text-small'>
-            Total: {transformedData.length} empresas
+            Total: {data.length} empresas
           </span>
+          <label className='flex items-center text-default-400 text-small'>
+            Filas por página:
+            <select
+              className='bg-transparent outline-none text-default-400 text-small'
+              defaultValue={rowsPerPage}
+              onChange={onRowsPerPageChange}
+            >
+              <option value='5'>5</option>
+              <option value='10'>10</option>
+              <option value='15'>15</option>
+            </select>
+          </label>
         </div>
       </div>
     )
   }, [
     filterValue,
     visibleColumns,
-    transformedData.length,
+    onRowsPerPageChange,
+    items.length,
     onSearchChange,
     hasSearchFilter
   ])
@@ -304,65 +403,119 @@ export default function Empresa() {
           total={pages}
           onChange={setPage}
         />
+        <div className='hidden sm:flex w-[30%] justify-end gap-2'>
+          <Button
+            isDisabled={pages === 1}
+            variant='flat'
+            onPress={onPreviousPage}
+          >
+            Anterior
+          </Button>
+          <Button isDisabled={pages === 1} variant='flat' onPress={onNextPage}>
+            Siguiente
+          </Button>
+        </div>
       </div>
     )
   }, [items.length, page, pages, hasSearchFilter])
+
   return (
     <>
-      <Card shadow='none'>
-        <CardBody>
-          <Table
-            isHeaderSticky
-            isStriped
-            aria-label='Example table with custom cells, pagination and sorting'
-            bottomContent={bottomContent}
-            bottomContentPlacement='outside'
-            classNames={{
-              wrapper: 'max-h-[600px]'
-            }}
-            sortDescriptor={sortDescriptor}
-            topContent={topContent}
-            topContentPlacement='outside'
-            shadow='none'
-            onSortChange={setSortDescriptor}
+      <CardHeader className='flex justify-between'>
+        <h2 className='text-2xl'>Mantenimiento Empresas</h2>
+        <DateTimeClock />
+      </CardHeader>
+      <Divider />
+      <CardBody>
+        <Table
+          isHeaderSticky
+          isStriped
+          removeWrapper
+          tabIndex={-1}
+          aria-label='Tabla CRUD de empresas y convenios'
+          bottomContent={bottomContent}
+          bottomContentPlacement='outside'
+          classNames={{
+            wrapper: 'max-h-[600px]'
+          }}
+          sortDescriptor={sortDescriptor}
+          topContent={topContent}
+          topContentPlacement='outside'
+          onSortChange={setSortDescriptor}
+        >
+          <TableHeader columns={headerColumns}>
+            {(column) => (
+              <TableColumn key={column.uid} allowsSorting={column.sortable}>
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            isLoading={loading}
+            loadingContent={<Spinner />}
+            emptyContent='No se encontraron empresas'
+            items={sortedItems}
           >
-            <TableHeader columns={headerColumns}>
-              {(column) => (
-                <TableColumn
-                  key={column.uid}
-                  align={column.uid === 'actions' ? 'center' : 'start'}
-                  allowsSorting={column.sortable}
-                >
-                  {column.name}
-                </TableColumn>
-              )}
-            </TableHeader>
-            <TableBody items={sortedItems}>
-              {(item) => (
-                <TableRow key={crypto.randomUUID().toString()}>
-                  {(columnKey) => (
-                    <TableCell>{renderCell(item, columnKey)}</TableCell>
-                  )}
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardBody>
-      </Card>
-      <ModalCompany
+            {(item) => (
+              <TableRow key={crypto.randomUUID().toString()}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardBody>
+
+      <ModalFormCompany
         isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        operation={editCompany ? 'edit' : 'new'}
-        serviceToEdit={editCompany}
-        refreshTable={refresh}
+        onOpenChange={(open) => {
+          if (!open) dataToEdit.current = null
+          setIsOpen(open)
+        }}
+        companyToEdit={dataToEdit.current}
+        refresh={refresh}
+      />
+
+      <ModalFormAgreement
+        isOpen={isOpenAgreement}
+        onOpenChange={(open) => setIsOpenAgreement(open)}
+        companyId={companyId}
+        mutate={mutate}
       />
 
       <QuestionModal
-        textContent='¿Seguro de eliminar?'
-        isOpen={isOpenQuestionDelete}
-        onOpenChange={onOpenChangeQuestionDelete}
-        data={companyID}
-        onConfirm={confirmDelete}
+        title='Eliminar convenio'
+        textContent='¿Está seguro que quiere eliminar el convenio de esta empresa? Esta acción es irreversible.'
+        isOpen={deleteAgreementId}
+        onOpenChange={setDeleteAgreementId}
+        confirmConfig={{
+          text: 'Eliminar',
+          color: 'danger',
+          action: deleteAgreement
+        }}
+      />
+
+      <QuestionModal
+        title={
+          operation.current === 'disable'
+            ? 'Eliminar empresa'
+            : 'Activar empresa'
+        }
+        textContent={`¿Está seguro de ${
+          operation.current === 'disable' ? 'eliminar' : 'activar'
+        } esta empresa? ${
+          operation.current === 'disable'
+            ? 'Incluye el convenio si lo tiene.'
+            : ''
+        }`}
+        isOpen={disableOrEnableId}
+        onOpenChange={setDisableOrEnableId}
+        confirmConfig={{
+          text: operation.current === 'disable' ? 'Eliminar' : 'Activar',
+          color: operation.current === 'disable' ? 'danger' : 'success',
+          action: toogleState
+        }}
       />
     </>
   )

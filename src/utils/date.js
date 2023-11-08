@@ -8,27 +8,6 @@ export const createQueryParams = (paramsObj) => {
   return `?${params.toString()}`
 }
 
-/* export const calculatePersonAge = (date) => {
-  const dateFormat = date?.split('/')
-  if (dateFormat) {
-    const fechaInvertida = `${dateFormat[2]}-${dateFormat[1]}-${dateFormat[0]}`
-
-    const fechaNacimientoDate = new Date(fechaInvertida)
-
-    const fechaActual = new Date()
-
-    const diferenciaEnMilisegundos = fechaActual - fechaNacimientoDate
-
-    const edad = diferenciaEnMilisegundos / (365.25 * 24 * 60 * 60 * 1000)
-
-    if (edad >= 18) {
-      return true
-    } else {
-      return false
-    }
-  }
-} */
-
 export const calculatePersonAge = (date) => {
   let birthDate
 
@@ -56,7 +35,7 @@ export const isPersonAdult = (date, minimumAge = 18) => {
   return age !== null && age >= minimumAge
 }
 
-export const formatDate = (dateString, includeTime = false) => {
+export const formatDate = (dateString, includeTime = false, hour12 = true) => {
   const options = {
     year: 'numeric',
     month: 'short',
@@ -66,7 +45,7 @@ export const formatDate = (dateString, includeTime = false) => {
   if (includeTime) {
     options.hour = '2-digit'
     options.minute = '2-digit'
-    options.hour12 = true
+    options.hour12 = hour12
   }
 
   return new Date(dateString).toLocaleDateString('es-ES', options)

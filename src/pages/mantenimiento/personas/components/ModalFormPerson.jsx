@@ -40,11 +40,11 @@ export default function ModalFormPerson({
 
     try {
       const formData = new FormData(e.target)
-      const dataTosend = Object.fromEntries(formData)
+      const dataToSend = Object.fromEntries(formData)
 
       const result = !personToEdit
-        ? await createPerson(dataTosend)
-        : await updatePerson(personToEdit.idpersona, dataTosend)
+        ? await createPerson(dataToSend)
+        : await updatePerson(personToEdit.idpersona, dataToSend)
 
       if (result.isSuccess) {
         toast.success(result.message)

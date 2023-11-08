@@ -20,7 +20,7 @@ import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
 import PrivateRoute from './privateRoute.jsx'
 import ReporteAtenciones from '../pages/Reportes/ReporteAtenciones'
 import Graficos from '../pages/Reportes/Graficos'
-import Empresa from '../pages/mantenimiento/empresas/index.jsx'
+import Empresas from '../pages/mantenimiento/Empresas'
 import ReportePagos from '../pages/Reportes/ReportePagos'
 import Mantenimiento from '../pages/mantenimiento'
 import Personas from '../pages/mantenimiento/Personas'
@@ -142,15 +142,14 @@ const router = createBrowserRouter([
               },
               {
                 path: 'empresas',
-                element: <Empresa />
+                element: <Empresas />
               },
               {
                 path: 'personal-medico',
                 element: <PersonalMedico />
-
               },
               {
-                 path: 'categorias',
+                path: 'categorias',
                 element: <Categorias />
               },
               {
