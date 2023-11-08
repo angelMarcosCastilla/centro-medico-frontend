@@ -165,6 +165,7 @@ export default function Dashboard() {
               { key: '2', label: 'Empresas', route: 'empresas' },
               { key: '3', label: 'Personal Médico', route: 'personal-medico' },
               { key: '4', label: 'Areas Categorias', route: 'areas-categorias' },
+              { key: '4', label: 'Usuarios', route: 'usuarios' },
             ]}
           />
         </HasRole>

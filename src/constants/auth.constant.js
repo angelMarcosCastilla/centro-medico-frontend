@@ -30,3 +30,8 @@ export const mapRoles = {
   E: 'Gestión Informes',
   TR: 'Triaje'
 }
+
+export const rolesOptions = Object.keys(mapRoles).map((el) => ({
+  value: el,
+  label: mapRoles[el]
+})).filter(el => el.value !== "A")

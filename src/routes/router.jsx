@@ -30,6 +30,7 @@ import PagosConvenio from '../pages/PagosConvenio'
 import PersonalMedico from '../pages/mantenimiento/personalMedico/index.jsx'
 import Reportes from '../pages/Reportes'
 import NotFound from '../pages/NotFound.jsx'
+import Usuarios from '../pages/mantenimiento/usuarios/index.jsx'
 
 const router = createBrowserRouter([
   {
@@ -151,6 +152,10 @@ const router = createBrowserRouter([
               {
                  path: 'categorias',
                 element: <Categorias />
+              },
+              {
+                 path: 'usuarios',
+                element: <Usuarios />
               }
             ]
           },
