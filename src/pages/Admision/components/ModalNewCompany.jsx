@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useDataContext } from './DataContext'
-import { addCompanyService } from '../../../services/company'
+import { createCompany } from '../../../services/company'
 import {
   Button,
   Input,
@@ -21,7 +21,7 @@ export default function ModalNewCompany({ isOpen, onOpenChange }) {
     try {
       setLoading(true)
       const formData = new FormData(e.target)
-      const result = await addCompanyService(Object.fromEntries(formData))
+      const result = await createCompany(Object.fromEntries(formData))
       if (!result.isSuccess) {
         toast.error('No se pudo registrar la empresa')
         return
@@ -88,11 +88,7 @@ export default function ModalNewCompany({ isOpen, onOpenChange }) {
                   >
                     Cerrar
                   </Button>
-                  <Button
-                    color='primary'
-                    type='submit'
-                    isLoading={loading}                    
-                  >
+                  <Button color='primary' type='submit' isLoading={loading}>
                     Registrar
                   </Button>
                 </ModalFooter>

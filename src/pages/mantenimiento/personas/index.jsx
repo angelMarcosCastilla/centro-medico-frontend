@@ -40,6 +40,7 @@ import DateTimeClock from '../../../components/DateTimeClock'
 import { capitalize } from '../../../utils'
 import { toast } from 'sonner'
 import ModalFormPerson from './components/ModalFormPerson'
+import { formatDate } from '../../../utils/date'
 
 const columns = [
   { name: 'APELLIDOS Y NOMBRES', uid: 'nombres_completos', sortable: true },
@@ -158,6 +159,20 @@ export default function Personas() {
   const renderCell = useCallback((person, columnKey) => {
     const cellValue = person[columnKey]
 
+    const personDateInfo = (
+      <div>
+        <div>Creación: {formatDate(person.create_at, true, false)}</div>
+        {person.update_at && (
+          <div>
+            Últ. actu:{' '}
+            {person.update_at
+              ? formatDate(person.update_at, true, false)
+              : ' ---'}
+          </div>
+        )}
+      </div>
+    )
+
     switch (columnKey) {
       case 'nombres_completos':
         return person.apellidos + ', ' + person.nombres
@@ -178,9 +193,20 @@ export default function Personas() {
           ? String(cellValue).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
           : '---'
       case 'estado':
-        return (
-          <Chip color={cellValue === 1 ? 'success' : 'danger'} variant='flat'>
-            {cellValue === 1 ? 'Activo' : 'Inactivo'}
+        return person.estado ? (
+          <Tooltip
+            content={personDateInfo}
+            color='success'
+            className='text-white'
+            closeDelay={0}
+          >
+            <Chip color='success' variant='flat'>
+              Activo
+            </Chip>
+          </Tooltip>
+        ) : (
+          <Chip color='danger' variant='flat'>
+            Inactivo
           </Chip>
         )
       case 'acciones':

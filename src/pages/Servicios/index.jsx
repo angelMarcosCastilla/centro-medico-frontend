@@ -404,7 +404,6 @@ export default function Servicios() {
         textContent='¿Está seguro que quiere eliminar el servicio? Esta acción es irreversible.'
         isOpen={isOpenQuestionDelete}
         onOpenChange={onOpenChangeQuestionDelete}
-        data={serviceId}
         confirmConfig={{
           text: 'Eliminar',
           color: 'danger',
