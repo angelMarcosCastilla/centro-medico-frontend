@@ -78,6 +78,7 @@ export default function Sidebar({ children }) {
           <Dropdown placement='bottom-start'>
             <DropdownTrigger>
               <User
+                className=''
                 as='button'
                 avatarProps={{
                   isBordered: true,
@@ -90,6 +91,11 @@ export default function Sidebar({ children }) {
                   description: mapRoles[userInfo.nivel_acceso],
                   name: `${userInfo.nombres} ${userInfo.apellidos}`
                 })}
+                classNames={{
+                  root: 'w-full',
+                  name:`${expanded ?"w-[190px]" : ""} line-clamp-1 `
+                }}
+                
               />
             </DropdownTrigger>
             <DropdownMenu aria-label='User Actions' variant='flat'>
