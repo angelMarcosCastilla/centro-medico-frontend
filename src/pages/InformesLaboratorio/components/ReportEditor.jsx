@@ -1,17 +1,17 @@
 import { Button, CardBody, CardFooter, Input } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useFetcher } from '../../hook/useFetcher'
-import { getTemplateLatestVersionByService } from '../../services/template'
+import { useFetcher } from '../../../hook/useFetcher'
+import { getTemplateLatestVersionByService } from '../../../services/template'
 import { toast } from 'sonner'
 import {
   addResult,
   searchResultByDetAttention,
   updateResult
-} from '../../services/result'
-import { changeStatus } from '../../services/admission'
+} from '../../../services/result'
+import { changeStatus } from '../../../services/admission'
 import { ChevronsRight } from 'lucide-react'
-import { socket } from '../../components/Socket'
+import { socket } from '../../../components/Socket'
 
 const useDebaunce = (value, delay = 500) => {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -130,43 +130,51 @@ export default function ReportEditor() {
   }
 
   const handleAddResult = async () => {
-    const data = {
-      idDetAtencion: state.idDetAttention,
-      diagnostico: JSON.stringify(template),
-      idReferencia: 0
-    }
-
     setLoading(true)
-    const result = await addResult(data)
-    setLoading(false)
 
-    if (result.isSuccess) {
-      await changeStatus(state.idDetAttention, 'PE')
-      socket.emit('client:newAction', { action: 'New Informe' })
+    try {
+      const data = {
+        idDetAtencion: state.idDetAttention,
+        diagnostico: JSON.stringify(template),
+        idReferencia: 0
+      }
 
-      toast.success(result.message)
-      navigate('/informeslaboratorio')
-    } else {
-      toast.error(result.message)
+      const result = await addResult(data)
+
+      if (result.isSuccess) {
+        await changeStatus(state.idDetAttention, 'PE')
+        socket.emit('client:newAction', { action: 'New Informe' })
+
+        toast.success(result.message)
+        navigate('/informes-laboratorio', { replace: true })
+      }
+    } catch (err) {
+      toast.error('Ocurrió un problema al guardar')
+    } finally {
+      setLoading(false)
     }
   }
 
   const handleUpdateResult = async () => {
-    const data = {
-      idDetAtencion: state.idDetAttention,
-      diagnostico: JSON.stringify(template)
-    }
-
     setLoading(true)
-    const result = await updateResult(data)
-    setLoading(false)
 
-    if (result.isSuccess) {
-      toast.success(result.message)
-      socket.emit('client:newAction', { action: 'New Informe' })
-      navigate('/informeslaboratorio')
-    } else {
-      toast.error(result.message)
+    try {
+      const data = {
+        idDetAtencion: state.idDetAttention,
+        diagnostico: JSON.stringify(template)
+      }
+
+      const result = await updateResult(data)
+
+      if (result.isSuccess) {
+        toast.success(result.message)
+        socket.emit('client:newAction', { action: 'New Informe' })
+        navigate('/informes-laboratorio', { replace: true })
+      }
+    } catch (err) {
+      toast.error('Ocurrió un problema al guardar')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -183,7 +191,7 @@ export default function ReportEditor() {
       setTemplate(loadedTemplate)
     } else if (templateData.isSuccess && !templateData.data) {
       toast.error('No hay una plantilla disponible')
-      navigate('/informeslaboratorio', { replace: true })
+      navigate('/informes-laboratorio', { replace: true })
     }
   }, [searchData])
 
@@ -312,7 +320,7 @@ export default function ReportEditor() {
         <Button
           color='danger'
           variant='light'
-          onPress={() => navigate('/informeslaboratorio', { replace: true })}
+          onPress={() => navigate('/informes-laboratorio', { replace: true })}
         >
           Cancelar
         </Button>

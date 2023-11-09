@@ -46,7 +46,7 @@ export default function KeyValueTemplate({
                 onInputChange(section.uid, item.uid, 'key', e.target.value)
               }
             />
-            <Button isIconOnly color='primary' variant='faded' disabled>
+            <Button isIconOnly color='primary' variant='flat' disabled>
               <ChevronsRight size={20} />
             </Button>
             <Input

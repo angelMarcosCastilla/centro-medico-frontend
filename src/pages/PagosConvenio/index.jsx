@@ -206,7 +206,7 @@ export default function PagosConvenio() {
       refresh()
       toast.success('Pagos completados correctamente')
     } catch (error) {
-      toast.error('Ocurrió un error al completar los pagos')
+      toast.error('Ocurrió un problema al completar los pagos')
     } finally {
       selectedCompany.current = []
       setLoadingPayment(false)

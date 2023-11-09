@@ -12,7 +12,7 @@ import {
   Tabs
 } from '@nextui-org/react'
 import { Eye, EyeOff } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { changePassword } from '../services/auth'
 
@@ -22,10 +22,49 @@ const INITIAL_FIELDS = {
   repeat: { text: '', visible: false }
 }
 
-export default function Profile({ isOpen, onOpenChange }) {
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'))
-  const [fields, setFields] = useState(INITIAL_FIELDS)
+function GeneralContent({ userInfo }) {
+  return (
+    <div className='flex flex-col gap-4 px-10 py-4 text-[15px] [&_h3]:text-gray-500'>
+      <div>
+        <h3 className='font-semibold'>Nombre completo</h3>
+        <p>{userInfo.nombres + ' ' + userInfo.apellidos}</p>
+      </div>
+      <div>
+        <h3 className='font-semibold'>Fecha de nacimiento:</h3>
+        <p>
+          {new Date(userInfo.fecha_nacimiento).toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: '2-digit'
+          })}
+        </p>
+      </div>
+      <div>
+        <h3 className='font-semibold'>Dirección:</h3>
+        <p>{userInfo.direccion || 'No disponible'}</p>
+      </div>
+      <div>
+        <h3 className='font-semibold'>Correo electrónico:</h3>
+        <p>{userInfo.correo || 'No disponible'}</p>
+      </div>
+      <div>
+        <h3 className='font-semibold'>Teléfono:</h3>
+        <p>
+          {(userInfo.celular &&
+            `+51 ${userInfo.celular.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}`) ||
+            'No disponible'}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function PasswordContent({ userInfo, fields, setFields, onClose }) {
   const [isSaving, setIsSaving] = useState(false)
+
+  const currentPassword = useRef(null)
+  const newPassword = useRef(null)
+  const repeatPassword = useRef(null)
 
   const handleChange = (e) => {
     setFields({
@@ -35,6 +74,21 @@ export default function Profile({ isOpen, onOpenChange }) {
         text: e.target.value
       }
     })
+  }
+
+  const handleKeyDown = (e, ref, nextRef) => {
+    if (e.keyCode === 13 && ref.current.value.trim() !== '') {
+      nextRef.current.focus()
+    }
+
+    if (e.keyCode === 9) {
+      e.preventDefault()
+      nextRef.current.focus()
+    }
+
+    if (e.keyCode === 32) {
+      e.preventDefault()
+    }
   }
 
   const isSaveButtonEnabled =
@@ -77,6 +131,129 @@ export default function Profile({ isOpen, onOpenChange }) {
     }
   }
 
+  return (
+    <div className='flex flex-col gap-4 px-10 py-4 text-[15px] [&_h3]:text-gray-500'>
+      <div>
+        <h3 className='font-semibold'>Contraseña actual</h3>
+        <Input
+          type={fields.current.visible ? 'text' : 'password'}
+          value={fields.current.text}
+          onChange={handleChange}
+          name='current'
+          color='primary'
+          variant='bordered'
+          ref={currentPassword}
+          onKeyDown={(e) => {
+            handleKeyDown(e, currentPassword, newPassword)
+          }}
+          endContent={
+            <button
+              className='focus:outline-none'
+              type='button'
+              onClick={() =>
+                setFields({
+                  ...fields,
+                  current: {
+                    ...fields.current,
+                    visible: !fields.current.visible
+                  }
+                })
+              }
+            >
+              {fields.current.visible ? (
+                <EyeOff size={20} color='gray' />
+              ) : (
+                <Eye size={20} color='gray' />
+              )}
+            </button>
+          }
+        />
+      </div>
+      <div>
+        <h3 className='font-semibold'>Nueva contraseña</h3>
+        <Input
+          type={fields.new.visible ? 'text' : 'password'}
+          value={fields.new.text}
+          onChange={handleChange}
+          name='new'
+          color='primary'
+          variant='bordered'
+          ref={newPassword}
+          onKeyDown={(e) => {
+            handleKeyDown(e, newPassword, repeatPassword)
+          }}
+          endContent={
+            <button
+              className='focus:outline-none'
+              type='button'
+              onClick={() =>
+                setFields({
+                  ...fields,
+                  new: {
+                    ...fields.new,
+                    visible: !fields.new.visible
+                  }
+                })
+              }
+            >
+              {fields.new.visible ? (
+                <EyeOff size={20} color='gray' />
+              ) : (
+                <Eye size={20} color='gray' />
+              )}
+            </button>
+          }
+        />
+      </div>
+      <div>
+        <h3 className='font-semibold'>Repetir nueva contraseña</h3>
+        <Input
+          type={fields.repeat.visible ? 'text' : 'password'}
+          value={fields.repeat.text}
+          onChange={handleChange}
+          name='repeat'
+          color='primary'
+          variant='bordered'
+          ref={repeatPassword}
+          endContent={
+            <button
+              className='focus:outline-none'
+              type='button'
+              onClick={() =>
+                setFields({
+                  ...fields,
+                  repeat: {
+                    ...fields.repeat,
+                    visible: !fields.repeat.visible
+                  }
+                })
+              }
+            >
+              {fields.repeat.visible ? (
+                <EyeOff size={20} color='gray' />
+              ) : (
+                <Eye size={20} color='gray' />
+              )}
+            </button>
+          }
+        />
+      </div>
+      <Button
+        isLoading={isSaving}
+        isDisabled={isSaveButtonEnabled}
+        color='primary'
+        onPress={() => handleChangePassword(onClose)}
+      >
+        Guardar
+      </Button>
+    </div>
+  )
+}
+
+export default function Profile({ isOpen, onOpenChange }) {
+  const userInfo = JSON.parse(localStorage.getItem('userInfo'))
+  const [fields, setFields] = useState(INITIAL_FIELDS)
+
   const handleOpenChange = async (e) => {
     onOpenChange(e)
     setFields(INITIAL_FIELDS)
@@ -115,175 +292,15 @@ export default function Profile({ isOpen, onOpenChange }) {
                     variant='underlined'
                   >
                     <Tab key='general' title='Información General'>
-                      <Card shadow='none'>
-                        <CardBody>
-                          <div className='flex flex-col gap-4 px-4 text-[15px] [&_h3]:text-gray-500'>
-                            <div>
-                              <h3 className='font-semibold'>Nombre completo</h3>
-                              <p>
-                                {userInfo.nombres + ' ' + userInfo.apellidos}
-                              </p>
-                            </div>
-                            <div>
-                              <h3 className='font-semibold'>
-                                Fecha de nacimiento:
-                              </h3>
-                              <p>
-                                {new Date(
-                                  userInfo.fecha_nacimiento
-                                ).toLocaleDateString('es-ES', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: '2-digit'
-                                })}
-                              </p>
-                            </div>
-                            <div>
-                              <h3 className='font-semibold'>Dirección:</h3>
-                              <p>{userInfo.direccion || 'No disponible'}</p>
-                            </div>
-                            <div>
-                              <h3 className='font-semibold'>
-                                Correo electrónico:
-                              </h3>
-                              <p>{userInfo.correo || 'No disponible'}</p>
-                            </div>
-                            <div>
-                              <h3 className='font-semibold'>Teléfono:</h3>
-                              <p>
-                                {(userInfo.celular &&
-                                  `+51 ${userInfo.celular.replace(
-                                    /\B(?=(\d{3})+(?!\d))/g,
-                                    ' '
-                                  )}`) ||
-                                  'No disponible'}
-                              </p>
-                            </div>
-                          </div>
-                        </CardBody>
-                      </Card>
+                      <GeneralContent userInfo={userInfo} />
                     </Tab>
                     <Tab key='contrasenia' title='Restablecer Contraseña'>
-                      <Card shadow='none'>
-                        <CardBody>
-                          <div className='flex flex-col gap-4 px-4 text-[15px] [&_h3]:text-gray-500'>
-                            <div>
-                              <h3 className='font-semibold'>
-                                Contraseña actual
-                              </h3>
-                              <Input
-                                type={
-                                  fields.current.visible ? 'text' : 'password'
-                                }
-                                value={fields.current.text}
-                                onChange={handleChange}
-                                name='current'
-                                color='primary'
-                                variant='bordered'
-                                endContent={
-                                  <button
-                                    className='focus:outline-none'
-                                    type='button'
-                                    onClick={() =>
-                                      setFields({
-                                        ...fields,
-                                        current: {
-                                          ...fields.current,
-                                          visible: !fields.current.visible
-                                        }
-                                      })
-                                    }
-                                  >
-                                    {fields.current.visible ? (
-                                      <EyeOff size={20} color='gray' />
-                                    ) : (
-                                      <Eye size={20} color='gray' />
-                                    )}
-                                  </button>
-                                }
-                              />
-                            </div>
-                            <div>
-                              <h3 className='font-semibold'>
-                                Nueva contraseña
-                              </h3>
-                              <Input
-                                type={fields.new.visible ? 'text' : 'password'}
-                                value={fields.new.text}
-                                onChange={handleChange}
-                                name='new'
-                                color='primary'
-                                variant='bordered'
-                                endContent={
-                                  <button
-                                    className='focus:outline-none'
-                                    type='button'
-                                    onClick={() =>
-                                      setFields({
-                                        ...fields,
-                                        new: {
-                                          ...fields.new,
-                                          visible: !fields.new.visible
-                                        }
-                                      })
-                                    }
-                                  >
-                                    {fields.new.visible ? (
-                                      <EyeOff size={20} color='gray' />
-                                    ) : (
-                                      <Eye size={20} color='gray' />
-                                    )}
-                                  </button>
-                                }
-                              />
-                            </div>
-                            <div>
-                              <h3 className='font-semibold'>
-                                Repetir nueva contraseña
-                              </h3>
-                              <Input
-                                type={
-                                  fields.repeat.visible ? 'text' : 'password'
-                                }
-                                value={fields.repeat.text}
-                                onChange={handleChange}
-                                name='repeat'
-                                color='primary'
-                                variant='bordered'
-                                endContent={
-                                  <button
-                                    className='focus:outline-none'
-                                    type='button'
-                                    onClick={() =>
-                                      setFields({
-                                        ...fields,
-                                        repeat: {
-                                          ...fields.repeat,
-                                          visible: !fields.repeat.visible
-                                        }
-                                      })
-                                    }
-                                  >
-                                    {fields.repeat.visible ? (
-                                      <EyeOff size={20} color='gray' />
-                                    ) : (
-                                      <Eye size={20} color='gray' />
-                                    )}
-                                  </button>
-                                }
-                              />
-                            </div>
-                            <Button
-                              isLoading={isSaving}
-                              isDisabled={isSaveButtonEnabled}
-                              color='primary'
-                              onPress={() => handleChangePassword(onClose)}
-                            >
-                              Guardar
-                            </Button>
-                          </div>
-                        </CardBody>
-                      </Card>
+                      <PasswordContent
+                        userInfo={userInfo}
+                        fields={fields}
+                        setFields={setFields}
+                        onClose={onClose}
+                      />
                     </Tab>
                   </Tabs>
                 </CardBody>

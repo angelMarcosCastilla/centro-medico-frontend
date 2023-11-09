@@ -14,7 +14,7 @@ import FormTriaje from '../pages/Triaje/FormTriaje.jsx'
 import Laboratorio from '../pages/Laboratorio/index.jsx'
 import InformesLaboratorio from '../pages/InformesLaboratorio'
 import GestionInformes from '../pages/GestionInformes'
-import ReportEditor from '../pages/InformesLaboratorio/ReportEditor.jsx'
+import ReportEditor from '../pages/InformesLaboratorio/components/ReportEditor.jsx'
 import Plantillas from '../pages/Plantillas/index.jsx'
 import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
 import PrivateRoute from './privateRoute.jsx'
@@ -153,7 +153,7 @@ const router = createBrowserRouter([
                 element: <Categorias />
               },
               {
-                 path: 'usuarios',
+                path: 'usuarios',
                 element: <Usuarios />
               }
             ]
@@ -183,7 +183,7 @@ const router = createBrowserRouter([
             )
           },
           {
-            path: 'informeslaboratorio',
+            path: 'informes-laboratorio',
             element: (
               <RoleGard listRoles={listRoles.laboratorio}>
                 <InformesLaboratorio />
@@ -191,7 +191,7 @@ const router = createBrowserRouter([
             )
           },
           {
-            path: 'informeslaboratorio/:id',
+            path: 'informes-laboratorio/:id',
             element: (
               <RoleGard listRoles={listRoles.laboratorio}>
                 <ReportEditor />

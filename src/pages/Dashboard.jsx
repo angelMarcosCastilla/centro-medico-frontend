@@ -123,7 +123,7 @@ export default function Dashboard() {
           <SidebarItem
             icon={<Folders size={20} />}
             text='Informes'
-            route='informeslaboratorio'
+            route='informes-laboratorio'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.plantillas}>
@@ -164,8 +164,12 @@ export default function Dashboard() {
               { key: '1', label: 'Personas', route: 'personas' },
               { key: '2', label: 'Empresas', route: 'empresas' },
               { key: '3', label: 'Personal Médico', route: 'personal-medico' },
-              { key: '4', label: 'Areas Categorias', route: 'areas-categorias' },
-              { key: '4', label: 'Usuarios', route: 'usuarios' },
+              {
+                key: '4',
+                label: 'Areas Categorias',
+                route: 'areas-categorias'
+              },
+              { key: '5', label: 'Usuarios', route: 'usuarios' }
             ]}
           />
         </HasRole>

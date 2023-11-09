@@ -2,13 +2,17 @@ import { useCallback, useMemo, useState } from 'react'
 import {
   Button,
   CardBody,
+  CardHeader,
   Chip,
+  Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
   Input,
+  Link,
   Pagination,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -26,6 +30,7 @@ import { useNavigate } from 'react-router-dom'
 import { getInProcessReportAttentionsByArea } from '../../services/admission'
 import { LABORATORIO_ID } from '../../constants/areas'
 import { redirectToResult } from '../../config'
+import DateTimeClock from '../../components/DateTimeClock'
 
 const columns = [
   { name: 'ID', uid: 'iddetatencion', sortable: true },
@@ -54,7 +59,7 @@ export default function InformesLaboratorio() {
     direction: 'ascending'
   })
 
-  const { data } = useFetcher(() =>
+  const { data, loading } = useFetcher(() =>
     getInProcessReportAttentionsByArea(LABORATORIO_ID)
   )
 
@@ -110,21 +115,24 @@ export default function InformesLaboratorio() {
     switch (columnKey) {
       case 'estado':
         return (
-          <Chip className={`capitalize ${classChip}`} size='sm' variant='flat'>
+          <Chip className={`capitalize ${classChip}`} variant='flat'>
             {capitalize(estadoTexto)}
           </Chip>
         )
       case 'acciones':
         return (
-          <div className='relative flex items-center gap-2'>
+          <div className='relative flex items-center gap-x-1'>
             <Tooltip
               content={detail.estado === 'PI' ? 'Redactar' : 'Editar'}
               color='primary'
               closeDelay={0}
             >
-              <span
-                className='text-lg text-primary-400 cursor-pointer active:opacity-50'
-                onClick={() =>
+              <Button
+                isIconOnly
+                color='primary'
+                variant='light'
+                size='sm'
+                onPress={() =>
                   handleOpenEditor(
                     detail.idservicio,
                     detail.iddetatencion,
@@ -133,18 +141,22 @@ export default function InformesLaboratorio() {
                 }
               >
                 <FileEdit size={20} />
-              </span>
+              </Button>
             </Tooltip>
             {detail.estado === 'PE' && (
               <Tooltip content='Ver' color='primary' closeDelay={0}>
-                <a
-                  className='text-lg text-primary-400 cursor-pointer active:opacity-50'
+                <Button
+                  isIconOnly
                   href={redirectToResult(detail.iddetatencion)}
                   target='_blank'
                   rel='noreferrer'
+                  as={Link}
+                  color='primary'
+                  variant='light'
+                  size='sm'
                 >
                   <Eye size={20} />
-                </a>
+                </Button>
               </Tooltip>
             )}
           </div>
@@ -155,7 +167,7 @@ export default function InformesLaboratorio() {
   }, [])
 
   const handleOpenEditor = (idService, idDetAttention, operation) => {
-    navigate(`/informeslaboratorio/${idService}`, {
+    navigate(`/informes-laboratorio/${idService}`, {
       state: { idService, idDetAttention, operation }
     })
   }
@@ -179,7 +191,7 @@ export default function InformesLaboratorio() {
           <Input
             isClearable
             className='w-full sm:max-w-[44%]'
-            placeholder='Buscar por nombre...'
+            placeholder='Buscar por nombre del paciente...'
             startContent={<SearchIcon />}
             value={filterValue}
             onClear={() => onClear()}
@@ -272,45 +284,52 @@ export default function InformesLaboratorio() {
   }, [items.length, page, pages, hasSearchFilter])
 
   return (
-    <CardBody>
-      <Table
-        aria-label='Example table with custom cells, pagination and sorting'
-        isHeaderSticky
-        bottomContent={bottomContent}
-        bottomContentPlacement='outside'
-        classNames={{
-          wrapper: 'max-h-[600px]'
-        }}
-        sortDescriptor={sortDescriptor}
-        topContent={topContent}
-        topContentPlacement='outside'
-        shadow='none'
-        onSortChange={setSortDescriptor}
-      >
-        <TableHeader columns={headerColumns}>
-          {(column) => (
-            <TableColumn
-              key={column.uid}
-              align={column.uid === 'actions' ? 'center' : 'start'}
-              allowsSorting={column.sortable}
-            >
-              {column.name}
-            </TableColumn>
-          )}
-        </TableHeader>
-        <TableBody
-          emptyContent={'No se encontraron pacientes'}
-          items={sortedItems}
+    <>
+      <CardHeader className='flex justify-between'>
+        <h2 className='text-2xl'>Gestión de Informes de Laboratorio</h2>
+        <DateTimeClock />
+      </CardHeader>
+      <Divider />
+      <CardBody>
+        <Table
+          isHeaderSticky
+          isStriped
+          removeWrapper
+          tabIndex={-1}
+          aria-label='Tabla de informes pendientes de redacción y de entrega'
+          bottomContent={bottomContent}
+          bottomContentPlacement='outside'
+          classNames={{
+            wrapper: 'max-h-[600px]'
+          }}
+          sortDescriptor={sortDescriptor}
+          topContent={topContent}
+          topContentPlacement='outside'
+          onSortChange={setSortDescriptor}
         >
-          {(item) => (
-            <TableRow key={crypto.randomUUID().toString()}>
-              {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
-              )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </CardBody>
+          <TableHeader columns={headerColumns}>
+            {(column) => (
+              <TableColumn key={column.uid} allowsSorting={column.sortable}>
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            emptyContent='No se encontraron pacientes'
+            isLoading={loading}
+            loadingContent={<Spinner />}
+            items={sortedItems}
+          >
+            {(item) => (
+              <TableRow key={crypto.randomUUID().toString()}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardBody>
+    </>
   )
 }
