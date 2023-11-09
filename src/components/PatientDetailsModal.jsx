@@ -58,6 +58,12 @@ export default function PatientDetailsModal({ isOpen, onOpenChange, detail }) {
                       </tr>
                       <tr className='text-gray-600'>
                         <td className='font-bold' colSpan={3}>
+                          N° documento
+                        </td>
+                        <td>{detail.num_documento}</td>
+                      </tr>
+                      <tr className='text-gray-600'>
+                        <td className='font-bold' colSpan={3}>
                           Fecha de nacimiento:
                         </td>
                         <td colSpan={3}>

@@ -19,7 +19,13 @@ import {
   TableRow,
   Tooltip
 } from '@nextui-org/react'
-import { ChevronDownIcon, FileEdit, FilePlus2, SearchIcon } from 'lucide-react'
+import {
+  ChevronDownIcon,
+  FileEdit,
+  FilePlus2,
+  Plus,
+  SearchIcon
+} from 'lucide-react'
 import { getServicesByArea } from '../../services/service'
 import { usePagination } from '../../hook/usePagination'
 import { useFetcher } from '../../hook/useFetcher'
@@ -27,6 +33,7 @@ import { capitalize } from '../../utils'
 import { useNavigate } from 'react-router-dom'
 import { LABORATORIO_ID } from '../../constants/areas'
 import DateTimeClock from '../../components/DateTimeClock'
+import ModalNewTemplate from './components/ModalNewTemplate'
 
 const columns = [
   { name: 'CATEGORIA', uid: 'categoria', sortable: true },
@@ -56,6 +63,8 @@ export default function Plantillas() {
   })
 
   const { data, loading } = useFetcher(() => getServicesByArea(LABORATORIO_ID))
+  const [isOpen, setIsOpen] = useState(null)
+
   const hasSearchFilter = Boolean(filterValue)
 
   const headerColumns = useMemo(() => {
@@ -116,8 +125,7 @@ export default function Plantillas() {
                     state: {
                       service,
                       operation: 'new'
-                    },
-                    replace: true
+                    }
                   })
                 }
               >
@@ -135,8 +143,7 @@ export default function Plantillas() {
                     state: {
                       service,
                       operation: 'edit'
-                    },
-                    replace: true
+                    }
                   })
                 }
               >
@@ -203,6 +210,15 @@ export default function Plantillas() {
                 })}
               </DropdownMenu>
             </Dropdown>
+            <Button
+              color='primary'
+              endContent={<Plus size={20} />}
+              onPress={() => {
+                setIsOpen(true)
+              }}
+            >
+              Agregar nuevo
+            </Button>
           </div>
         </div>
         <div className='flex justify-between items-center'>
@@ -311,6 +327,12 @@ export default function Plantillas() {
           </TableBody>
         </Table>
       </CardBody>
+
+      <ModalNewTemplate
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        services={data}
+      />
     </>
   )
 }

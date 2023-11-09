@@ -33,6 +33,8 @@ export default function TemplateEditor() {
   const [loading, setLoading] = useState(false)
 
   const handleFormatChange = (newSelectedFormat) => {
+    const currentTemplateName = template.templateName
+
     const formatTemplates = {
       fourColumns: columnTemplate,
       keysValues: keyValueTemplate
@@ -44,6 +46,8 @@ export default function TemplateEditor() {
         : originalTemplate.type === newSelectedFormat
         ? originalTemplate
         : formatTemplates[newSelectedFormat]
+
+    selectedTemplate.templateName = currentTemplateName
 
     setTemplate(selectedTemplate)
     setSections(selectedTemplate.sections)
@@ -261,6 +265,8 @@ export default function TemplateEditor() {
   }
 
   const handleAddTemplate = async () => {
+    setLoading(true)
+
     const updatedTemplate = {
       ...template,
       sections
@@ -279,21 +285,23 @@ export default function TemplateEditor() {
       formato: JSON.stringify(updatedTemplate)
     }
 
-    setLoading(true)
-    let result
+    try {
+      let result
 
-    if (state.operation === 'new') {
-      result = await createTemplate(data)
-    } else {
-      result = await updateTemplate(data)
-    }
-    setLoading(false)
+      if (state.operation === 'new') {
+        result = await createTemplate(data)
+      } else {
+        result = await updateTemplate(data)
+      }
 
-    if (result.isSuccess) {
-      toast.success(result.message)
-      navigate('/plantillas', {replace: true})
-    } else {
-      toast.error(result.message)
+      if (result.isSuccess) {
+        toast.success(result.message)
+        navigate('/plantillas', { replace: true })
+      }
+    } catch (err) {
+      toast.error('Ocurrió un problema al guardar la plantilla')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -311,7 +319,7 @@ export default function TemplateEditor() {
             setSections(formato.sections)
           } else {
             toast.error('No encontré una plantilla para editar')
-            navigate('/plantillas', {replace: true})
+            navigate('/plantillas', { replace: true })
           }
         }
       )
@@ -322,6 +330,17 @@ export default function TemplateEditor() {
     <>
       <CardBody>
         <div className='grid grid-cols-4 px-4 mb-4 gap-4 items-end'>
+          <Input
+            label='Nombre de la plantilla'
+            color='primary'
+            size='lg'
+            variant='underlined'
+            className='col-span-2'
+            value={template.templateName || ''}
+            onChange={(e) =>
+              setTemplate({ ...template, templateName: e.target.value })
+            }
+          />
           <Input
             isReadOnly
             label='Servicio'
@@ -348,17 +367,6 @@ export default function TemplateEditor() {
               </SelectItem>
             ))}
           </Select>
-          <Input
-            label='Nombre de la plantilla'
-            color='primary'
-            size='lg'
-            variant='underlined'
-            className='col-span-2'
-            value={template.templateName || ''}
-            onChange={(e) =>
-              setTemplate({ ...template, templateName: e.target.value })
-            }
-          />
         </div>
         {
           <TypeTemplate
@@ -392,7 +400,7 @@ export default function TemplateEditor() {
         <Button
           color='danger'
           variant='light'
-          onClick={() => navigate('/plantillas', {replace: true})}
+          onClick={() => navigate('/plantillas', { replace: true })}
         >
           Cancelar
         </Button>

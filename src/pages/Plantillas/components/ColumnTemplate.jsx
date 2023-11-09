@@ -1,5 +1,5 @@
 import { Button, Input, Tooltip } from '@nextui-org/react'
-import { ListX, Plus, Trash2 } from 'lucide-react'
+import { ListX, Plus, Trash } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import './ColumnTemplate.css'
 
@@ -103,20 +103,22 @@ export default function ColumnTemplate({
                   </td>
                 ))}
                 <td>
-                  <div className='flex justify-center gap-2'>
+                  <div className='relative flex justify-center gap-x-1'>
                     <Tooltip
                       content='Eliminar fila'
                       color='danger'
                       closeDelay={0}
                     >
-                      <span
-                        className='text-danger cursor-pointer active:opacity-50'
-                        onClick={() => {
+                      <Button
+                        isIconOnly
+                        color='danger'
+                        variant='light'
+                        onPress={() => {
                           onRemoveRow(section.uid, row.uid)
                         }}
                       >
-                        <Trash2 size={20} />
-                      </span>
+                        <Trash size={20} />
+                      </Button>
                     </Tooltip>
                   </div>
                 </td>

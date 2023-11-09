@@ -151,11 +151,12 @@ export default function Profile({ isOpen, onOpenChange }) {
                             <div>
                               <h3 className='font-semibold'>Teléfono:</h3>
                               <p>
-                                +51{' '}
-                                {userInfo.celular.replace(
-                                  /\B(?=(\d{3})+(?!\d))/g,
-                                  ' '
-                                ) || 'No disponible'}
+                                {(userInfo.celular &&
+                                  `+51 ${userInfo.celular.replace(
+                                    /\B(?=(\d{3})+(?!\d))/g,
+                                    ' '
+                                  )}`) ||
+                                  'No disponible'}
                               </p>
                             </div>
                           </div>

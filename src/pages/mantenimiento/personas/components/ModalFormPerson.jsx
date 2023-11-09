@@ -66,7 +66,7 @@ export default function ModalFormPerson({
             onSubmit={(e) => handleAddOrEditPerson(e, onClose)}
             autoComplete='off'
           >
-            <ModalHeader className='flex flex-col gap-1'>
+            <ModalHeader>
               <h2 className='text-xl'>
                 {!personToEdit ? 'Nuevo Registro' : 'Editar Registro'}
               </h2>
