@@ -14,23 +14,23 @@ import FormTriaje from '../pages/Triaje/FormTriaje.jsx'
 import Laboratorio from '../pages/Laboratorio/index.jsx'
 import InformesLaboratorio from '../pages/InformesLaboratorio'
 import GestionInformes from '../pages/GestionInformes'
-import ReportEditor from '../pages/InformesLaboratorio/ReportEditor.jsx'
+import ReportEditor from '../pages/InformesLaboratorio/components/ReportEditor.jsx'
 import Plantillas from '../pages/Plantillas/index.jsx'
 import TemplateEditor from '../pages/Plantillas/components/TemplateEditor.jsx'
 import PrivateRoute from './privateRoute.jsx'
 import ReporteAtenciones from '../pages/Reportes/ReporteAtenciones'
 import Graficos from '../pages/Reportes/Graficos'
-import Empresas from '../pages/mantenimiento/Empresas'
+import Empresas from '../pages/Mantenimiento/Empresas'
 import ReportePagos from '../pages/Reportes/ReportePagos'
-import Mantenimiento from '../pages/mantenimiento'
-import Personas from '../pages/mantenimiento/Personas'
-import Categorias from '../pages/mantenimiento/categorias/index.jsx'
+import Mantenimiento from '../pages/Mantenimiento'
+import Personas from '../pages/Mantenimiento/Personas'
+import Categorias from '../pages/Mantenimiento/categorias/index.jsx'
 import Reembolsos from '../pages/Reembolsos'
 import PagosConvenio from '../pages/PagosConvenio'
-import PersonalMedico from '../pages/mantenimiento/personalMedico/index.jsx'
+import PersonalMedico from '../pages/Mantenimiento/PersonalMedico'
 import Reportes from '../pages/Reportes'
 import NotFound from '../pages/NotFound.jsx'
-import Usuarios from '../pages/mantenimiento/usuarios/index.jsx'
+import Usuarios from '../pages/Mantenimiento/usuarios/index.jsx'
 
 const router = createBrowserRouter([
   {
@@ -153,7 +153,7 @@ const router = createBrowserRouter([
                 element: <Categorias />
               },
               {
-                 path: 'usuarios',
+                path: 'usuarios',
                 element: <Usuarios />
               }
             ]
@@ -183,7 +183,7 @@ const router = createBrowserRouter([
             )
           },
           {
-            path: 'informeslaboratorio',
+            path: 'informes-laboratorio',
             element: (
               <RoleGard listRoles={listRoles.laboratorio}>
                 <InformesLaboratorio />
@@ -191,7 +191,7 @@ const router = createBrowserRouter([
             )
           },
           {
-            path: 'informeslaboratorio/:id',
+            path: 'informes-laboratorio/:id',
             element: (
               <RoleGard listRoles={listRoles.laboratorio}>
                 <ReportEditor />

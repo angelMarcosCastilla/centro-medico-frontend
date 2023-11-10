@@ -243,7 +243,7 @@ export default function AttentionProcessTable({
       onClose()
       socket.emit('client:newAction', { action: 'Change Atenciones', idpago })
     } catch (err) {
-      toast.error('Ocurrió un error al guardar')
+      toast.error('Ocurrió un problema al guardar')
     } finally {
       setIsSaving(false)
     }

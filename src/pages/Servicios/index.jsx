@@ -76,11 +76,16 @@ export default function Servicios() {
           categoria.servicios.forEach((servicio) => {
             result.push({
               idservicio: servicio.idservicio,
+              idarea: area.idarea,
               area: area.nombre,
+              idcategoria: categoria.idcategoria,
               categoria: categoria.nombre,
               servicio: servicio.nombre,
               observacion: servicio.observacion || '',
-              precio: servicio.precio
+              precio: servicio.precio,
+              idrequisito: servicio.idrequisito,
+              ordenMedica: !!servicio.orden_medica,
+              triaje: !!servicio.triaje
             })
           })
         })
@@ -174,7 +179,10 @@ export default function Servicios() {
                 color='primary'
                 variant='light'
                 size='sm'
-                onPress={() => handleEditClick(service.idservicio)}
+                onPress={() => {
+                  console.log(service)
+                  handleEditClick(service.idservicio)
+                }}
               >
                 <Edit size={20} />
               </Button>

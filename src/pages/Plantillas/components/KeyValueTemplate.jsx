@@ -1,5 +1,5 @@
 import { Button, Input, Tooltip } from '@nextui-org/react'
-import { ChevronsRight, ListX, Plus, Trash2 } from 'lucide-react'
+import { ChevronsRight, ListX, Plus, Trash } from 'lucide-react'
 
 export default function KeyValueTemplate({
   section,
@@ -37,7 +37,7 @@ export default function KeyValueTemplate({
       </div>
       <div className='grid grid-cols-2 px-4 gap-4 mb-4'>
         {section.items.map((item) => (
-          <div className='flex col-span-1 gap-4' key={item.uid}>
+          <div className='flex col-span-1 gap-4 items-center' key={item.uid}>
             <Input
               value={item.key}
               color='primary'
@@ -46,7 +46,7 @@ export default function KeyValueTemplate({
                 onInputChange(section.uid, item.uid, 'key', e.target.value)
               }
             />
-            <Button isIconOnly color='primary' variant='faded' disabled>
+            <Button isIconOnly color='primary' variant='flat' disabled>
               <ChevronsRight size={20} />
             </Button>
             <Input
@@ -60,12 +60,14 @@ export default function KeyValueTemplate({
             />
             <div className='flex items-center'>
               <Tooltip content='Eliminar fila' color='danger' closeDelay={0}>
-                <span
-                  className='text-danger cursor-pointer active:opacity-50'
-                  onClick={() => onRemoveItem(section.uid, item.uid)}
+                <Button
+                  isIconOnly
+                  color='danger'
+                  variant='light'
+                  onPress={() => onRemoveItem(section.uid, item.uid)}
                 >
-                  <Trash2 size={20} />
-                </span>
+                  <Trash size={20} />
+                </Button>
               </Tooltip>
             </div>
           </div>
