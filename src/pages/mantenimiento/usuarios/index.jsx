@@ -146,12 +146,15 @@ export default function Usuarios() {
   return (
     <>
       <CardHeader className='flex justify-between'>
-        <h2 className='text-2xl'>Mantenimiento Personas</h2>
+        <h2 className='text-2xl'>Mantenimiento Usuarios</h2>
         <DateTimeClock />
       </CardHeader>
       <Divider />
       <CardBody>
         <Table
+          isHeaderSticky
+          removeWrapper
+          isStriped
           topContent={
             <div className='flex justify-between items-center'>
               <Input
@@ -213,6 +216,7 @@ export default function Usuarios() {
           color: 'primary'
         }}
       />
+
       <ModalFormUsuario
         key={dataToEdit.current?.idusuario}
         isOpen={isOpen}

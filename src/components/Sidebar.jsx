@@ -92,10 +92,8 @@ export default function Sidebar({ children }) {
                   name: `${userInfo.nombres} ${userInfo.apellidos}`
                 })}
                 classNames={{
-                  root: 'w-full',
-                  name:`${expanded ?"w-[190px]" : ""} line-clamp-1 `
+                  name: `${expanded && 'w-[200px] text-left'} truncate`
                 }}
-                
               />
             </DropdownTrigger>
             <DropdownMenu aria-label='User Actions' variant='flat'>
