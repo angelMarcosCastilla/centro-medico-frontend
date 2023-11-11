@@ -15,64 +15,26 @@ import {
 } from '@nextui-org/react'
 import { DollarSign } from 'lucide-react'
 import { toast } from 'sonner'
-import {
-  createService,
-  getService,
-  updateService
-} from '../../../services/service'
+import { createService, updateService } from '../../../services/service'
 import { useFetcher } from '../../../hook/useFetcher'
 import { getAllCategories } from '../../../services/category'
 import { getAllRequirement } from '../../../services/requirement'
 import { getAllAreas } from '../../../services/area'
 
-const INITIAL_FORM = {
-  idCategoria: 0,
-  nombreServicio: '',
-  observacion: '',
-  precio: '',
-  idRequisito: 0,
-  ordenMedica: false,
-  triaje: false
-}
-
 export default function ModalFormService({
   isOpen,
   onOpenChange,
-  operation,
   serviceToEdit,
-  refreshTable
+  refresh
 }) {
   const [loading, setLoading] = useState(false)
   const { data: areasData } = useFetcher(getAllAreas)
   const { data: categoriesData } = useFetcher(getAllCategories)
   const { data: requirementsData } = useFetcher(getAllRequirement)
-  const [form, setForm] = useState({})
   const [selectedArea, setSelectedArea] = useState(new Set([]))
   const [selectedCategory, setSelectedCategory] = useState(new Set([]))
   const [selectedRequirement, setSelectedRequirement] = useState(new Set([]))
   const [selected, setSelected] = useState([])
-
-  const handleInputChange = (e, type = 'text') => {
-    setForm({
-      ...form,
-      [e.target.name]:
-        type === 'text' ? e.target.value : parseFloat(e.target.value)
-    })
-  }
-
-  const handleSelectChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: parseInt(e.target.value || 0)
-    })
-  }
-
-  const handleCheckBoxChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.checked
-    })
-  }
 
   const filterCategoriesByArea = useMemo(() => {
     const filtered = categoriesData.filter((category) => {
@@ -83,80 +45,66 @@ export default function ModalFormService({
 
   const handleSubmitService = async (e, onClose) => {
     e.preventDefault()
+    setLoading(true)
 
     try {
-      setLoading(true)
+      const formData = new FormData(e.target)
+      const dataToSend = Object.fromEntries(formData)
 
-      let result
-      if (operation === 'new') {
-        result = await createService(form)
-      } else {
-        result = await updateService(serviceToEdit, form)
-      }
+      dataToSend.idcategoria = parseInt(dataToSend.idcategoria)
+      dataToSend.precio = parseFloat(dataToSend.precio)
+      dataToSend.idRequisito =
+        selectedRequirement.size !== 0 ? parseInt(dataToSend.idRequisito) : 0
+      dataToSend.ordenMedica = !!dataToSend.ordenMedica || false
+      dataToSend.triaje = !!dataToSend.triaje || false
+
+      const result = !serviceToEdit
+        ? await createService(dataToSend)
+        : await updateService(serviceToEdit.idservicio, dataToSend)
 
       if (result.isSuccess) {
         toast.success(result.message)
-        refreshTable()
         onClose()
-      } else {
-        toast.error(result.message)
+        refresh()
       }
     } catch (err) {
-      toast.error('Problemas al guardar')
+      toast.error('Ocurrió un problema al guardar')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleClose = () => {
-    if (operation === 'new') {
-      setForm(INITIAL_FORM)
-      setSelectedArea(new Set([]))
-      setSelectedCategory(new Set([]))
-      setSelectedRequirement(new Set([]))
-      setSelected([])
-    }
-    onOpenChange(false)
+  const handleOpenChange = (e) => {
+    onOpenChange(e)
+    setSelectedArea(new Set([]))
+    setSelectedCategory(new Set([]))
+    setSelectedRequirement(new Set([]))
+    setSelected([])
   }
 
   useEffect(() => {
-    if (operation === 'edit' && serviceToEdit) {
-      getService(serviceToEdit).then((res) => {
-        setForm({
-          idCategoria: res.idcategoria,
-          nombreServicio: res.nombre_servicio,
-          observacion: res.observacion || '',
-          precio: parseFloat(res.precio),
-          idRequisito: res.idrequisito || 0,
-          ordenMedica: Boolean(res.orden_medica),
-          triaje: Boolean(res.triaje)
-        })
-
-        setSelectedArea(new Set([res.idarea.toString()]))
-        setSelectedCategory(new Set([res.idcategoria.toString()]))
-
-        if (res.idrequisito !== null) {
-          setSelectedRequirement(new Set([res.idrequisito.toString()]))
-        } else {
-          setSelectedRequirement(new Set([]))
-        }
-
-        setSelected([
-          res.orden_medica === 1 ? 'ordenmedica' : '',
-          res.triaje === 1 ? 'triaje' : ''
-        ])
-      })
+    if (serviceToEdit) {
+      setSelectedArea(new Set([String(serviceToEdit.idarea)]))
+      setSelectedCategory(new Set([String(serviceToEdit.idcategoria)]))
+      setSelectedRequirement(
+        new Set(
+          serviceToEdit.idrequisito ? [String(serviceToEdit.idrequisito)] : []
+        )
+      )
+      setSelected([
+        serviceToEdit.ordenmedica && 'ordenmedica',
+        serviceToEdit.triaje && 'triaje'
+      ])
     } else {
-      setForm(INITIAL_FORM)
       setSelectedArea(new Set([]))
       setSelectedCategory(new Set([]))
       setSelectedRequirement(new Set([]))
       setSelected([])
     }
-  }, [operation, serviceToEdit])
+  }, [serviceToEdit])
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={handleClose} size='xl'>
+    <Modal isOpen={isOpen} onOpenChange={handleOpenChange} size='xl'>
       <ModalContent>
         {(onClose) => (
           <form
@@ -165,9 +113,7 @@ export default function ModalFormService({
           >
             <ModalHeader>
               <h2 className='text-xl'>
-                {operation === 'edit'
-                  ? 'Editar servicio'
-                  : 'Registro de servicio'}
+                {!serviceToEdit ? 'Nuevo Registro' : 'Editar Registro'}
               </h2>
             </ModalHeader>
             <ModalBody>
@@ -189,9 +135,8 @@ export default function ModalFormService({
                 </Select>
                 <Select
                   label='Categoría'
-                  name='idCategoria'
+                  name='idcategoria'
                   selectedKeys={selectedCategory}
-                  onChange={handleSelectChange}
                   onSelectionChange={setSelectedCategory}
                   isRequired
                 >
@@ -210,8 +155,7 @@ export default function ModalFormService({
                   label='Nombre servicio'
                   name='nombreServicio'
                   maxLength={50}
-                  value={form.nombreServicio}
-                  onChange={handleInputChange}
+                  defaultValue={serviceToEdit ? serviceToEdit.servicio : ''}
                   isRequired
                 />
               </div>
@@ -220,8 +164,7 @@ export default function ModalFormService({
                   label='Observación'
                   name='observacion'
                   maxRows={3}
-                  value={form.observacion}
-                  onChange={handleInputChange}
+                  defaultValue={serviceToEdit ? serviceToEdit.observacion : ''}
                 />
               </div>
               <div className='flex flex-row gap-x-4 mb-2'>
@@ -235,15 +178,13 @@ export default function ModalFormService({
                   startContent={
                     <DollarSign className='text-default-400' size={20} />
                   }
-                  value={!isNaN(form.precio) ? form.precio : ''}
-                  onChange={(e) => handleInputChange(e, 'number')}
+                  defaultValue={serviceToEdit ? serviceToEdit.precio : ''}
                   isRequired
                 />
                 <Select
                   label='Requisito'
                   name='idRequisito'
                   selectedKeys={selectedRequirement}
-                  onChange={handleSelectChange}
                   onSelectionChange={setSelectedRequirement}
                 >
                   {requirementsData.map((requirement) => (
@@ -260,18 +201,10 @@ export default function ModalFormService({
                   value={selected}
                   onValueChange={setSelected}
                 >
-                  <Checkbox
-                    name='ordenMedica'
-                    value='ordenmedica'
-                    onChange={handleCheckBoxChange}
-                  >
+                  <Checkbox name='ordenMedica' value='ordenmedica'>
                     Orden médica
                   </Checkbox>
-                  <Checkbox
-                    name='triaje'
-                    value='triaje'
-                    onChange={handleCheckBoxChange}
-                  >
+                  <Checkbox name='triaje' value='triaje'>
                     Triaje
                   </Checkbox>
                 </CheckboxGroup>

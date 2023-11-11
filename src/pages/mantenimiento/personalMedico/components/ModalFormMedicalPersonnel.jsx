@@ -141,7 +141,7 @@ export default function ModalFormMedicalPersonnel({
   const handleOpenChange = (e) => {
     onOpenChange(e)
     setPerson(null)
-    setSpecialties(new Set())
+    setSpecialties(new Set([]))
     setFirma(null)
   }
 

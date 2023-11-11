@@ -17,8 +17,7 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  Tooltip,
-  useDisclosure
+  Tooltip
 } from '@nextui-org/react'
 import { ChevronDownIcon, Edit, Plus, SearchIcon, Trash } from 'lucide-react'
 import { getAllServices, removeService } from '../../services/service'
@@ -57,17 +56,11 @@ export default function Servicios() {
     column: 'id',
     direction: 'descending'
   })
-  const [editService, setEditService] = useState(null)
-  const serviceId = useRef(null)
-
-  const { isOpen, onOpen, onOpenChange } = useDisclosure()
-  const {
-    isOpen: isOpenQuestionDelete,
-    onOpen: onOpenQuestionDelete,
-    onOpenChange: onOpenChangeQuestionDelete
-  } = useDisclosure()
 
   const { data, loading, refresh } = useFetcher(getAllServices)
+  const [serviceId, setServiceId] = useState(null)
+  const [isOpen, setIsOpen] = useState(null)
+  const dataToEdit = useRef()
 
   const transformedData = useMemo(() => {
     return data
@@ -84,7 +77,7 @@ export default function Servicios() {
               observacion: servicio.observacion || '',
               precio: servicio.precio,
               idrequisito: servicio.idrequisito,
-              ordenMedica: !!servicio.orden_medica,
+              ordenmedica: !!servicio.orden_medica,
               triaje: !!servicio.triaje
             })
           })
@@ -150,19 +143,12 @@ export default function Servicios() {
     })
   }, [sortDescriptor, items])
 
-  const handleEditClick = (service) => {
-    setEditService(service)
-    onOpen()
-  }
-
   const confirmDelete = async () => {
     const result = await removeService(serviceId.current)
 
     if (result.isSuccess) {
       toast.success(result.message)
       refresh()
-    } else {
-      toast.error(result.message)
     }
   }
 
@@ -180,8 +166,8 @@ export default function Servicios() {
                 variant='light'
                 size='sm'
                 onPress={() => {
-                  console.log(service)
-                  handleEditClick(service.idservicio)
+                  dataToEdit.current = service
+                  setIsOpen(true)
                 }}
               >
                 <Edit size={20} />
@@ -194,8 +180,7 @@ export default function Servicios() {
                 variant='light'
                 size='sm'
                 onPress={() => {
-                  serviceId.current = service.idservicio
-                  onOpenQuestionDelete()
+                  setServiceId(service.idservicio)
                 }}
               >
                 <Trash size={20} />
@@ -286,8 +271,7 @@ export default function Servicios() {
               color='primary'
               endContent={<Plus size={20} />}
               onPress={() => {
-                setEditService(null)
-                onOpen()
+                setIsOpen(true)
               }}
             >
               Agregar nuevo
@@ -401,17 +385,19 @@ export default function Servicios() {
 
       <ModalFormService
         isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        operation={editService ? 'edit' : 'new'}
-        serviceToEdit={editService}
-        refreshTable={refresh}
+        onOpenChange={(open) => {
+          if (!open) dataToEdit.current = null
+          setIsOpen(open)
+        }}
+        serviceToEdit={dataToEdit.current}
+        refresh={refresh}
       />
 
       <QuestionModal
         title='Eliminar servicio'
         textContent='¿Está seguro que quiere eliminar el servicio? Esta acción es irreversible.'
-        isOpen={isOpenQuestionDelete}
-        onOpenChange={onOpenChangeQuestionDelete}
+        isOpen={serviceId}
+        onOpenChange={setServiceId}
         confirmConfig={{
           text: 'Eliminar',
           color: 'danger',
