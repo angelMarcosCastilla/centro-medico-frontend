@@ -17,7 +17,7 @@ import {
 } from '@nextui-org/react'
 import { BadgeX, PenSquare, Plus } from 'lucide-react'
 import { getAllAreas, removeArea } from '../../../services/area'
- import { getAllCategories, removeCategoria } from '../../../services/category'
+// import { getAllCategories, removeCategoria } from '../../../services/category'
 import { toast } from 'sonner'
 import { QuestionModal } from '../../../components/QuestionModal'
 import { usePagination } from '../../../hook/usePagination'
@@ -33,20 +33,20 @@ const columns = [
 ]
 const INITIAL_VISIBLE_COLUMNS = ['nombre_area', 'estado', 'acciones']
 
-const columnscategorie = [
+/* const columnscategorie = [
   { name: 'AREA', uid: 'nombre_area', sortable: true },
   { name: 'CATEGORIA', uid: 'nombre_categoria', sortable: true },
   { name: 'ESTADO', uid: 'estado' },
   { name: 'ACCIONES', uid: 'acciones' }
-]
-const INITIAL_VISIBLE_COLUMNS_CATEGORIE = ['nombre_area', 'estado', 'acciones']
+] */
+// const INITIAL_VISIBLE_COLUMNS_CATEGORIE = ['nombre_area', 'estado', 'acciones']
 
 
 export default function categorias() {
   const [filterValue] = useState('')
   const [visibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS))
 
-  const [visibleColumnsCategorie] = useState(new Set(INITIAL_VISIBLE_COLUMNS_CATEGORIE))
+  // const [visibleColumnsCategorie] = useState(new Set(INITIAL_VISIBLE_COLUMNS_CATEGORIE))
 
   const [sortDescriptor, setSortDescriptor] = useState({
     column: 'id',
@@ -56,8 +56,8 @@ export default function categorias() {
   const [editArea, setEditArea] = useState(null)
   const areaID = useRef(null)
 
-  const [editCategorie, setEditCagorie] = useState(null)
-  const categorieID =useRef(null)
+  // const [editCategorie, setEditCagorie] = useState(null)
+  // const categorieID =useRef(null)
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const {
@@ -67,7 +67,7 @@ export default function categorias() {
   } = useDisclosure()
 
   const { data:areas, refresh:refreshArea } = useFetcher(getAllAreas)
-  const{data:categorie, refresh:refreshCategorie} = useFetcher(getAllCategories)
+  // const{data:categorie, refresh:refreshCategorie} = useFetcher(getAllCategories)
 
   const transformedData = areas.map((area) => {
     return {
@@ -77,7 +77,7 @@ export default function categorias() {
     }
   })
 
-  const transformedDataCategorie = useMemo(() => {
+  /* const transformedDataCategorie = useMemo(() => {
     return categorie
     .reduce((result ,area) => {
       area.categorias.forEach((categorias)=>{
@@ -91,7 +91,7 @@ export default function categorias() {
       return result
     },[])
     .sort((a,b)=> b.idcategoria - a.idcategoria)        
-  },[categorie])
+  },[categorie]) */
 
   const hasSearchFilter = Boolean(filterValue)
 
@@ -103,13 +103,13 @@ export default function categorias() {
     )
   }, [visibleColumns])
 
-  const headerColumnsCategorie = useMemo(() => {
+  /* const headerColumnsCategorie = useMemo(() => {
     if (visibleColumnsCategorie === 'all') return columns
 
     return columns.filter((column) =>
       Array.from(visibleColumnsCategorie).includes(column.uid)
     )
-  }, [visibleColumnsCategorie])
+  }, [visibleColumnsCategorie]) */
 
 
   const filteredItems = useMemo(() => {
