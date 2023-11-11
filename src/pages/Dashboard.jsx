@@ -167,7 +167,7 @@ export default function Dashboard() {
               {
                 key: '4',
                 label: 'Areas Categorias',
-                route: 'areas-categorias'
+                route: 'categorias'
               },
               { key: '5', label: 'Usuarios', route: 'usuarios' }
             ]}
