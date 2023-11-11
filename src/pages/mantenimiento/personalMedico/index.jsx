@@ -5,6 +5,7 @@ import {
   Chip,
   Divider,
   Input,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -43,7 +44,7 @@ export default function PersonalMedico() {
 
   const hasSearchFilter = Boolean(filterValue)
 
-  const { data, refresh } = useFetcher(getMedicalStaff)
+  const { data, loading, refresh } = useFetcher(getMedicalStaff)
 
   const [disableOrEnableId, setDisableOrEnableId] = useState(null)
   const operation = useRef('')
@@ -248,7 +249,12 @@ export default function PersonalMedico() {
               </TableColumn>
             )}
           </TableHeader>
-          <TableBody items={sortedItems}>
+          <TableBody
+            isLoading={loading}
+            loadingContent={<Spinner />}
+            emptyContent='No se encontraron empleados'
+            items={sortedItems}
+          >
             {(item) => (
               <TableRow key={item.idpersonal}>
                 {(columnKey) => (
@@ -286,8 +292,8 @@ export default function PersonalMedico() {
         isOpen={disableOrEnableId}
         onOpenChange={setDisableOrEnableId}
         confirmConfig={{
-          text: 'Eliminar',
-          color: 'danger',
+          text: operation.current === 'disable' ? 'Eliminar' : 'Activar',
+          color: operation.current === 'disable' ? 'danger' : 'success',
           action: toogleState
         }}
       />

@@ -16,7 +16,7 @@ import {
   SearchPersonNotUser,
   createUser,
   editUser
-} from '../../../../services/usuarios'
+} from '../../../../services/user'
 import { rolesOptions } from '../../../../constants/auth.constant'
 
 export default function ModalFormUsuario({
