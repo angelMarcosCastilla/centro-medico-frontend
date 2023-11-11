@@ -22,9 +22,9 @@ import { disableUser, enableUser, getAllUsers } from '../../../services/user'
 import { mapRoles } from '../../../constants/auth.constant'
 import { Edit, Plus, RotateCcw, SearchIcon, Trash } from 'lucide-react'
 import { QuestionModal } from '../../../components/QuestionModal'
-import ModalFormUsuario from './components/ModalFormUsuario'
 import { formatDate } from '../../../utils/date'
 import { toast } from 'sonner'
+import ModalFormUser from './components/ModalFormUser'
 
 const columns = [
   { name: 'USUARIO', uid: 'usuario', sortable: true },
@@ -115,7 +115,7 @@ export default function Usuarios() {
             description={user.correo}
             name={`${user.nombres} ${user.apellidos}`}
           >
-            {user.nombres}
+            {user.correo}
           </User>
         )
       case 'nivel_acceso':
@@ -236,7 +236,7 @@ export default function Usuarios() {
         </div>
       </div>
     )
-  })
+  }, [filterValue, data.length, onSearchChange, hasSearchFilter])
 
   return (
     <>
@@ -284,7 +284,7 @@ export default function Usuarios() {
         </Table>
       </CardBody>
 
-      <ModalFormUsuario
+      <ModalFormUser
         key={dataToEdit.current?.idusuario}
         isOpen={isOpen}
         dataToEdit={dataToEdit.current}

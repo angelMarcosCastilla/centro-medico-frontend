@@ -1,5 +1,6 @@
 import {
   Button,
+  Divider,
   Input,
   Modal,
   ModalBody,
@@ -19,7 +20,7 @@ import {
 } from '../../../../services/user'
 import { rolesOptions } from '../../../../constants/auth.constant'
 
-export default function ModalFormUsuario({
+export default function ModalFormUser({
   isOpen,
   onOpenChange,
   dataToEdit,
@@ -35,6 +36,27 @@ export default function ModalFormUsuario({
       ? new Set([dataToEdit?.nivel_acceso])
       : ''
   })
+
+  const handleSearchPerson = async (e) => {
+    if (e.key !== 'Enter') return
+
+    const docNumber = e.target.value
+    if (!docNumber || docNumber.length < 8) return
+
+    const result = await SearchPersonNotUser(docNumber)
+    if (!result.data) {
+      setPerson(null)
+      toast.error('No se encontró a la persona')
+      return
+    }
+
+    if (result.data.idusuario) {
+      setPerson(null)
+      toast.error('Esta persona ya está registrada')
+      return
+    }
+    setPerson(result.data)
+  }
 
   const handleAddOrEditPerson = async (e, onClose) => {
     e.preventDefault()
@@ -84,26 +106,6 @@ export default function ModalFormUsuario({
     }
   }
 
-  const handleSearchPerson = async (e) => {
-    if (e.key !== 'Enter') return
-
-    const docNumber = e.target.value
-    if (!docNumber || docNumber.length < 8) return
-
-    const result = await SearchPersonNotUser(docNumber)
-    if (!result.data) {
-      setPerson(null)
-      toast.error('No se encontró a la persona')
-      return
-    }
-
-    if (result.data.idusuario) {
-      setPerson(null)
-      toast.error('Esta persona ya esta registrado')
-      return
-    }
-    setPerson(result.data)
-  }
   const personName = dataToEdit
     ? `${dataToEdit?.nombres} ${dataToEdit?.apellidos}`
     : person?.nombres
@@ -115,38 +117,38 @@ export default function ModalFormUsuario({
       <ModalContent>
         {(onClose) => (
           <form autoComplete='off'>
-            <ModalHeader className='flex flex-col gap-1'>
+            <ModalHeader>
               <h2 className='text-xl'>
                 {!dataToEdit ? 'Nuevo Registro' : 'Editar Registro'}
               </h2>
             </ModalHeader>
             <ModalBody>
-              <div className='flex flex-col gap-y-2'>
+              <div className='flex flex-col gap-y-4'>
                 <Input
                   isDisabled={Boolean(dataToEdit)}
-                  className='mb-2'
-                  label='Num Documento'
+                  label='Número de documento'
+                  placeholder='Enter para buscar'
                   endContent={<Search />}
-                  isRequired
                   onKeyDown={handleSearchPerson}
+                  isRequired
                 />
                 <Input
                   isReadOnly
-                  className='mb-2'
                   label='Nombre y apellidos'
                   value={personName}
                   name='Nombre y apellidos'
                   isRequired
                 />
+                <Divider className='my-2' />
                 <Select
+                  label='Roles'
                   items={rolesOptions}
-                  label='Seleccione rol'
-                  isRequired
-                  placeholder='Seleccione rol'
+                  placeholder='Seleccione el rol del usuario'
                   selectedKeys={data.nivel_acceso}
                   onSelectionChange={(e) =>
                     setData({ ...data, nivel_acceso: e })
                   }
+                  isRequired
                 >
                   {(rol) => (
                     <SelectItem key={rol.value} value={rol.value}>

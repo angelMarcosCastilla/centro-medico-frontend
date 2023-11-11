@@ -51,7 +51,7 @@ export default function ModalFormMedicalPersonnel({
 
     if (result.data.idpersonalmedico) {
       setPerson(null)
-      toast.error('Esta persona ya esta registrada')
+      toast.error('Esta persona ya está registrada')
       return
     }
 
@@ -192,9 +192,9 @@ export default function ModalFormMedicalPersonnel({
             onSubmit={(e) => handleAddOrEditPersonnel(e, onClose)}
             autoComplete='off'
           >
-            <ModalHeader className='flex flex-col gap-1'>
+            <ModalHeader>
               <h2 className='text-xl'>
-                {!medicalPersonnelToEdit ? 'Nuevo Registro' : 'Editar Registro'}{' '}
+                {!medicalPersonnelToEdit ? 'Nuevo Registro' : 'Editar Registro'}
               </h2>
             </ModalHeader>
             <ModalBody>
@@ -203,9 +203,6 @@ export default function ModalFormMedicalPersonnel({
                   isDisabled={Boolean(medicalPersonnelToEdit)}
                   label='Numero de documento'
                   placeholder='Enter para buscar'
-                  defaultValue={
-                    medicalPersonnelToEdit ? medicalPersonnelToEdit.nombres : ''
-                  }
                   endContent={<Search />}
                   onKeyDown={handleSearchPerson}
                   isRequired
