@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   Button,
-  Card,
   CardBody,
   CardHeader,
   Chip,
@@ -16,17 +15,17 @@ import {
   Tooltip,
   useDisclosure
 } from '@nextui-org/react'
+import { BadgeX, PenSquare, Plus } from 'lucide-react'
 import { getAllAreas, removeArea } from '../../../services/area'
-// import { getAllCategories, removeCategoria } from '../../../services/category'
+ import { getAllCategories, removeCategoria } from '../../../services/category'
 import { toast } from 'sonner'
 import { QuestionModal } from '../../../components/QuestionModal'
-
 import { usePagination } from '../../../hook/usePagination'
-import ModalCategorie from './ModalCategorie'
+import ModalCategorie from './components/ModalCategorie'
 import DateTimeClock from '../../../components/DateTimeClock'
-import { BadgeX, PenSquare, Plus } from 'lucide-react'
 import { useFetcher } from '../../../hook/useFetcher'
 
+// areas
 const columns = [
   { name: 'AREA', uid: 'nombre_area', sortable: true },
   { name: 'ESTADO', uid: 'estado' },
@@ -34,9 +33,20 @@ const columns = [
 ]
 const INITIAL_VISIBLE_COLUMNS = ['nombre_area', 'estado', 'acciones']
 
+const columnscategorie = [
+  { name: 'AREA', uid: 'nombre_area', sortable: true },
+  { name: 'CATEGORIA', uid: 'nombre_categoria', sortable: true },
+  { name: 'ESTADO', uid: 'estado' },
+  { name: 'ACCIONES', uid: 'acciones' }
+]
+const INITIAL_VISIBLE_COLUMNS_CATEGORIE = ['nombre_area', 'estado', 'acciones']
+
+
 export default function categorias() {
   const [filterValue] = useState('')
   const [visibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS))
+
+  const [visibleColumnsCategorie] = useState(new Set(INITIAL_VISIBLE_COLUMNS_CATEGORIE))
 
   const [sortDescriptor, setSortDescriptor] = useState({
     column: 'id',
@@ -46,6 +56,9 @@ export default function categorias() {
   const [editArea, setEditArea] = useState(null)
   const areaID = useRef(null)
 
+  const [editCategorie, setEditCagorie] = useState(null)
+  const categorieID =useRef(null)
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const {
     isOpen: isOpenQuestionDelete,
@@ -53,16 +66,32 @@ export default function categorias() {
     onOpenChange: onOpenChangeQuestionDelete
   } = useDisclosure()
 
-  const { data, refresh } = useFetcher(getAllAreas)
-  console.log("data", getAllAreas)
+  const { data:areas, refresh:refreshArea } = useFetcher(getAllAreas)
+  const{data:categorie, refresh:refreshCategorie} = useFetcher(getAllCategories)
 
-  const transformedData = data.map((area) => {
+  const transformedData = areas.map((area) => {
     return {
       idarea: area.idarea,
       nombre_area: area.nombre_area,
       estado: area.estado
-    };
+    }
   })
+
+  const transformedDataCategorie = useMemo(() => {
+    return categorie
+    .reduce((result ,area) => {
+      area.categorias.forEach((categorias)=>{
+        result.push({
+          idcategoria: categorias.idcategoria,
+          nombre_area: categorias.nombre_area,
+          nombre_categoria: categorias.nombre_categoria,
+          estado: categorias.estado
+        })
+      })
+      return result
+    },[])
+    .sort((a,b)=> b.idcategoria - a.idcategoria)        
+  },[categorie])
 
   const hasSearchFilter = Boolean(filterValue)
 
@@ -74,10 +103,19 @@ export default function categorias() {
     )
   }, [visibleColumns])
 
+  const headerColumnsCategorie = useMemo(() => {
+    if (visibleColumnsCategorie === 'all') return columns
+
+    return columns.filter((column) =>
+      Array.from(visibleColumnsCategorie).includes(column.uid)
+    )
+  }, [visibleColumnsCategorie])
+
+
   const filteredItems = useMemo(() => {
     let filteredAreas = [...transformedData]
 
-    if (hasSearchFilter) {      
+    if (hasSearchFilter) {
       filteredAreas = filteredAreas.filter((area) =>
         area.nombre_area.toLowerCase().includes(filterValue.toLowerCase())
       )
@@ -90,7 +128,6 @@ export default function categorias() {
     items,
     onNextPage,
     onPreviousPage,
-    rowsPerPage,
     onRowsPerPageChange,
     page,
     pages,
@@ -117,7 +154,7 @@ export default function categorias() {
 
     if (result.isSuccess) {
       toast.success(result.message)
-      refresh()
+      refreshArea()
     } else {
       toast.error(result.message)
     }
@@ -136,37 +173,40 @@ export default function categorias() {
           Inactivo
         </Chip>
       )
-    if (columnKey === 'acciones')
-      return (
-        <div className='relative flex items-center gap-2'>
-          <Tooltip content='Editar' color='primary' closeDelay={0}>
-            <Button
-              isIconOnly
-              color='primary'
-              size='sm'
-              variant='light'
-              onClick={() => handleEditClick(area.idarea)}
-            >
-              <PenSquare size={20} />
-            </Button>
-          </Tooltip>
-          <Tooltip color='danger' content='Eliminar' closeDelay={0}>
-            <Button
-              isIconOnly
-              color='danger'
-              size='sm'
-              variant='light'
-              onClick={() => {
-                areaID.current = area.idarea
-                onOpenQuestionDelete()
-              }}
-            >
-              <BadgeX size={20} />
-            </Button>
-          </Tooltip>
-        </div>
-      )
-    return cellValue
+    switch (columnKey) {
+      case 'acciones':
+        return (
+          <div className='relative flex items-center gap-2'>
+            <Tooltip content='Editar' color='primary' closeDelay={0}>
+              <Button
+                isIconOnly
+                color='primary'
+                size='sm'
+                variant='light'
+                onPress={() => handleEditClick(area.idarea)}
+              >
+                <PenSquare size={20} />
+              </Button>
+            </Tooltip>
+            <Tooltip color='danger' content='Eliminar' closeDelay={0}>
+              <Button
+                isIconOnly
+                color='danger'
+                size='sm'
+                variant='light'
+                onPress={() => {
+                  areaID.current = area.idarea
+                  onOpenQuestionDelete()
+                }}
+              >
+                <BadgeX size={20} />
+              </Button>
+            </Tooltip>
+          </div>
+        )
+      default:
+        return cellValue
+    }
   }, [])
 
   const topContent = useMemo(() => {
@@ -185,23 +225,6 @@ export default function categorias() {
               Nueva Area
             </Button>
           </div>
-        </div>
-        <div className='flex justify-between items-center'>
-          <span className='text-default-400 text-small'>
-            Total: {transformedData.length} empresas
-          </span>
-          <label className='flex items-center text-default-400 text-small'>
-            Filas por página:
-            <select
-              className='bg-transparent outline-none text-default-400 text-small'
-              defaultValue={rowsPerPage}
-              onChange={onRowsPerPageChange}
-            >
-              <option value='5'>5</option>
-              <option value='10'>10</option>
-              <option value='15'>15</option>
-            </select>
-          </label>
         </div>
       </div>
     )
@@ -236,17 +259,13 @@ export default function categorias() {
   }, [items.length, page, pages, hasSearchFilter])
 
   return (
-    <>
-      <Card>
+    <>      
         <CardHeader className='flex justify-between'>
           <h2 className='text-2xl'>AREAS - CATEGORIAS</h2>
           <DateTimeClock />
         </CardHeader>
         <Divider />
         <CardBody>
-          <div className='mb-3'>
-            <h1 className='text-xl'>AREAS</h1>
-          </div>
           <Table
             isHeaderSticky
             isStriped
@@ -283,23 +302,56 @@ export default function categorias() {
               )}
             </TableBody>
           </Table>
-
           <Divider className='my-6' />
-        </CardBody>
-      </Card>
+          {/* <Table
+            isHeaderSticky
+            isStriped
+            aria-label='Example table with custom cells, pagination and sorting'
+            bottomContent={bottomContent}
+            bottomContentPlacement='outside'
+            classNames={{
+              wrapper: 'max-h-[600px]'
+            }}
+            sortDescriptor={sortDescriptor}
+            topContent={topContent}
+            topContentPlacement='outside'
+            shadow='none'
+            onSortChange={setSortDescriptor}
+          >
+            <TableHeader columns={headerColumnsCategorie}>
+              {(column) => (
+                <TableColumn
+                  key={column.uid}
+                  align={column.uid === 'actions' ? 'center' : 'start'}
+                  allowsSorting={column.sortable}
+                >
+                  {column.name}
+                </TableColumn>
+              )}
+            </TableHeader>
+            <TableBody items={sortedItems}>
+              {(item) => (
+                <TableRow key={crypto.randomUUID().toString()}>
+                  {(columnKey) => (
+                    <TableCell>{renderCell(item, columnKey)}</TableCell>
+                  )}
+                </TableRow>
+              )}
+            </TableBody>
+          </Table> */}
+        </CardBody>      
       <ModalCategorie
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         operation={editArea ? 'edit' : 'new'}
-        serviceToEdit={editArea}
-        refreshTable={refresh}
+        areaToEdit={editArea}
+        refreshTable={refreshArea}
       />
 
       <QuestionModal
         textContent='¿Seguro de eliminar?'
         isOpen={isOpenQuestionDelete}
         onOpenChange={onOpenChangeQuestionDelete}
-        data={areaID}
         onConfirm={confirmDelete}
       />
     </>

@@ -13,7 +13,7 @@ export const getArea = async (idArea) => {
 }
 
 export const addArea = async (areaData) => {
-  const { data } = await axios.post(`/areas`, areaData)
+  const { data } = await axios.post('/areas', areaData)
   return data
 }
 
