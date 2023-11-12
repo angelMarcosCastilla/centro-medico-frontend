@@ -35,6 +35,7 @@ export default function ModalFormMedicalPersonnel({
   const [person, setPerson] = useState(null)
   const [specialties, setSpecialties] = useState(new Set([]))
   const [firma, setFirma] = useState(null)
+  const [cmp, setCmp] = useState('')
 
   const handleSearchPerson = async (e) => {
     if (e.key !== 'Enter') return
@@ -73,6 +74,7 @@ export default function ModalFormMedicalPersonnel({
     if (!medicalPersonnelToEdit) {
       formData.append('idpersonalmedico', person.idpersona)
       formData.append('idespecialidad', Array.from(specialties))
+      formData.append('codigo_cmp', cmp)
       formData.append('firmaUrl', firma)
 
       try {
@@ -85,9 +87,12 @@ export default function ModalFormMedicalPersonnel({
       }
     } else {
       const oldEspecialidades = medicalPersonnelToEdit.especialidades.map(
-        (el) => String(el.iddetespecialidad)
+        (el) => ({
+          idespecialidad: String(el.idespecialidad),
+          idDetEspecialidad: el.iddetespecialidad,
+          estado: el.estado
+        })
       )
-
       const newEspecialidades = Array.from(specialties).map((el) => ({
         idespecialidad: el,
         estado: 1
@@ -96,7 +101,10 @@ export default function ModalFormMedicalPersonnel({
       const especialidadesToSend = []
 
       newEspecialidades.forEach((el) => {
-        const isOldEspecialdad = oldEspecialidades.includes(el.idespecialidad)
+        const isOldEspecialdad = oldEspecialidades
+          .map((el) => el.idespecialidad)
+          .includes(el.idespecialidad)
+
         if (!isOldEspecialdad) {
           especialidadesToSend.push({
             ...el,
@@ -108,20 +116,21 @@ export default function ModalFormMedicalPersonnel({
       oldEspecialidades.forEach((esp) => {
         const isNewEspecialidad = newEspecialidades
           .map((el) => el.idespecialidad)
-          .includes(esp)
-        if (!isNewEspecialidad) {
-          especialidadesToSend.push({
-            idespecialidad: esp,
-            estado: 0,
-            op: 'edit'
-          })
-        }
+          .includes(esp.idespecialidad)
+
+        especialidadesToSend.push({
+          iddetespecialidad: esp.idDetEspecialidad,
+          estado: !isNewEspecialidad ? 0 : 1,
+          op: 'edit'
+        })
       })
 
       formData.append('idpersonalmedico', medicalPersonnelToEdit.idpersona)
       formData.append('idespecialidad', JSON.stringify(especialidadesToSend))
       const firmaFile = !firma || typeof firma === 'string' ? null : firma
       formData.append('firmaUrl', firmaFile)
+      formData.append('currentFirma', firma)
+      formData.append('codigo_cmp', cmp)
 
       try {
         const result = await updateMedicalPersonnel(
@@ -178,6 +187,7 @@ export default function ModalFormMedicalPersonnel({
 
       setSpecialties(new Set(activeSpecialties))
       setFirma(medicalPersonnelToEdit.firma_url)
+      setCmp(medicalPersonnelToEdit.codigo_cmp)
     } else {
       setSpecialties(new Set([]))
       setFirma(null)
@@ -235,6 +245,14 @@ export default function ModalFormMedicalPersonnel({
                     </SelectItem>
                   ))}
                 </Select>
+                <Input
+                  label='Código cmp'
+                  value={cmp}
+                  minLength={6}
+                  onChange={(e) => setCmp(e.target.value)}
+                  name='Código cmp'
+                  isRequired
+                />
                 <div
                   className='w-full'
                   onDrop={handleDrop}
