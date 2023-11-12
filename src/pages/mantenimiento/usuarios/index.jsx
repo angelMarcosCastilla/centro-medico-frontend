@@ -21,10 +21,10 @@ import { useFetcher } from '../../../hook/useFetcher'
 import { disableUser, enableUser, getAllUsers } from '../../../services/user'
 import { mapRoles } from '../../../constants/auth.constant'
 import { Edit, Plus, RotateCcw, SearchIcon, Trash } from 'lucide-react'
-import { QuestionModal } from '../../../components/QuestionModal'
 import { formatDate } from '../../../utils/date'
 import { toast } from 'sonner'
 import ModalFormUser from './components/ModalFormUser'
+import ModalUserAction from './components/ModalUserAction'
 
 const columns = [
   { name: 'USUARIO', uid: 'usuario', sortable: true },
@@ -49,8 +49,15 @@ export default function Usuarios() {
   const [isOpen, setIsOpen] = useState(null)
   const dataToEdit = useRef()
 
+  const transformedData = useMemo(() => {
+    return data.map((el) => ({
+      ...el,
+      usuario: `${el.nombres} ${el.apellidos}`
+    }))
+  }, [data])
+
   const filteredItems = useMemo(() => {
-    let filteredUsers = [...data]
+    let filteredUsers = [...transformedData]
 
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter(
@@ -108,12 +115,10 @@ export default function Usuarios() {
           <User
             avatarProps={{
               radius: 'lg',
-              src: `https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true&name=${
-                user.nombres + ' ' + user.apellidos
-              }`
+              src: `https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true&name=${cellValue}`
             }}
             description={user.correo}
-            name={`${user.nombres} ${user.apellidos}`}
+            name={cellValue}
           >
             {user.correo}
           </User>
@@ -285,32 +290,26 @@ export default function Usuarios() {
       </CardBody>
 
       <ModalFormUser
-        key={dataToEdit.current?.idusuario}
         isOpen={isOpen}
-        dataToEdit={dataToEdit.current}
-        refresh={refresh}
         onOpenChange={(open) => {
           if (!open) dataToEdit.current = null
           setIsOpen(open)
         }}
+        userToEdit={dataToEdit.current}
+        refresh={refresh}
       />
 
-      <QuestionModal
+      <ModalUserAction
         title={
           operation.current === 'disable'
             ? 'Eliminar usuario'
             : 'Activar usuario'
         }
-        textContent={`¿Está seguro de ${
-          operation.current === 'disable' ? 'eliminar' : 'activar'
-        } este usuario?`}
         isOpen={disableOrEnableId}
         onOpenChange={setDisableOrEnableId}
-        confirmConfig={{
-          text: operation.current === 'disable' ? 'Eliminar' : 'Activar',
-          color: operation.current === 'disable' ? 'danger' : 'success',
-          action: toogleState
-        }}
+        operation={operation.current}
+        action={toogleState}
+        refresh={refresh}
       />
     </>
   )

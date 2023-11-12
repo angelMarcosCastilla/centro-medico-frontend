@@ -44,7 +44,7 @@ export default function ModalCorrection({
         onClose()
       }
     } catch (err) {
-      toast.error('Error al enviar la solicitud')
+      toast.error('Ocurrió un problema al guardar')
     } finally {
       setIsSaving(false)
     }
@@ -55,9 +55,7 @@ export default function ModalCorrection({
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className='flex flex-col gap-1'>
-              Corrección del informe
-            </ModalHeader>
+            <ModalHeader>Corrección del informe</ModalHeader>
             <ModalBody>
               <Textarea
                 minRows={5}

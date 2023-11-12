@@ -199,14 +199,16 @@ export default function ModalFormMedicalPersonnel({
             </ModalHeader>
             <ModalBody>
               <div className='flex flex-col gap-y-4'>
-                <Input
-                  isDisabled={Boolean(medicalPersonnelToEdit)}
-                  label='Numero de documento'
-                  placeholder='Enter para buscar'
-                  endContent={<Search />}
-                  onKeyDown={handleSearchPerson}
-                  isRequired
-                />
+                {!medicalPersonnelToEdit && (
+                  <Input
+                    isDisabled={Boolean(medicalPersonnelToEdit)}
+                    label='Numero de documento'
+                    placeholder='Enter para buscar'
+                    endContent={<Search />}
+                    onKeyDown={handleSearchPerson}
+                    isRequired
+                  />
+                )}
                 <Input
                   isReadOnly
                   label='Nombres y apellidos'

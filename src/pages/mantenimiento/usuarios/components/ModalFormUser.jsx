@@ -8,34 +8,31 @@ import {
   ModalFooter,
   ModalHeader,
   Select,
-  SelectItem
+  SelectItem,
+  Switch
 } from '@nextui-org/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { Search } from 'lucide-react'
+import { Eye, EyeOff, Search } from 'lucide-react'
 import {
-  SearchPersonNotUser,
   createUser,
-  editUser
+  searchPersonNotUser,
+  updateUser
 } from '../../../../services/user'
 import { rolesOptions } from '../../../../constants/auth.constant'
 
 export default function ModalFormUser({
   isOpen,
   onOpenChange,
-  dataToEdit,
+  userToEdit,
   refresh
 }) {
   const [loading, setLoading] = useState(false)
-  const [person, setPerson] = useState(null)
+  const [isSelected, setIsSelected] = useState(false)
 
-  const [data, setData] = useState({
-    nombre_usuario: dataToEdit?.nombre_usuario ?? '',
-    password: '',
-    nivel_acceso: dataToEdit?.nivel_acceso
-      ? new Set([dataToEdit?.nivel_acceso])
-      : ''
-  })
+  const [person, setPerson] = useState(null)
+  const [accessLevel, setAccessLevel] = useState(new Set([]))
+  const [visible, toggleVisible] = useState({ new: false, repeat: false })
 
   const handleSearchPerson = async (e) => {
     if (e.key !== 'Enter') return
@@ -43,7 +40,7 @@ export default function ModalFormUser({
     const docNumber = e.target.value
     if (!docNumber || docNumber.length < 8) return
 
-    const result = await SearchPersonNotUser(docNumber)
+    const result = await searchPersonNotUser(docNumber)
     if (!result.data) {
       setPerson(null)
       toast.error('No se encontró a la persona')
@@ -58,85 +55,97 @@ export default function ModalFormUser({
     setPerson(result.data)
   }
 
-  const handleAddOrEditPerson = async (e, onClose) => {
-    e.preventDefault()
-    setLoading(true)
-
-    try {
-      if (!dataToEdit) {
-        // validar los campos
-        if (Object.values(data).some((el) => el === '') || !person) {
-          toast.error('Falta llenar campos')
-          return
-        }
-        const dataTosend = {
-          idPersona: person.idpersona,
-          nombreUsuario: data.nombre_usuario,
-          claveAcceso: data.password,
-          nivelAcceso: Array.from(data.nivel_acceso)[0]
-        }
-
-        const result = await createUser(dataTosend)
-        if (!result.data) {
-          toast.success('Se registró correctamente')
-          refresh()
-          onClose()
-        }
-      } else {
-        if (Object.values(data).some((el) => el === '')) {
-          toast.error('Falta llenar campos')
-          return
-        }
-        const dataTosend = {
-          nombreUsuario: data.nombre_usuario,
-          claveAcceso: data.password,
-          nivelAcceso: Array.from(data.nivel_acceso)[0]
-        }
-        const result = await editUser(dataToEdit.idusuario, dataTosend)
-        if (!result.data) {
-          toast.success('Se editó correctamente')
-          refresh()
-          onClose()
-        }
-      }
-    } catch (err) {
-      toast.error('Ocurrió un problema al guardar')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const personName = dataToEdit
-    ? `${dataToEdit?.nombres} ${dataToEdit?.apellidos}`
+  const personName = userToEdit
+    ? `${userToEdit?.nombres} ${userToEdit?.apellidos}`
     : person?.nombres
     ? `${person?.nombres} ${person?.apellidos}`
     : ''
 
+  const handleAddOrEditPerson = async (e, onClose) => {
+    e.preventDefault()
+    setLoading(true)
+
+    const formData = new FormData(e.target)
+    const dataToSend = Object.fromEntries(formData)
+
+    if (dataToSend.claveAcceso !== dataToSend.claveAccesoRepetida)
+      return toast.error('Las contraseñas no coinciden')
+
+    if (!userToEdit) {
+      dataToSend.idPersona = person.idpersona
+      dataToSend.nivelAcceso = [...accessLevel][0]
+      console.log(dataToSend)
+      try {
+        const result = await createUser(dataToSend)
+        refresh()
+        toast.success(result.message)
+        onClose()
+      } catch {
+        toast.error('Ocurrió un problema al guardar')
+      }
+    } else {
+      dataToSend.nivelAcceso = [...accessLevel][0]
+      dataToSend.cambiarClaveAcceso = isSelected
+
+      try {
+        const result = await updateUser(userToEdit.idusuario, dataToSend)
+        refresh()
+        toast.success(result.message)
+        onClose()
+      } catch {
+        toast.error('Ocurrió un problema al guardar')
+      }
+    }
+
+    setLoading(false)
+  }
+
+  const handleOpenChange = (e) => {
+    onOpenChange(e)
+    setPerson(null)
+    setAccessLevel(new Set([]))
+  }
+
+  useEffect(() => {
+    if (userToEdit) {
+      setAccessLevel(new Set([userToEdit.nivel_acceso]))
+    } else {
+      setPerson(null)
+      setAccessLevel(new Set([]))
+      setIsSelected(false)
+      toggleVisible({ new: false, repeat: false })
+    }
+  }, [userToEdit])
+
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='2xl'>
+    <Modal isOpen={isOpen} onOpenChange={handleOpenChange} size='lg'>
       <ModalContent>
         {(onClose) => (
-          <form autoComplete='off'>
+          <form
+            onSubmit={(e) => handleAddOrEditPerson(e, onClose)}
+            autoComplete='off'
+          >
             <ModalHeader>
               <h2 className='text-xl'>
-                {!dataToEdit ? 'Nuevo Registro' : 'Editar Registro'}
+                {!userToEdit ? 'Nuevo Registro' : 'Editar Registro'}
               </h2>
             </ModalHeader>
             <ModalBody>
               <div className='flex flex-col gap-y-4'>
-                <Input
-                  isDisabled={Boolean(dataToEdit)}
-                  label='Número de documento'
-                  placeholder='Enter para buscar'
-                  endContent={<Search />}
-                  onKeyDown={handleSearchPerson}
-                  isRequired
-                />
+                {!userToEdit && (
+                  <Input
+                    isDisabled={Boolean(userToEdit)}
+                    label='Número de documento'
+                    placeholder='Enter para buscar'
+                    endContent={<Search />}
+                    onKeyDown={handleSearchPerson}
+                    isRequired
+                  />
+                )}
                 <Input
                   isReadOnly
                   label='Nombre y apellidos'
                   value={personName}
-                  name='Nombre y apellidos'
                   isRequired
                 />
                 <Divider className='my-2' />
@@ -144,10 +153,8 @@ export default function ModalFormUser({
                   label='Roles'
                   items={rolesOptions}
                   placeholder='Seleccione el rol del usuario'
-                  selectedKeys={data.nivel_acceso}
-                  onSelectionChange={(e) =>
-                    setData({ ...data, nivel_acceso: e })
-                  }
+                  selectedKeys={accessLevel}
+                  onSelectionChange={setAccessLevel}
                   isRequired
                 >
                   {(rol) => (
@@ -157,23 +164,66 @@ export default function ModalFormUser({
                   )}
                 </Select>
                 <Input
-                  className='mb-2'
-                  label='Nombre Usuario'
-                  value={data.nombre_usuario}
-                  onChange={(e) =>
-                    setData({ ...data, nombre_usuario: e.target.value })
+                  label='Nombre de usuario'
+                  defaultValue={userToEdit ? userToEdit.nombre_usuario : ''}
+                  name='nombreUsuario'
+                  maxLength={50}
+                  isRequired
+                />
+                {userToEdit && (
+                  <Switch
+                    isSelected={isSelected}
+                    onValueChange={setIsSelected}
+                    name='cambiarClaveAcceso'
+                    size='sm'
+                  >
+                    Cambiar contraseña
+                  </Switch>
+                )}
+                <Input
+                  label='Contraseña'
+                  name='claveAcceso'
+                  type={visible.new ? 'text' : 'password'}
+                  maxLength={50}
+                  isDisabled={userToEdit && !isSelected}
+                  endContent={
+                    <button
+                      className='focus:outline-none'
+                      type='button'
+                      onClick={() =>
+                        toggleVisible((prev) => {
+                          return { ...prev, new: !visible.new }
+                        })
+                      }
+                    >
+                      {visible.new ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
                   }
-                  name='Nombre Usuario'
                   isRequired
                 />
                 <Input
-                  className='mb-2'
-                  label='Password'
-                  value={data.password}
-                  onChange={(e) =>
-                    setData({ ...data, password: e.target.value })
+                  label='Repetir contraseña'
+                  name='claveAccesoRepetida'
+                  type={visible.repeat ? 'text' : 'password'}
+                  maxLength={50}
+                  isDisabled={userToEdit && !isSelected}
+                  endContent={
+                    <button
+                      className='focus:outline-none'
+                      type='button'
+                      onClick={() =>
+                        toggleVisible((prev) => {
+                          return { ...prev, repeat: !visible.repeat }
+                        })
+                      }
+                    >
+                      {visible.repeat ? (
+                        <EyeOff size={20} />
+                      ) : (
+                        <Eye size={20} />
+                      )}
+                    </button>
                   }
-                  name='Password'
                   isRequired
                 />
               </div>
@@ -187,13 +237,7 @@ export default function ModalFormUser({
               >
                 Cancelar
               </Button>
-
-              <Button
-                onClick={(e) => handleAddOrEditPerson(e, onClose)}
-                color='primary'
-                type='button'
-                isLoading={loading}
-              >
+              <Button color='primary' type='submit' isLoading={loading}>
                 Guardar
               </Button>
             </ModalFooter>
