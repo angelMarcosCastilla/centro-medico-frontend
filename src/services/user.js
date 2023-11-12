@@ -7,6 +7,21 @@ export const getAllUsers = async () => {
   return data
 }
 
+export const searchPersonNotUser = async (numDoc) => {
+  const { data } = await axios.get(`/usuarios/persona/notUser/${numDoc}`)
+  return data
+}
+
+export const createUser = async (userData) => {
+  const { data } = await axios.post('/usuarios', userData)
+  return data
+}
+
+export const updateUser = async (userId, userData) => {
+  const { data } = await axios.put(`usuarios/${userId}`, userData)
+  return data
+}
+
 export const disableUser = async (userId) => {
   const { data } = await axios.delete(`/usuarios/${userId}`)
   return data
@@ -15,19 +30,4 @@ export const disableUser = async (userId) => {
 export const enableUser = async (userId) => {
   const { data } = await axios.patch(`/usuarios/${userId}`)
   return data
-}
-
-export const SearchPersonNotUser = async (numDoc) => {
-  const { data } = await axios.get(`/usuarios/persona/notUser/${numDoc}`)
-  return data
-}
-
-export const createUser = async (data) => {
-  const { data: response } = await axios.post('/usuarios', data)
-  return response
-}
-
-export const editUser = async (idusuario, data) => {
-  const { data: response } = await axios.put(`usuarios/${idusuario}`, data)
-  return response
 }
