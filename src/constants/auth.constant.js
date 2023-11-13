@@ -31,9 +31,9 @@ export const mapRoles = {
   TR: 'Triaje'
 }
 
-export const rolesOptions = Object.keys(mapRoles)
+export const rolesOptions = [...Object.keys(mapRoles)]
+  .sort((a, b) => mapRoles[a].localeCompare(mapRoles[b]))
   .map((el) => ({
     value: el,
     label: mapRoles[el]
   }))
-  .filter((el) => el.value !== 'A')

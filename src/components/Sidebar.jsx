@@ -78,7 +78,6 @@ export default function Sidebar({ children }) {
           <Dropdown placement='bottom-start'>
             <DropdownTrigger>
               <User
-                className=''
                 as='button'
                 avatarProps={{
                   isBordered: true,
@@ -223,7 +222,9 @@ export function SidebarList({ icon, text, route, items }) {
         {items && expanded && (
           <ChevronDown
             size={20}
-            className={`transition-all ${open && 'rotate-180'}`}
+            className={`transition-all ${
+              open && 'rotate-180'
+            } absolute right-3 top-1/2 transform -translate-y-1/2`}
           />
         )}
 

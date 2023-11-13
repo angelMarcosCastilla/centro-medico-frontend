@@ -127,11 +127,13 @@ export default function ModalFormService({
                   }}
                   isRequired
                 >
-                  {areasData.map((area) => (
-                    <SelectItem key={area.idarea}>
-                      {area.nombre_area}
-                    </SelectItem>
-                  ))}
+                  {areasData
+                    .filter((area) => area.idarea !== 4)
+                    .map((area) => (
+                      <SelectItem key={area.idarea}>
+                        {area.nombre_area}
+                      </SelectItem>
+                    ))}
                 </Select>
                 <Select
                   label='Categoría'

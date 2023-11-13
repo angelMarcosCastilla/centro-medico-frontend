@@ -74,7 +74,7 @@ export default function ModalFormUser({
     if (!userToEdit) {
       dataToSend.idPersona = person.idpersona
       dataToSend.nivelAcceso = [...accessLevel][0]
-      console.log(dataToSend)
+
       try {
         const result = await createUser(dataToSend)
         refresh()
@@ -104,6 +104,7 @@ export default function ModalFormUser({
     onOpenChange(e)
     setPerson(null)
     setAccessLevel(new Set([]))
+    toggleVisible({ new: false, repeat: false })
   }
 
   useEffect(() => {
@@ -113,7 +114,6 @@ export default function ModalFormUser({
       setPerson(null)
       setAccessLevel(new Set([]))
       setIsSelected(false)
-      toggleVisible({ new: false, repeat: false })
     }
   }, [userToEdit])
 
@@ -150,8 +150,10 @@ export default function ModalFormUser({
                 />
                 <Divider className='my-2' />
                 <Select
+                  isDisabled={[...accessLevel][0] === 'A'}
                   label='Roles'
                   items={rolesOptions}
+                  disabledKeys={['A']}
                   placeholder='Seleccione el rol del usuario'
                   selectedKeys={accessLevel}
                   onSelectionChange={setAccessLevel}

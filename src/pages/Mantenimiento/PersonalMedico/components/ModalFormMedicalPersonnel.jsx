@@ -29,6 +29,9 @@ export default function ModalFormMedicalPersonnel({
   refresh
 }) {
   const { data: specialtiesData } = useFetcher(getAllEspecialidad)
+  specialtiesData.sort((a, b) =>
+    a.nombre_especialidad.localeCompare(b.nombre_especialidad)
+  )
 
   const [loading, setLoading] = useState(false)
 
@@ -151,6 +154,7 @@ export default function ModalFormMedicalPersonnel({
     onOpenChange(e)
     setPerson(null)
     setSpecialties(new Set([]))
+    setCmp('')
     setFirma(null)
   }
 
@@ -248,9 +252,9 @@ export default function ModalFormMedicalPersonnel({
                   ))}
                 </Select>
                 <Input
-                  label='Código cmp'
+                  label='Código CMP'
                   value={cmp}
-                  minLength={6}
+                  maxLength={6}
                   onChange={(e) => setCmp(e.target.value)}
                   name='Código cmp'
                   isRequired
