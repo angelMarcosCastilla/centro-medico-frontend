@@ -98,7 +98,7 @@ export default function PaymentTable({
 
   return (
     <>
-      <div className='flex items-center gap-x-5 w-full mt-2'>
+      <div className='flex items-end gap-x-5 w-full mt-2'>
         <Select
           label='Método de pago'
           labelPlacement='outside'

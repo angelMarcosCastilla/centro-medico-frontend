@@ -114,7 +114,7 @@ export default function FormTriaje() {
         navigate('/triaje', { replace: true })
       }
     } catch (error) {
-      toast.error('Ocurrió un error al registrar')
+      toast.error('Ocurrió un problema al registrar')
     } finally {
       setLoading(false)
     }

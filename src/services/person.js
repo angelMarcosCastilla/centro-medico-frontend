@@ -18,13 +18,6 @@ export const searchPersonByNumDoc = async (numDocumento) => {
   return data
 }
 
-export const searchPersonByNumDocPersonalMedico = async (numDocumento) => {
-  const { data } = await axios.get(
-    `/personas/numdocumento/personal/${numDocumento}`
-  )
-  return data
-}
-
 export const createPerson = async (personData) => {
   const { data } = await axios.post('/personas', personData)
   return data

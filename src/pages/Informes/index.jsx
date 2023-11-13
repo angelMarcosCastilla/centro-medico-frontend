@@ -41,6 +41,7 @@ import { toast } from 'sonner'
 import { socket } from '../../components/Socket'
 import ModalCorrection from './components/ModalCorrection'
 import DateTimeClock from '../../components/DateTimeClock'
+import { redirectToResult } from '../../config'
 
 const columns = [
   { name: 'PACIENTE', uid: 'paciente', sortable: true },
@@ -212,7 +213,7 @@ export default function Informes() {
             )}
             <Tooltip content='Descargar' color='primary' closeDelay={0}>
               <Button
-                href={`http://localhost:3000/api/resultados/${detail.iddetatencion}/report`}
+                href={redirectToResult(detail.iddetatencion)}
                 target='_blank'
                 rel='noreferrer'
                 as={Link}
@@ -221,7 +222,7 @@ export default function Informes() {
                 variant='light'
                 size='sm'
               >
-                {<FileDown size={20} />}
+                <FileDown size={20} />
               </Button>
             </Tooltip>
           </div>
@@ -232,7 +233,7 @@ export default function Informes() {
   }, [])
 
   const handleChangeStatus = async (idDetAttention, status) => {
-    const newStatus = status === 'PE' ? 'F' : 'PE' // Cambiar el estado a 'F' si es 'PE', y viceversa
+    const newStatus = status === 'PE' ? 'F' : 'PE'
     const result = await changeStatus(idDetAttention, newStatus)
 
     if (result) {
@@ -448,17 +449,13 @@ export default function Informes() {
         >
           <TableHeader columns={headerColumns}>
             {(column) => (
-              <TableColumn
-                key={column.uid}
-                align={column.uid === 'actions' ? 'center' : 'start'}
-                allowsSorting={column.sortable}
-              >
+              <TableColumn key={column.uid} allowsSorting={column.sortable}>
                 {column.name}
               </TableColumn>
             )}
           </TableHeader>
           <TableBody
-            emptyContent={'No se encontraron informes'}
+            emptyContent='No se encontraron informes'
             isLoading={loading}
             loadingContent={<Spinner />}
             items={sortedItems}

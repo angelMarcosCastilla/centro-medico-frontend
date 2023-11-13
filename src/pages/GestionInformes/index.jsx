@@ -244,7 +244,7 @@ export default function GestionInformes() {
         }
       }
     } catch {
-      toast.error('Ocurrió un error al guardar')
+      toast.error('Ocurrió un problema al guardar')
     } finally {
       setIsSaving(false)
     }
@@ -260,7 +260,7 @@ export default function GestionInformes() {
               isStriped
               removeWrapper
               tabIndex={-1}
-              aria-label='Tabla de informes pendientes de entrega'
+              aria-label='Tabla de informes pendientes de redacción y de entrega'
             >
               <TableHeader columns={columns}>
                 {(column) => (

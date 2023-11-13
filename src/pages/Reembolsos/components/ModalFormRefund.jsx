@@ -303,7 +303,7 @@ export default function ModalFormRefund({
                               case 'estado':
                                 columnValue = (
                                   <Chip
-                                    className={`${
+                                    className={`capitalize ${
                                       statusColorMap[
                                         getKeyValue(item, columnKey)
                                       ]

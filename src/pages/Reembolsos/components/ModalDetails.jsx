@@ -111,7 +111,7 @@ export default function ModalDetails({ isOpen, onOpenChange, detail }) {
                           <td>{detalle.descuento || '---'}</td>
                           <td>
                             <Chip
-                              className={`${statusColorMap[detalle.estado]}`}
+                              className={`capitalize ${statusColorMap[detalle.estado]}`}
                             >
                               {listState[detalle.estado]}
                             </Chip>

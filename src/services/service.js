@@ -5,11 +5,6 @@ export const getAllServices = async () => {
   return data.data
 }
 
-export const getService = async (idService) => {
-  const { data } = await axios.get(`servicios/${idService}`)
-  return data.data
-}
-
 export const getServicesByArea = async (idArea) => {
   const { data } = await axios.get(`/servicios/areas/${idArea}`)
   return data.data

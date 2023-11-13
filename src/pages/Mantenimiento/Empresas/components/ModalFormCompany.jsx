@@ -78,7 +78,7 @@ export default function ModalFormCompany({
             onSubmit={(e) => handleAddOrEditCompany(e, onClose)}
             autoComplete='off'
           >
-            <ModalHeader className='flex flex-col gap-1'>
+            <ModalHeader>
               <h2 className='text-xl'>
                 {!companyToEdit ? 'Nuevo Registro' : 'Editar Registro'}
               </h2>
@@ -101,7 +101,6 @@ export default function ModalFormCompany({
                   name='razonSocial'
                   isRequired
                 />
-
                 <Input
                   className='mb-2'
                   label='Dirección'
