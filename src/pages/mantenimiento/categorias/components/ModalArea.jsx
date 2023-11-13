@@ -16,7 +16,7 @@ const INITIAL_FORM = {
   nombreArea: ''
 }
 
-export default function ModalCategorie({
+export default function ModalArea({
   isOpen,
   onOpenChange,
   operation,
