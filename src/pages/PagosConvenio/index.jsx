@@ -25,12 +25,12 @@ import { capitalize } from '../../utils'
 import { ChevronDownIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import {
-  getListofPaymentsbyAgreement,
-  paymentConvenios
+  completePaymentsByConvention,
+  getListOfPaymentsbyAgreement
 } from '../../services/pay'
 import DateTimeClock from '../../components/DateTimeClock'
 import { formatDate } from '../../utils/date'
-import { getCompanyAgreement } from '../../services/company'
+import { getAllWithAgreement } from '../../services/company'
 
 const columns = [
   { name: 'EMPRESA', uid: 'razon_social', sortable: true },
@@ -50,8 +50,8 @@ export default function PagosConvenio() {
   const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   )
-  const { data, refresh } = useFetcher(getListofPaymentsbyAgreement)
-  const { data: companyData } = useFetcher(getCompanyAgreement)
+  const { data, refresh } = useFetcher(getListOfPaymentsbyAgreement)
+  const { data: companyData } = useFetcher(getAllWithAgreement)
 
   const [selectedCompany, setSelectedCompany] = useState(new Set([]))
   const selectedPayments = useRef([])
@@ -202,7 +202,7 @@ export default function PagosConvenio() {
 
     try {
       setLoadingPayment(true)
-      await paymentConvenios(selectedPayments.current)
+      await completePaymentsByConvention(selectedPayments.current)
       refresh()
       toast.success('Pagos completados correctamente')
     } catch (error) {

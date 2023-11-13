@@ -34,9 +34,9 @@ import { toast } from 'sonner'
 import { useFetcher } from '../hook/useFetcher'
 import { listState, statusColorMap } from '../constants/state'
 import {
-  changeOrder,
-  changeStatus,
-  updateMedicoByDetatencion
+  addDoctorsDetails,
+  changeOrderDetail,
+  changeStatus
 } from '../services/admission'
 import { useAuth } from '../context/AuthContext'
 import { socket } from './Socket'
@@ -239,7 +239,7 @@ export default function AttentionProcessTable({
       })
 
       handleCancel()
-      await updateMedicoByDetatencion(data, idDetAttention)
+      await addDoctorsDetails(data, idDetAttention)
       onClose()
       socket.emit('client:newAction', { action: 'Change Atenciones', idpago })
     } catch (err) {
@@ -267,7 +267,7 @@ export default function AttentionProcessTable({
         }
       })
     })
-    await changeOrder({
+    await changeOrderDetail({
       iddetatencion,
       estado
     })

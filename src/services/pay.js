@@ -17,23 +17,16 @@ export const getPaymentTypes = async () => {
   return data
 }
 
-export const getListofPaymentsbyAgreement = async () => {
+export const getListOfPaymentsbyAgreement = async () => {
   const {
     data: { data }
   } = await axios.get('/pagos/pendientes')
   return data
 }
 
-export const paymentConvenios = async (data) => {
+export const completePaymentsByConvention = async (data) => {
   const {
     data: { data: response }
   } = await axios.post(`/pagos/convenio`, { payments: data })
-  return response
-}
-
-export const getPaymentMonth = async () => {
-  const {
-    data: { data: response }
-  } = await axios.post(`/pagos/mensual`)
   return response
 }
