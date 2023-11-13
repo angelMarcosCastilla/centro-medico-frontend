@@ -31,7 +31,7 @@ import { toast } from 'sonner'
 const columns = [
   { name: 'APELLIDOS Y NOMBRES', uid: 'personal', sortable: true },
   { name: 'ESPECIALIDADES', uid: 'especialidades', sortable: true },
-  { name: 'CODIGO CMP', uid: 'codigo_cmp', sortable: true },
+  { name: 'CÓDIGO CMP', uid: 'codigo_cmp', sortable: true },
   { name: 'ESTADO', uid: 'estado_personal', sortable: true },
   { name: 'ACCIONES', uid: 'acciones' }
 ]

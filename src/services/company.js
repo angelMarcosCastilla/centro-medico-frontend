@@ -7,12 +7,7 @@ export const getAllCompany = async () => {
   return data
 }
 
-export const getCompany = async (idCompany) => {
-  const { data } = await axios.get(`empresas/${idCompany}`)
-  return data.data
-}
-
-export const getCompanyAgreement = async () => {
+export const getAllWithAgreement = async () => {
   const {
     data: { data }
   } = await axios.get('/empresas/convenios')
@@ -21,11 +16,6 @@ export const getCompanyAgreement = async () => {
 
 export const searchCompanyByRUC = async (ruc) => {
   const { data } = await axios.get(`/empresas/ruc/${ruc}`)
-  return data
-}
-
-export const searchCompanyById = async (idEmpresa) => {
-  const { data } = await axios.get(`/empresas/${idEmpresa}`)
   return data
 }
 
