@@ -31,12 +31,7 @@ function LinkInforme({ userInfo }) {
     socket.on('server:newAction', ({ action }) => {
       if (action === 'New Informe' && userInfo.nivel_acceso === 'A') {
         setHasNew(true)
-        toast(
-          <div className='flex justify-between text-blue-600'>
-            <Info size={20} className='mr-2' />
-            <span>Nuevo informe disponible</span>
-          </div>
-        )
+        toast.info('Nuevo informe disponible')
       }
     })
 
