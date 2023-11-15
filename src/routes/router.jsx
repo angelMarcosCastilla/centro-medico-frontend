@@ -24,13 +24,14 @@ import Empresas from '../pages/Mantenimiento/Empresas'
 import ReportePagos from '../pages/Reportes/ReportePagos'
 import Mantenimiento from '../pages/Mantenimiento'
 import Personas from '../pages/Mantenimiento/Personas'
-import Categorias from '../pages/Mantenimiento/categorias/index.jsx'
+import Otros from '../pages/Mantenimiento/Otros'
 import Reembolsos from '../pages/Reembolsos'
 import PagosConvenio from '../pages/PagosConvenio'
 import PersonalMedico from '../pages/Mantenimiento/PersonalMedico'
 import Reportes from '../pages/Reportes'
 import NotFound from '../pages/NotFound.jsx'
 import Usuarios from '../pages/Mantenimiento/Usuarios'
+import Unauthorized from '../pages/Unauthorized.jsx'
 
 const router = createBrowserRouter([
   {
@@ -127,7 +128,6 @@ const router = createBrowserRouter([
               }
             ]
           },
-
           {
             path: '/mantenimiento',
             element: (
@@ -149,12 +149,12 @@ const router = createBrowserRouter([
                 element: <PersonalMedico />
               },
               {
-                path: 'categorias',
-                element: <Categorias />
-              },
-              {
                 path: 'usuarios',
                 element: <Usuarios />
+              },
+              {
+                path: 'otros',
+                element: <Otros />
               }
             ]
           },
@@ -220,7 +220,7 @@ const router = createBrowserRouter([
   },
   {
     path: 'no-autorizado',
-    element: <h1>No estas autorizado</h1>
+    element: <Unauthorized />
   },
   {
     path: '*',

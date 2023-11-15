@@ -21,6 +21,7 @@ import { toast } from 'sonner'
 import { formatDate } from '../../../utils/date'
 import { getPaymentsByDateRange } from '../../../services/report'
 import DateTimeClock from '../../../components/DateTimeClock'
+import { TIPO_COMPROBANTE } from '../../../constants/state'
 
 export default function ReportePagos() {
   const currentDate = new Date()
@@ -227,13 +228,12 @@ export default function ReportePagos() {
                   switch (columnKey) {
                     case 'tipo_comprobante':
                       columnValue =
-                        getKeyValue(item, columnKey) === 'B'
-                          ? 'Boleta'
-                          : 'Factura'
+                        TIPO_COMPROBANTE[getKeyValue(item, columnKey)]
                       break
                     case 'num_documento':
                       columnValue =
-                        getKeyValue(item, 'tipo_comprobante') === 'B'
+                        getKeyValue(item, 'tipo_comprobante') === 'B' ||
+                        getKeyValue(item, 'tipo_comprobante') === 'S'
                           ? getKeyValue(item, columnKey)
                           : getKeyValue(item, 'ruc')
                       break

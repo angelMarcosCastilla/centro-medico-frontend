@@ -7,22 +7,22 @@ export const getAllAreas = async () => {
   return data
 }
 
-export const getArea = async (idArea) => {
-  const { data } = await axios.get(`areas/${idArea}`)
-  return data.data
-}
-
-export const addArea = async (areaData) => {
+export const createArea = async (areaData) => {
   const { data } = await axios.post('/areas', areaData)
   return data
 }
 
-export const removeArea = async (idArea) => {
-  const { data } = await axios.delete(`/areas/${idArea}`)
+export const updateArea = async (areaId, areaData) => {
+  const { data } = await axios.put(`/areas/${areaId}`, areaData)
   return data
 }
 
-export const updateArea = async (idArea, areaData) => {
-  const { data } = await axios.put(`/areas/${idArea}`, areaData)
+export const disableArea = async (areaId) => {
+  const { data } = await axios.delete(`/areas/${areaId}`)
+  return data
+}
+
+export const enableArea = async (areaId) => {
+  const { data } = await axios.patch(`/areas/${areaId}`)
   return data
 }

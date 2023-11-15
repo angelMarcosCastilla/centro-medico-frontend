@@ -10,7 +10,7 @@ import {
   Select,
   SelectItem
 } from '@nextui-org/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { Search, UploadCloud } from 'lucide-react'
 import { BASE_URL_WS } from '../../../../config'
@@ -20,7 +20,7 @@ import {
   updateMedicalPersonnel
 } from '../../../../services/medicalStaff'
 import { useFetcher } from '../../../../hook/useFetcher'
-import { getAllEspecialidad } from '../../../../services/especialidad'
+import { getAllSpecialties } from '../../../../services/specialty'
 
 export default function ModalFormMedicalPersonnel({
   isOpen,
@@ -28,10 +28,7 @@ export default function ModalFormMedicalPersonnel({
   medicalPersonnelToEdit,
   refresh
 }) {
-  const { data: specialtiesData } = useFetcher(getAllEspecialidad)
-  specialtiesData.sort((a, b) =>
-    a.nombre_especialidad.localeCompare(b.nombre_especialidad)
-  )
+  const { data: specialtiesData } = useFetcher(getAllSpecialties)
 
   const [loading, setLoading] = useState(false)
 
@@ -39,6 +36,14 @@ export default function ModalFormMedicalPersonnel({
   const [specialties, setSpecialties] = useState(new Set([]))
   const [firma, setFirma] = useState(null)
   const [cmp, setCmp] = useState('')
+
+  const itemsSpecialties = useMemo(() => {
+    return specialtiesData
+      .filter((el) => el.estado === 1)
+      .sort((a, b) =>
+        a.nombre_especialidad.localeCompare(b.nombre_especialidad)
+      )
+  }, [specialtiesData])
 
   const handleSearchPerson = async (e) => {
     if (e.key !== 'Enter') return
@@ -242,7 +247,7 @@ export default function ModalFormMedicalPersonnel({
                   onSelectionChange={setSpecialties}
                   isRequired
                 >
-                  {specialtiesData.map((el) => (
+                  {itemsSpecialties.map((el) => (
                     <SelectItem
                       key={el.idespecialidad}
                       value={el.idespecialidad}

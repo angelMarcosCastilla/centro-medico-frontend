@@ -36,12 +36,29 @@ export default function ModalFormService({
   const [selectedRequirement, setSelectedRequirement] = useState(new Set([]))
   const [selected, setSelected] = useState([])
 
+  const itemsArea = useMemo(() => {
+    return areasData
+      .filter((area) => area.idarea !== 4 && area.estado === 1)
+      .sort((a, b) => a.nombre_area.localeCompare(b.nombre_area))
+  }, [areasData])
+
   const filterCategoriesByArea = useMemo(() => {
-    const filtered = categoriesData.filter((category) => {
-      return category.idarea === parseInt(Array.from(selectedArea)[0])
-    })
+    const filtered = categoriesData
+      .filter((category) => {
+        return (
+          category.estado === 1 &&
+          category.idarea === parseInt(Array.from(selectedArea)[0])
+        )
+      })
+      .sort((a, b) => a.nombre_categoria.localeCompare(b.nombre_categoria))
     return filtered
   }, [selectedArea, categoriesData])
+
+  const itemsRequirements = useMemo(() => {
+    return requirementsData.sort((a, b) =>
+      a.descripcion.localeCompare(b.descripcion)
+    )
+  }, [requirementsData])
 
   const handleSubmitService = async (e, onClose) => {
     e.preventDefault()
@@ -127,13 +144,11 @@ export default function ModalFormService({
                   }}
                   isRequired
                 >
-                  {areasData
-                    .filter((area) => area.idarea !== 4)
-                    .map((area) => (
-                      <SelectItem key={area.idarea}>
-                        {area.nombre_area}
-                      </SelectItem>
-                    ))}
+                  {itemsArea.map((area) => (
+                    <SelectItem key={area.idarea}>
+                      {area.nombre_area}
+                    </SelectItem>
+                  ))}
                 </Select>
                 <Select
                   label='Categoría'
@@ -189,7 +204,7 @@ export default function ModalFormService({
                   selectedKeys={selectedRequirement}
                   onSelectionChange={setSelectedRequirement}
                 >
-                  {requirementsData.map((requirement) => (
+                  {itemsRequirements.map((requirement) => (
                     <SelectItem key={requirement.idrequisito}>
                       {requirement.descripcion}
                     </SelectItem>
