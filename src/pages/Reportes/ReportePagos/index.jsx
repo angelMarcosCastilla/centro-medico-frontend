@@ -22,6 +22,7 @@ import { formatDate } from '../../../utils/date'
 import { getPaymentsByDateRange } from '../../../services/report'
 import DateTimeClock from '../../../components/DateTimeClock'
 import { TIPO_COMPROBANTE } from '../../../constants/state'
+import { BASE_URL_WS } from '../../../config'
 
 export default function ReportePagos() {
   const currentDate = new Date()
@@ -47,7 +48,7 @@ export default function ReportePagos() {
     endDate: null
   })
 
-  const baseURL = 'http://localhost:3000/api/reportes/exportar/pagos/intervalo'
+  const baseURL = `${BASE_URL_WS}/api/reportes/exportar/pagos/intervalo`
   const [URL, setURL] = useState(`${baseURL}/${startDate}/${endDate}`)
 
   const [page, setPage] = useState(1)

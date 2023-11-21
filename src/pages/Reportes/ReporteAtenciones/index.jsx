@@ -24,6 +24,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { formatDate } from '../../../utils/date'
 import DateTimeClock from '../../../components/DateTimeClock'
+import { BASE_URL_WS } from '../../../config'
 
 export default function ReporteServicios() {
   const { data: areasData } = useFetcher(getAllAreas)
@@ -158,7 +159,7 @@ export default function ReporteServicios() {
               Limpiar
             </Button>
             <Button
-              href={`http://localhost:3000/api/reportes/exportar/atenciones/area/${searchData.selectedArea}/intervalo/${searchData.startDate}/${searchData.endDate}`}
+              href={`${BASE_URL_WS}/api/reportes/exportar/atenciones/area/${searchData.selectedArea}/intervalo/${searchData.startDate}/${searchData.endDate}`}
               target='_blank'
               rel='noreferrer'
               as={Link}
