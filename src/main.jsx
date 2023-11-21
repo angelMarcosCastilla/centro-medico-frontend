@@ -11,7 +11,7 @@ initialAxios()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <NextUIProvider>
-    <Toaster position='top-right' richColors />
+    <Toaster position='top-right' richColors closeButton />
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>
