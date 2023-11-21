@@ -137,7 +137,7 @@ export default function ModalFormMedicalPersonnel({
       formData.append('idespecialidad', JSON.stringify(especialidadesToSend))
       const firmaFile = !firma || typeof firma === 'string' ? null : firma
       formData.append('firmaUrl', firmaFile)
-      formData.append('currentFirma', firma)
+      formData.append('currentFirma', medicalPersonnelToEdit.firma_url)
       formData.append('codigo_cmp', cmp)
 
       try {
