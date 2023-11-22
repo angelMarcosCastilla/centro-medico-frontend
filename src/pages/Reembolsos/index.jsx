@@ -133,6 +133,7 @@ export default function Reembolsos() {
       if (action === 'Change Atenciones') {
         if (payment.idpago === idpago) {
           setPayment({})
+          refresh()
         }
       }
     })
