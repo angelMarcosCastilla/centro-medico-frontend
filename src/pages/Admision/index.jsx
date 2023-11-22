@@ -13,7 +13,7 @@ import {
   CardFooter
 } from '@nextui-org/react'
 import CustomRadio from '../../components/CustomRadio'
-import { Newspaper, Plus, ScrollText, Search } from 'lucide-react'
+import { Newspaper, Plus, Ticket, ScrollText, Search } from 'lucide-react'
 import DateTimeClock from '../../components/DateTimeClock'
 import { getAllServices } from '../../services/service'
 import { ModalServicios } from './components/ModalServicios'
@@ -445,10 +445,10 @@ export default function Admision() {
                     }}
                   >
                     <div className='flex gap-4'>
-                      {/* <CustomRadio value='S'>
+                      <CustomRadio value='S'>
                         <Ticket />
                         Simple
-                      </CustomRadio> */}
+                      </CustomRadio>
                       <CustomRadio value='B'>
                         <ScrollText />
                         Boleta
