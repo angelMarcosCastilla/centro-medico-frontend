@@ -120,9 +120,11 @@ export default function ReporteServicios() {
             selectedKeys={selectedArea}
             onSelectionChange={setSelectedArea}
           >
-            {areasData.map((area) => (
-              <SelectItem key={area.idarea}>{area.nombre_area}</SelectItem>
-            ))}
+            {areasData
+              .filter((area) => area.idarea !== 4)
+              .map((area) => (
+                <SelectItem key={area.idarea}>{area.nombre_area}</SelectItem>
+              ))}
           </Select>
           <Input
             type='date'

@@ -30,3 +30,17 @@ export const completePaymentsByConvention = async (data) => {
   } = await axios.post(`/pagos/convenio`, { payments: data })
   return response
 }
+
+export const getPaymentSimple = async () => {
+  const {
+    data: { data }
+  } = await axios.get('/pagos/recibo-simple')
+  return data
+}
+
+export const addObservacion = async (text, id) => {
+  const {
+    data: { data }
+  } = await axios.put(`/pagos/observacion/${id}`, {text} )
+  return data
+}

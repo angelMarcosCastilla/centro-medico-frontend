@@ -12,7 +12,8 @@ import {
   Computer,
   Building2,
   LineChart,
-  UserCog
+  UserCog,
+  Ticket
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import HasRole from '../components/HasRole'
@@ -84,6 +85,13 @@ export default function Dashboard() {
             icon={<HelpingHand size={20} />}
             text='Reembolsos'
             route='reembolsos'
+          />
+        </HasRole>
+        <HasRole rol={userInfo.nivel_acceso} listRoles={["A"]}>
+          <SidebarItem
+            icon={<Ticket size={20} />}
+            text='Recibos Simple'
+            route='recibo-simple'
           />
         </HasRole>
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.servicios}>
