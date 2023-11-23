@@ -32,6 +32,7 @@ import Reportes from '../pages/Reportes'
 import NotFound from '../pages/NotFound.jsx'
 import Usuarios from '../pages/Mantenimiento/Usuarios'
 import Unauthorized from '../pages/Unauthorized.jsx'
+import ReciboSimple from '../pages/ReciboSimple/index.jsx'
 
 const router = createBrowserRouter([
   {
@@ -65,6 +66,15 @@ const router = createBrowserRouter([
       {
         element: <Dashboard />,
         children: [
+          {
+            path: '/recibo-simple',
+            element: (
+              <RoleGard listRoles={listRoles.admision}>
+                <ReciboSimple />
+              </RoleGard>
+            ),
+            index: true
+          },
           {
             path: 'admision',
             element: (
