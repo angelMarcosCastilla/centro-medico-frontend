@@ -4,6 +4,7 @@ import {
   CardHeader,
   Divider,
   Spinner,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -17,7 +18,7 @@ import { useFetcher } from '../../../hook/useFetcher'
 import AreaChartLast7Days from './components/AreaChartLast7Days'
 import { TIPO_COMPROBANTE } from '../../../constants/state'
 import { Bone, Brain, Landmark, Microscope } from 'lucide-react'
-import { cloneElement } from 'react'
+import { cloneElement, useMemo, useState } from 'react'
 import DateTimeClock from '../../../components/DateTimeClock'
 
 const AREAS = {
@@ -36,13 +37,28 @@ const AREAS = {
 }
 
 export default function Graficos() {
+  const [diaryOrMonth, setDiaryOrMonth] = useState(false)
   const { data, loading } = useFetcher(getAllChartData)
-  const { last7days, totalByarea = [], ranking = [], payment = [] } = data
+  const {
+    totalDiaryByArea = [],
+    totalMonthByArea = [],
+    paymentDiary = [],
+    paymentMonth = [],
+    last7days,
+    ranking = []
+  } = data
 
-  const totalAmount = payment.reduce((acc, item) => {
-    const amount = Number(item.total_monto) || 0
-    return acc + amount
-  }, 0)
+  const totalAmount = useMemo(() => {
+    const total = !diaryOrMonth ? paymentDiary : paymentMonth
+    return total.reduce((acc, item) => {
+      const amount = Number(item.total_monto) || 0
+      return acc + amount
+    }, 0)
+  })
+
+  const totalAttentions = useMemo(() =>
+    !diaryOrMonth ? totalDiaryByArea : totalMonthByArea
+  )
 
   return (
     <>
@@ -52,8 +68,17 @@ export default function Graficos() {
       </CardHeader>
       <Divider />
       <CardBody>
+        <div className='flex justify-end mb-2'>
+          <Switch
+            isSelected={diaryOrMonth}
+            onValueChange={setDiaryOrMonth}
+            size='sm'
+          >
+            Ver datos mensuales
+          </Switch>
+        </div>
         <div className='grid grid-cols-4 gap-4 select-none'>
-          {totalByarea.map((item) => (
+          {totalAttentions.map((item) => (
             <div
               className={`h-[150px] grid items-center rounded-2xl border-l-5 shadow-small ${
                 AREAS[item.area].style
@@ -97,7 +122,7 @@ export default function Graficos() {
                     <h2 className='text-xl mb-2 text-start'>
                       S/ {totalAmount.toFixed(2)}
                     </h2>
-                    {payment.map((el) => (
+                    {paymentDiary.map((el) => (
                       <h2 className='text-sm' key={el.tipo_comprobante}>
                         {TIPO_COMPROBANTE[el.tipo_comprobante]}: S/{' '}
                         {el?.total_monto ?? '00:0'}{' '}
