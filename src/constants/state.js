@@ -23,7 +23,7 @@ export const statusColorMap = {
 }
 
 export const TIPO_COMPROBANTE = {
-  S: 'Boleta Simple',
+  S: 'Recibo Simple',
   B: 'Boleta',
   F: 'Factura'
 }
