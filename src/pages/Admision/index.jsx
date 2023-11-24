@@ -67,7 +67,10 @@ export default function Admision() {
   } = useDataContext()
 
   const handleOpenModalNewClient = () => {
-    if (dataToSend.pagoData.tipoComprobante === 'B') {
+    if (
+      dataToSend.pagoData.tipoComprobante === 'B' ||
+      dataToSend.pagoData.tipoComprobante === 'S'
+    ) {
       isPatient.current = false
       onOpenPerson()
     } else {
