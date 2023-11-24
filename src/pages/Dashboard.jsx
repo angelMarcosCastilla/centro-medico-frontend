@@ -8,7 +8,6 @@ import {
   HeartHandshake,
   Folders,
   HelpingHand,
-  Info,
   Computer,
   Building2,
   LineChart,
