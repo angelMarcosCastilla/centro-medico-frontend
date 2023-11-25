@@ -48,6 +48,10 @@ export default function Graficos() {
     ranking = []
   } = data
 
+  const totalAttentions = useMemo(() =>
+    !diaryOrMonth ? totalDiaryByArea : totalMonthByArea
+  )
+
   const totalAmount = useMemo(() => {
     const total = !diaryOrMonth ? paymentDiary : paymentMonth
     return total.reduce((acc, item) => {
@@ -56,8 +60,8 @@ export default function Graficos() {
     }, 0)
   })
 
-  const totalAttentions = useMemo(() =>
-    !diaryOrMonth ? totalDiaryByArea : totalMonthByArea
+  const receiptsData = useMemo(() =>
+    !diaryOrMonth ? paymentDiary : paymentMonth
   )
 
   return (
@@ -122,7 +126,7 @@ export default function Graficos() {
                     <h2 className='text-xl mb-2 text-start'>
                       S/ {totalAmount.toFixed(2)}
                     </h2>
-                    {paymentDiary.map((el) => (
+                    {receiptsData.map((el) => (
                       <h2 className='text-sm' key={el.tipo_comprobante}>
                         {TIPO_COMPROBANTE[el.tipo_comprobante]}: S/{' '}
                         {el?.total_monto ?? '00:0'}{' '}
