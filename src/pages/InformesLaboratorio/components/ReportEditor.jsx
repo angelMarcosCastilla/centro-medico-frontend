@@ -1,4 +1,4 @@
-import { Button, CardBody, CardFooter, Input } from '@nextui-org/react'
+import { Button, CardBody, CardFooter, Input, Spinner } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useFetcher } from '../../../hook/useFetcher'
@@ -69,10 +69,10 @@ export default function ReportEditor() {
   const navigate = useNavigate()
   const { state } = useLocation()
 
-  const { data: templateData } = useFetcher(() =>
+  const { data: templateData, loading: loadingTemplate } = useFetcher(() =>
     getTemplateLatestVersionByService(state.idService)
   )
-  const { data: searchData } = useFetcher(() =>
+  const { data: searchData, loading: loadingSearch } = useFetcher(() =>
     searchResultByDetAttention(state.idDetAttention)
   )
 
@@ -193,7 +193,14 @@ export default function ReportEditor() {
       toast.error('No hay una plantilla disponible')
       navigate('/informes-laboratorio', { replace: true })
     }
-  }, [searchData])
+  }, [searchData, templateData])
+
+  if (loadingTemplate || loadingSearch)
+    return (
+      <>
+        <Spinner />
+      </>
+    )
 
   return (
     <>
