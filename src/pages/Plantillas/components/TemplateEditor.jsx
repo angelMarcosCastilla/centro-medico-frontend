@@ -277,6 +277,7 @@ export default function TemplateEditor() {
         ? validateColumnTemplate(updatedTemplate)
         : validateKeyValueTemplate(updatedTemplate)
     if (!isValid) {
+      setLoading(false)
       return toast.error('Complete todos los datos')
     }
 
