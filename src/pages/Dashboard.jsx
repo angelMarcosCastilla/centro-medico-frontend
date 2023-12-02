@@ -86,13 +86,13 @@ export default function Dashboard() {
             route='reembolsos'
           />
         </HasRole>
-        /*<HasRole rol={userInfo.nivel_acceso} listRoles={["A"]}>
+        {/*<HasRole rol={userInfo.nivel_acceso} listRoles={["A"]}>
           <SidebarItem
             icon={<Ticket size={20} />}
             text='Recibos Simple'
             route='recibo-simple'
           />
-        </HasRole>*/
+        </HasRole>*/}
         <HasRole rol={userInfo.nivel_acceso} listRoles={listRoles.servicios}>
           <SidebarItem
             icon={<HeartHandshake size={20} />}
