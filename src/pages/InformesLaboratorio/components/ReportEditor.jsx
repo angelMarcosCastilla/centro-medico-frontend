@@ -179,7 +179,7 @@ export default function ReportEditor() {
   }
 
   useEffect(() => {
-    if (templateData.isSuccess && templateData.data) {
+    if (templateData.isSuccess && templateData.data && searchData.data) {
       let loadedTemplate
 
       if (state.operation === 'new') {
