@@ -448,10 +448,10 @@ export default function Admision() {
                     }}
                   >
                     <div className='flex gap-4'>
-                      /*<CustomRadio value='S'>
+                      {/*<CustomRadio value='S'>
                         <Ticket />
                         Simple
-                      </CustomRadio>*/
+                      </CustomRadio>*/}
                       <CustomRadio value='B'>
                         <ScrollText />
                         Boleta
