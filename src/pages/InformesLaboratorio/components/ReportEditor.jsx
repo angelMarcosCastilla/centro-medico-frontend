@@ -12,6 +12,7 @@ import {
 import { changeStatus } from '../../../services/admission'
 import { ChevronsRight } from 'lucide-react'
 import { socket } from '../../../components/Socket'
+import { validateFieldsFilled } from '../utils'
 
 const useDebaunce = (value, delay = 500) => {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -69,11 +70,14 @@ export default function ReportEditor() {
   const navigate = useNavigate()
   const { state } = useLocation()
 
+  if (!state) {
+    navigate('/informes-laboratorio', { replace: true })
+  }
+
   const { data: templateData, loading: loadingTemplate } = useFetcher(() =>
-    getTemplateLatestVersionByService(state.idService)
-  )
-  const { data: searchData, loading: loadingSearch } = useFetcher(() =>
-    searchResultByDetAttention(state.idDetAttention)
+    state.operation === 'new'
+      ? getTemplateLatestVersionByService(state.idService)
+      : searchResultByDetAttention(state.idDetAttention)
   )
 
   const [template, setTemplate] = useState({})
@@ -133,6 +137,12 @@ export default function ReportEditor() {
     setLoading(true)
 
     try {
+      const isValid = validateFieldsFilled(template)
+      if (!isValid) {
+        setLoading(false)
+        return toast.error('Complete todos los datos')
+      }
+
       const data = {
         idDetAtencion: state.idDetAttention,
         diagnostico: JSON.stringify(template),
@@ -159,6 +169,12 @@ export default function ReportEditor() {
     setLoading(true)
 
     try {
+      const isValid = validateFieldsFilled(template)
+      if (!isValid) {
+        setLoading(false)
+        return toast.error('Complete todos los datos')
+      }
+
       const data = {
         idDetAtencion: state.idDetAttention,
         diagnostico: JSON.stringify(template)
@@ -179,13 +195,13 @@ export default function ReportEditor() {
   }
 
   useEffect(() => {
-    if (templateData.isSuccess && templateData.data && searchData.data) {
+    if (templateData.isSuccess && templateData.data) {
       let loadedTemplate
 
       if (state.operation === 'new') {
         loadedTemplate = JSON.parse(templateData.data.formato)
       } else if (state.operation === 'edit') {
-        loadedTemplate = JSON.parse(searchData.data.diagnostico)
+        loadedTemplate = JSON.parse(templateData.data.diagnostico)
       }
 
       setTemplate(loadedTemplate)
@@ -193,13 +209,13 @@ export default function ReportEditor() {
       toast.error('No hay una plantilla disponible')
       navigate('/informes-laboratorio', { replace: true })
     }
-  }, [searchData, templateData])
+  }, [templateData])
 
-  if (loadingTemplate || loadingSearch)
+  if (loadingTemplate)
     return (
-      <>
-        <Spinner />
-      </>
+      <div className='flex w-full h-full justify-center items-center'>
+        <Spinner label='Cargando...' />
+      </div>
     )
 
   return (
