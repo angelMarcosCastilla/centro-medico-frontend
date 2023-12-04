@@ -5,10 +5,10 @@ export const listState = {
   A: 'Atendiendo',
   PI: 'Pendiente informe',
   PC: 'Pendiente correción',
+  E: 'Editando',
   PE: 'Pendiente entrega',
   F: 'Finalizado',
-  C: 'Cancelado',
-  E:"Editando"
+  C: 'Cancelado'
 }
 
 export const statusColorMap = {
@@ -18,6 +18,7 @@ export const statusColorMap = {
   A: 'bg-indigo-100 text-indigo-600',
   PI: 'bg-cyan-100 text-cyan-600',
   PC: 'bg-warning-100 text-warning-600',
+  E: 'bg-purple-100 text-purple-600',
   PE: 'bg-blue-100 text-blue-600',
   F: 'bg-green-100 text-green-600',
   C: 'bg-red-100 text-red-600'

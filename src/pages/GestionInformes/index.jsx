@@ -258,12 +258,39 @@ export default function GestionInformes() {
     }
   }
 
-  const handleCloseModal = async (onClose) => {
+  const handleCloseModal = async (onClose, status) => {
     onClose()
-    await changeStatus(idDet.current, 'PE')
-    socket.emit('client:newAction', { action: 'editando' })
+    if (status === 'PE') {
+      await changeStatus(idDet.current, 'PE')
+      socket.emit('client:newAction', { action: 'editando' })
+    }
     refresh()
   }
+
+  useEffect(() => {
+    const beforeUnloadHandler = (e) => {
+      if (isOpenEditor && medicalReportContent.contenido) {
+        const confirmMessage =
+          '¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.'
+        if (!window.confirm(confirmMessage)) {
+          e.preventDefault()
+        }
+
+        const asyncFunction = async () => {
+          await changeStatus(idDet.current, 'PE')
+          socket.emit('client:newAction', { action: 'editando' })
+        }
+
+        asyncFunction()
+      }
+    }
+
+    window.addEventListener('beforeunload', beforeUnloadHandler)
+
+    return () => {
+      window.removeEventListener('beforeunload', beforeUnloadHandler)
+    }
+  }, [isOpenEditor, medicalReportContent.contenido])
 
   return (
     <>
@@ -304,7 +331,7 @@ export default function GestionInformes() {
       <Modal
         backdrop='blur'
         size='5xl'
-        hideCloseButton={true}
+        hideCloseButton
         isOpen={isOpenEditor}
         onClose={onCloseEditor}
         isDismissable={false}
@@ -347,7 +374,9 @@ export default function GestionInformes() {
                 <Button
                   color='danger'
                   variant='light'
-                  onPress={() => handleCloseModal(onClose)}
+                  onPress={() =>
+                    handleCloseModal(onClose, detailCurrent.current.estado)
+                  }
                 >
                   Cancelar
                 </Button>
