@@ -7,7 +7,8 @@ export const listState = {
   PC: 'Pendiente correción',
   PE: 'Pendiente entrega',
   F: 'Finalizado',
-  C: 'Cancelado'
+  C: 'Cancelado',
+  E:"Editando"
 }
 
 export const statusColorMap = {

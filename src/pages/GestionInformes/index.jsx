@@ -34,7 +34,7 @@ import { AlertCircle, Eye, FileEdit } from 'lucide-react'
 import { redirectToResult } from '../../config'
 import Header from '../../components/Header'
 import { socket } from '../../components/Socket'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 const columns = [
   { name: '#', uid: 'index' },
@@ -144,6 +144,12 @@ export default function GestionInformes() {
                       ? 'TOMOGRÁFICO'
                       : 'RADIOLÓGICO'
                   }`
+                  if (element.estado === 'PE') {
+                    ;(async () => {
+                      await changeStatus(element.iddetatencion, 'E')
+                      socket.emit('client:newAction', { action: 'editando' })
+                    })()
+                  }
                   onOpenEditor()
                 }}
               >
@@ -223,6 +229,8 @@ export default function GestionInformes() {
             toast.error(result.message)
           }
         } else {
+          await changeStatus(idDet.current, 'PE')
+          socket.emit('client:newAction', { action: 'editando' })
           const result = await updateResult(data)
           if (result.isSuccess) {
             refresh()
@@ -248,6 +256,13 @@ export default function GestionInformes() {
     } finally {
       setIsSaving(false)
     }
+  }
+
+  const handleCloseModal = async (onClose) => {
+    onClose()
+    await changeStatus(idDet.current, 'PE')
+    socket.emit('client:newAction', { action: 'editando' })
+    refresh()
   }
 
   return (
@@ -289,6 +304,7 @@ export default function GestionInformes() {
       <Modal
         backdrop='blur'
         size='5xl'
+        hideCloseButton={true}
         isOpen={isOpenEditor}
         onClose={onCloseEditor}
         isDismissable={false}
@@ -328,7 +344,11 @@ export default function GestionInformes() {
                 <Editor ref={ref} content={medicalReportContent.contenido} />
               </ModalBody>
               <ModalFooter>
-                <Button color='danger' variant='light' onPress={onClose}>
+                <Button
+                  color='danger'
+                  variant='light'
+                  onPress={() => handleCloseModal(onClose)}
+                >
                   Cancelar
                 </Button>
                 <Button
