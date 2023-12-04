@@ -165,7 +165,7 @@ export default function AttentionProcessTable({
                       )}
                     </Button>
                   </Tooltip>
-                  {detail.estado === 'P' && (
+                  {detail.estado === 'P' && data.length > 1 &&  (
                     <Tooltip content='Posponer' color='danger' closeDelay={0}>
                       <Button
                         size='sm'
