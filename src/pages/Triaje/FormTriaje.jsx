@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   Button,
   Card,
@@ -8,16 +8,18 @@ import {
   Checkbox,
   Input,
   Tab,
-  Tabs
+  Tabs,
+  useDisclosure
 } from '@nextui-org/react'
-
 import { useLocation, useNavigate } from 'react-router-dom'
 import { createTriage, getTriageFromPatient } from '../../services/triage'
 import { toast } from 'sonner'
 import Header from '../../components/Header'
-import { capitalize } from '../../utils'
 import { socket } from '../../components/Socket'
 import { useFetcher } from '../../hook/useFetcher'
+import { calculatePersonAge } from '../../utils/date'
+import { ArrowUpRight } from 'lucide-react'
+import AllergiesModal from './components/AllergiesModal'
 
 export default function FormTriaje() {
   const { state: personData } = useLocation()
@@ -40,22 +42,33 @@ export default function FormTriaje() {
       embarazo: false,
       otros: ''
     },
-    detalleComplicaciones: []
+    complicacionesMedicas: []
   })
-  console.log(triageData)
+  const [newAllergies, setNewAllergies] = useState([])
 
-  /* const [disabledCheckboxes] = useState(
-    Object.entries(values.complicacionesMedicas).reduce((acc, [key, value]) => {
-      acc[key] = value === 1
-      return acc
-    }, {})
-  ) */
-  const [isButtonEnabled, setIsButtonEnabled] = useState(false)
   const [loading, setLoading] = useState(false)
+  const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
-  const currentAge =
-    new Date().getFullYear() -
-    new Date(personData.fecha_nacimiento).getFullYear()
+  const isComplicacionMedicaPresent = (idcomplicacionmed) => {
+    return detalleComplicacionMedica.some(
+      (det) => det.idcomplicacionmed === idcomplicacionmed
+    )
+  }
+
+  const calculateIsSelected = (
+    isComplicacionPresent,
+    complicacionesMedicas,
+    el
+  ) => {
+    return (
+      isComplicacionPresent ||
+      complicacionesMedicas.some(
+        (com) =>
+          com.idcomplicacionmed === el.idcomplicacionmed &&
+          com.detalles === 'true'
+      )
+    )
+  }
 
   const validateInput = (value, max) => {
     const parsedValue = parseFloat(value)
@@ -84,7 +97,7 @@ export default function FormTriaje() {
       validatedValue = value
     }
 
-    setValues((prev) => {
+    setTriageData((prev) => {
       return {
         ...prev,
         triajeAtencion: {
@@ -95,47 +108,78 @@ export default function FormTriaje() {
     })
   }
 
+  const handleComplicacionMedicaChange = (prev, el, isPresent) => {
+    const complicacionIndex = prev.complicacionesMedicas.findIndex(
+      (complicacion) => complicacion.idcomplicacionmed === el.idcomplicacionmed
+    )
+
+    const detalles =
+      complicacionIndex !== -1
+        ? String(
+            prev.complicacionesMedicas[complicacionIndex].detalles === 'true'
+              ? 'false'
+              : 'true'
+          )
+        : String(!isPresent)
+
+    const nuevasComplicaciones =
+      complicacionIndex !== -1
+        ? [
+            ...prev.complicacionesMedicas.slice(0, complicacionIndex),
+            { idcomplicacionmed: el.idcomplicacionmed, detalles },
+            ...prev.complicacionesMedicas.slice(complicacionIndex + 1)
+          ]
+        : [
+            ...prev.complicacionesMedicas,
+            { idcomplicacionmed: el.idcomplicacionmed, detalles }
+          ]
+
+    return {
+      ...prev,
+      complicacionesMedicas: nuevasComplicaciones
+    }
+  }
+
   const handleAddTriage = async () => {
+    setLoading(true)
+
     try {
-      setLoading(true)
       const data = {
-        ...values,
-        complicacionesMedicas: {
-          ...values.complicacionesMedicas,
-          idcomplicacionmed: state.datosPaciente.idcomplicacionmed
-        },
+        idpersona: personData.idpersona,
         triajeAtencion: {
-          ...values.triajeAtencion,
-          idatencion: state.datosPaciente.idatencion
-        }
+          ...triageData.triajeAtencion,
+          idatencion: personData.idatencion
+        },
+        nuevasComplicaciones: [
+          ...triageData.complicacionesMedicas,
+          ...newAllergies
+        ]
       }
+
       const result = await createTriage(data)
       if (result.isSuccess) {
         socket.emit('client:newAction', {
           action: 'Change Atenciones',
-          idpago: state.datosPaciente.idpago
+          idpago: personData.idpago
         })
         socket.emit('client:newAction', { action: 'New Admision' })
         toast.success('Registrado correctamente')
         navigate('/triaje', { replace: true })
       }
-    } catch (error) {
-      toast.error('Ocurrió un problema al registrar')
+    } catch (err) {
+      toast.error('Ocurrió un problema al guardar')
     } finally {
       setLoading(false)
     }
   }
 
-  /* useEffect(() => {
-    const areAllFieldsFilled =
-      values.triajeAtencion.talla &&
-      values.triajeAtencion.peso &&
-      values.triajeAtencion.temperatura &&
-      values.triajeAtencion.presion_arterial &&
-      values.triajeAtencion.frecuencia_cardiaca &&
-      values.triajeAtencion.frecuencia_respiratoria
-    setIsButtonEnabled(areAllFieldsFilled)
-  }, [triageData.triajeAtencion]) */
+  const isButtonEnabled =
+    triageData.triajeAtencion.talla &&
+    triageData.triajeAtencion.peso &&
+    triageData.triajeAtencion.temperatura &&
+    triageData.triajeAtencion.presion_arterial &&
+    triageData.triajeAtencion.frecuencia_cardiaca &&
+    triageData.triajeAtencion.frecuencia_respiratoria
 
   return (
     <div className='bg-slate-100 h-screen flex flex-col p-5 gap-y-4'>
@@ -210,7 +254,7 @@ export default function FormTriaje() {
                     <Input
                       label='Edad'
                       type='number'
-                      value={currentAge}
+                      value={calculatePersonAge(personData.fecha_nacimiento)}
                       isRequired
                       isReadOnly
                     />
@@ -220,7 +264,7 @@ export default function FormTriaje() {
                       name='talla'
                       min={0}
                       max={230}
-                      // value={values.triajeAtencion.talla}
+                      value={triageData.triajeAtencion.talla}
                       onChange={handleChange}
                       isRequired
                     />
@@ -231,7 +275,7 @@ export default function FormTriaje() {
                       max={200}
                       onChange={handleChange}
                       name='peso'
-                      // value={values.triajeAtencion.peso}
+                      value={triageData.triajeAtencion.peso}
                       isRequired
                     />
                   </div>
@@ -249,30 +293,70 @@ export default function FormTriaje() {
                       title='Factores de riesgo o comorbilidad'
                     >
                       <div className='grid grid-cols-2 gap-6 px-4 items-start'>
-                        {complicacionesMedicas?.map((el) => (
-                          <Checkbox
-                            /* isDisabled={disabledCheckboxes[complicacion]} */
-                            // isSelected={valor === 1}
-                            onValueChange={() => {
-                              /* setValues((prev) => {
-                                  return {
-                                    ...prev,
-                                    complicacionesMedicas: {
-                                      ...prev.complicacionesMedicas,
-                                      [complicacion]: valor === 1 ? 0 : 1
-                                    }
+                        {complicacionesMedicas?.map((el) => {
+                          const isComplicacionPresent =
+                            isComplicacionMedicaPresent(el.idcomplicacionmed)
+
+                          if (el.idcomplicacionmed === 3) {
+                            return (
+                              <div
+                                className='flex gap-1'
+                                key={el.idcomplicacionmed}
+                              >
+                                <Checkbox
+                                  isDisabled={isComplicacionPresent}
+                                  isSelected={
+                                    isComplicacionPresent ||
+                                    newAllergies.length > 0
                                   }
-                                }) */
-                            }}
-                            key={el.idcomplicacionmed}
-                          >
-                            {capitalize(el.nombre_complicacion)}
-                          </Checkbox>
-                        ))}
+                                  onValueChange={() => {
+                                    if (!newAllergies.length) onOpen()
+                                    else setNewAllergies([])
+                                  }}
+                                >
+                                  {el.nombre_complicacion}
+                                </Checkbox>
+                                <Button
+                                  tabIndex={-1}
+                                  isIconOnly
+                                  size='sm'
+                                  variant='light'
+                                  color='primary'
+                                  onPress={onOpen}
+                                >
+                                  <ArrowUpRight size={20} />
+                                </Button>
+                              </div>
+                            )
+                          }
+
+                          return (
+                            <Checkbox
+                              isDisabled={isComplicacionPresent}
+                              isSelected={calculateIsSelected(
+                                isComplicacionPresent,
+                                triageData.complicacionesMedicas,
+                                el
+                              )}
+                              onValueChange={() => {
+                                setTriageData((prev) =>
+                                  handleComplicacionMedicaChange(
+                                    prev,
+                                    el,
+                                    isComplicacionPresent
+                                  )
+                                )
+                              }}
+                              key={el.idcomplicacionmed}
+                            >
+                              {el.nombre_complicacion}
+                            </Checkbox>
+                          )
+                        })}
                         <Checkbox
-                          // isSelected={values.triajeAtencion.embarazo}
+                          isSelected={triageData.triajeAtencion.embarazo}
                           onValueChange={() => {
-                            /* setValues((prev) => {
+                            setTriageData((prev) => {
                               return {
                                 ...prev,
                                 triajeAtencion: {
@@ -280,15 +364,15 @@ export default function FormTriaje() {
                                   embarazo: !prev.triajeAtencion.embarazo
                                 }
                               }
-                            }) */
+                            })
                           }}
                         >
                           Embarazo
                         </Checkbox>
                         <Checkbox
-                          // isSelected={values.triajeAtencion.danio_hepatico}
+                          isSelected={triageData.triajeAtencion.danio_hepatico}
                           onValueChange={() => {
-                            /*  setValues((prev) => {
+                            setTriageData((prev) => {
                               return {
                                 ...prev,
                                 triajeAtencion: {
@@ -297,7 +381,7 @@ export default function FormTriaje() {
                                     !prev.triajeAtencion.danio_hepatico
                                 }
                               }
-                            }) */
+                            })
                           }}
                         >
                           Daño hepático
@@ -309,9 +393,9 @@ export default function FormTriaje() {
                           variant='bordered'
                           radius='lg'
                           className='col-start-1 col-span-2'
-                          // value={values.triajeAtencion.otros}
+                          value={triageData.triajeAtencion.otros}
                           onChange={handleChange}
-                        ></Input>
+                        />
                       </div>
                     </Tab>
                     <Tab
@@ -323,7 +407,7 @@ export default function FormTriaje() {
                           type='text'
                           label='Temperatura (°C)'
                           name='temperatura'
-                          // value={values.triajeAtencion.temperatura}
+                          value={triageData.triajeAtencion.temperatura}
                           onChange={handleChange}
                           color='primary'
                           variant='bordered'
@@ -336,7 +420,7 @@ export default function FormTriaje() {
                           color='primary'
                           variant='bordered'
                           name='presion_arterial'
-                          // value={values.triajeAtencion.presion_arterial}
+                          value={triageData.triajeAtencion.presion_arterial}
                           radius='lg'
                         />
                         <Input
@@ -347,7 +431,7 @@ export default function FormTriaje() {
                           onChange={handleChange}
                           radius='lg'
                           name='frecuencia_cardiaca'
-                          // value={values.triajeAtencion.frecuencia_cardiaca}
+                          value={triageData.triajeAtencion.frecuencia_cardiaca}
                         />
                         <Input
                           type='text'
@@ -357,7 +441,9 @@ export default function FormTriaje() {
                           variant='bordered'
                           radius='lg'
                           name='frecuencia_respiratoria'
-                          // value={values.triajeAtencion.frecuencia_respiratoria}
+                          value={
+                            triageData.triajeAtencion.frecuencia_respiratoria
+                          }
                         />
                       </div>
                     </Tab>
@@ -385,6 +471,16 @@ export default function FormTriaje() {
           </Button>
         </CardFooter>
       </Card>
+      <AllergiesModal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        data={{
+          idpersona: personData.idpersona,
+          detalleComplicacionMedica
+        }}
+        newAllergies={newAllergies}
+        setNewAllergies={setNewAllergies}
+      />
     </div>
   )
 }
