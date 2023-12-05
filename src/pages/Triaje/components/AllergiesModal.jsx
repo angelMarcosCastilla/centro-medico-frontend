@@ -87,6 +87,7 @@ export default function AllergiesModal({
                 placeholder='Describe la alergia'
                 minRows={3}
                 maxRows={3}
+                maxLength={100}
                 color='primary'
                 variant='bordered'
                 value={allergy}

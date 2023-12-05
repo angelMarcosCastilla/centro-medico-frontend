@@ -4,10 +4,13 @@ import {
   ModalBody,
   ModalContent,
   ModalFooter,
-  ModalHeader
+  ModalHeader,
+  Popover,
+  PopoverContent,
+  PopoverTrigger
 } from '@nextui-org/react'
 import { calculatePersonAge, formatDate } from '../utils/date'
-import { Check, X } from 'lucide-react'
+import { Check, List, X } from 'lucide-react'
 
 const colors = {
   primary: '#006FEE',
@@ -16,6 +19,12 @@ const colors = {
 
 export default function PatientDetailsModal({ isOpen, onOpenChange, detail }) {
   const hasTriage = detail.triaje ? Object.keys(detail.triaje).length > 0 : null
+
+  const findMedicalComplication = (complicactionId) => {
+    return detail.complicacionesMedicas?.filter(
+      (el) => el.idcomplicacionmed === complicactionId
+    )
+  }
 
   return (
     <Modal
@@ -113,29 +122,28 @@ export default function PatientDetailsModal({ isOpen, onOpenChange, detail }) {
                       <tr className='text-gray-600'>
                         <td className='font-bold'>Diabetes:</td>
                         <td className='text-xl'>
-                          {detail.complicacionesMedicas.diabetes ? (
-                            <Check size={25} color={colors.primary} />
-                          ) : (
+                          {!findMedicalComplication(1).length ? (
                             <X size={25} color={colors.danger} />
+                          ) : (
+                            <Check size={25} color={colors.primary} />
                           )}
                         </td>
                         <td className='font-bold'>Inmunodeficiencia VIH:</td>
                         <td className='text-xl'>
-                          {detail.complicacionesMedicas.vih ? (
-                            <Check size={25} color={colors.primary} />
-                          ) : (
+                          {!findMedicalComplication(5).length ? (
                             <X size={25} color={colors.danger} />
+                          ) : (
+                            <Check size={25} color={colors.primary} />
                           )}
                         </td>
                       </tr>
                       <tr className='text-gray-600'>
                         <td className='font-bold'>Hipertensión arterial:</td>
                         <td className='text-xl'>
-                          {detail.complicacionesMedicas
-                            .hipertension_arterial ? (
-                            <Check size={25} color={colors.primary} />
-                          ) : (
+                          {!findMedicalComplication(2).length ? (
                             <X size={25} color={colors.danger} />
+                          ) : (
+                            <Check size={25} color={colors.primary} />
                           )}
                         </td>
                         {hasTriage && (
@@ -152,14 +160,28 @@ export default function PatientDetailsModal({ isOpen, onOpenChange, detail }) {
                         )}
                       </tr>
                       <tr className='text-gray-600'>
-                        <td className='font-bold'>
-                          Alergia (cerdo, marisco, etc):
-                        </td>
+                        <td className='font-bold'>Alergia:</td>
                         <td className='text-xl'>
-                          {detail.complicacionesMedicas.alergia ? (
-                            <Check size={25} color={colors.primary} />
-                          ) : (
+                          {!findMedicalComplication(3).length ? (
                             <X size={25} color={colors.danger} />
+                          ) : (
+                            <Popover placement='right' showArrow>
+                              <PopoverTrigger>
+                                <List size={25} color={colors.primary} />
+                              </PopoverTrigger>
+                              <PopoverContent>
+                                <div className='px-1 py-2'>
+                                  <div className='text-small font-bold'>
+                                    Alergias
+                                  </div>
+                                  {findMedicalComplication(3).map(
+                                    (el, index) => (
+                                      <li key={index}>{el.detalles}</li>
+                                    )
+                                  )}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                           )}
                         </td>
                         {hasTriage && (
@@ -178,10 +200,10 @@ export default function PatientDetailsModal({ isOpen, onOpenChange, detail }) {
                       <tr className='text-gray-600'>
                         <td className='font-bold'>Enfermedad renal:</td>
                         <td className='text-xl'>
-                          {detail.complicacionesMedicas.enfermedad_renal ? (
-                            <Check size={25} color={colors.primary} />
-                          ) : (
+                          {!findMedicalComplication(4).length ? (
                             <X size={25} color={colors.danger} />
+                          ) : (
+                            <Check size={25} color={colors.primary} />
                           )}
                         </td>
                       </tr>
