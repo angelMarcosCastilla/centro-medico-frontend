@@ -277,6 +277,7 @@ export default function TemplateEditor() {
         ? validateColumnTemplate(updatedTemplate)
         : validateKeyValueTemplate(updatedTemplate)
     if (!isValid) {
+      setLoading(false)
       return toast.error('Complete todos los datos')
     }
 
@@ -368,6 +369,13 @@ export default function TemplateEditor() {
             ))}
           </Select>
         </div>
+        {!template.sections && (
+          <div className='flex w-full h-full justify-center items-center'>
+            <p className='text-gray-400'>
+              Seleccione un formato para crear una plantilla
+            </p>
+          </div>
+        )}
         {
           <TypeTemplate
             typeTemplate={template.type}

@@ -171,6 +171,7 @@ export default function Informes() {
           </Chip>
         )
       case 'acciones':
+        if(detail.estado === "E") return null
         return (
           <div className='relative flex items-center gap-x-1'>
             {detail.estado === 'PE' && (
@@ -417,7 +418,7 @@ export default function Informes() {
 
   useEffect(() => {
     socket.on('server:newAction', ({ action }) => {
-      if (action === 'New Informe') {
+      if (['New Informe', "editando"].includes(action ) ) {
         refresh()
       }
     })

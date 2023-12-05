@@ -67,7 +67,11 @@ export default function Triaje() {
                 color='primary'
                 variant='light'
                 size='sm'
-                onClick={() => handleNavigate(element)}
+                onPress={() =>
+                  navigate(`/triaje/${element.idatencion}`, {
+                    state: element
+                  })
+                }
               >
                 <Stethoscope size={20} />
               </Button>
@@ -78,49 +82,6 @@ export default function Triaje() {
         return cellValue
     }
   }, [])
-
-  const handleNavigate = (triajeData) => {
-    const {
-      index,
-      apellidos,
-      nombres,
-      num_documento,
-      total_servicios,
-      idpersona,
-      idcomplicacionmed,
-      celular,
-      idatencion,
-      correo,
-      direccion,
-      fecha_nacimiento,
-      create_at,
-      estado,
-      idpago,
-      ...rest
-    } = triajeData
-
-    const structureData = {
-      datosPaciente: {
-        idatencion,
-        idcomplicacionmed,
-        apellidos,
-        nombres,
-        num_documento,
-        total_servicios,
-        idpersona,
-        celular,
-        correo,
-        direccion,
-        fecha_nacimiento,
-        idpago
-      },
-      complicaciones: rest
-    }
-
-    navigate(`/triaje/${idatencion}`, {
-      state: structureData
-    })
-  }
 
   useEffect(() => {
     socket.on('server:newAction', ({ action }) => {
