@@ -158,7 +158,7 @@ export default function Admision() {
       const fechaFormateada = fechaNacimiento.split('T')[0]
 
       if (!isPersonAdult(fechaFormateada)) {
-        return toast.error('El cliente debe ser mayor de edad.')
+        return toast.error('El cliente debe ser mayor de edad')
       }
 
       if (numDocumento === dataPaciente.numeroDocumento) {
@@ -448,10 +448,10 @@ export default function Admision() {
                     }}
                   >
                     <div className='flex gap-4'>
-                      {/*<CustomRadio value='S'>
+                      {/* <CustomRadio value='S'>
                         <Ticket />
                         Simple
-                      </CustomRadio>*/}
+                      </CustomRadio> */}
                       <CustomRadio value='B'>
                         <ScrollText />
                         Boleta
