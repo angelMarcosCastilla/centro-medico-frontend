@@ -35,6 +35,7 @@ import { redirectToResult } from '../../config'
 import Header from '../../components/Header'
 import { socket } from '../../components/Socket'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { removeHtmlTags } from '../../utils'
 
 const columns = [
   { name: '#', uid: 'index' },
@@ -201,6 +202,10 @@ export default function GestionInformes() {
   }, [])
 
   const handleSubmit = async (onClose) => {
+    if(removeHtmlTags(ref.current.getHtml()).trim() === ""){
+      toast.warning("El informe debe tener contenido")
+      return 
+    }
     try {
       setIsSaving(true)
 
