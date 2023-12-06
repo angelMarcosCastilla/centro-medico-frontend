@@ -184,8 +184,9 @@ export default function ReportEditor() {
 
       if (result.isSuccess) {
         toast.success(result.message)
+        await changeStatus(state.idDetAttention, 'PE')   
         socket.emit('client:newAction', { action: 'New Informe' })
-        navigate('/informes-laboratorio', { replace: true })
+          navigate('/informes-laboratorio', { replace: true })
       }
     } catch (err) {
       toast.error('Ocurrió un problema al guardar')
@@ -201,6 +202,10 @@ export default function ReportEditor() {
       if (state.operation === 'new') {
         loadedTemplate = JSON.parse(templateData.data.formato)
       } else if (state.operation === 'edit') {
+        (async () =>{
+          await changeStatus(state.idDetAttention, 'E')
+          socket.emit('client:newAction', { action: 'editando' })
+        })()
         loadedTemplate = JSON.parse(templateData.data.diagnostico)
       }
 
@@ -343,7 +348,17 @@ export default function ReportEditor() {
         <Button
           color='danger'
           variant='light'
-          onPress={() => navigate('/informes-laboratorio', { replace: true })}
+          onPress={() => {
+            if(state.operation === "edit"){
+              (async () =>{
+                await changeStatus(state.idDetAttention, 'PE')  
+                socket.emit('client:newAction', { action: 'editando' })
+                navigate('/informes-laboratorio', { replace: true })
+              })()
+            }else{
+              navigate('/informes-laboratorio', { replace: true })
+            }
+          }}
         >
           Cancelar
         </Button>
