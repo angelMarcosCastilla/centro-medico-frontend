@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 import { createPerson, searchPersonById } from '../../../services/person'
 import { useState } from 'react'
 import { useDataContext } from './DataContext'
+import { isPersonAdult } from '../../../utils/date'
 
 export default function ModalNewPerson({
   isOpen,
@@ -39,6 +40,11 @@ export default function ModalNewPerson({
 
     try {
       const formData = new FormData(e.target)
+
+      if (!isPersonAdult(formData.get('fechaNacimiento'))) {
+        return toast.error('El cliente debe ser mayor de edad')
+      }
+
       const result = await createPerson(Object.fromEntries(formData))
 
       if (!result.isSuccess) {
