@@ -121,7 +121,9 @@ export default function ModalFormPerson({
                   type='date'
                   defaultValue={
                     personToEdit
-                      ? parseDateToInput(new Date(personToEdit.fecha_nacimiento))
+                      ? parseDateToInput(
+                          new Date(personToEdit.fecha_nacimiento)
+                        )
                       : ''
                   }
                   max={currentDate}
@@ -130,6 +132,23 @@ export default function ModalFormPerson({
                   placeholder='fecha nacimiento'
                   isRequired
                 />
+                <Select
+                  label='Género'
+                  defaultSelectedKeys={[
+                    personToEdit && personToEdit.genero
+                  ]}
+                  name='genero'
+                  isRequired
+                >
+                  <SelectItem value='M' key='M'>
+                    Masculino
+                  </SelectItem>
+                  <SelectItem value='F' key='F'>
+                    Femenino
+                  </SelectItem>
+                </Select>
+              </div>
+              <div className='flex flex-row gap-x-4'>
                 <Input
                   className='mb-2'
                   label='Dirección'
