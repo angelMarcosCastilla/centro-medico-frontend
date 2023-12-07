@@ -40,8 +40,7 @@ export default function ModalNewPerson({
 
     try {
       const formData = new FormData(e.target)
-
-      if (!isPersonAdult(formData.get('fechaNacimiento'))) {
+      if (!isPersonAdult(formData.get('fechaNacimiento')) && !isPatient) {
         return toast.error('El cliente debe ser mayor de edad')
       }
 
