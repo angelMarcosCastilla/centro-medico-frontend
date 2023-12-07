@@ -167,7 +167,11 @@ export default function PatientDetailsModal({ isOpen, onOpenChange, detail }) {
                           ) : (
                             <Popover placement='right' showArrow>
                               <PopoverTrigger>
-                                <List size={25} color={colors.primary} />
+                                <List
+                                  size={25}
+                                  color={colors.primary}
+                                  className='cursor-pointer'
+                                />
                               </PopoverTrigger>
                               <PopoverContent>
                                 <div className='px-1 py-2'>
