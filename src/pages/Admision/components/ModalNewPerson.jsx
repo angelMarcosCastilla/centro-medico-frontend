@@ -56,6 +56,7 @@ export default function ModalNewPerson({
           idpersona,
           apellidos,
           nombres,
+          num_documento: numeroDocumento,
           fecha_nacimiento: fechaNacimiento,
           direccion
         } = dataPersona.data
@@ -63,6 +64,7 @@ export default function ModalNewPerson({
         if (isPatient) {
           setDataPaciente({
             nombres: apellidos + ' ' + nombres,
+            numeroDocumento,
             fechaNacimiento: new Date(fechaNacimiento).toLocaleDateString(
               'es',
               {
@@ -155,6 +157,19 @@ export default function ModalNewPerson({
                     placeholder='fecha nacimiento'
                     isRequired
                   />
+                  <Select label='Género' name='genero' isRequired>
+                    <SelectItem value='M' key='M'>
+                      Masculino
+                    </SelectItem>
+                    <SelectItem value='F' key='F'>
+                      Femenino
+                    </SelectItem>
+                    <SelectItem value='I' key='I'>
+                      39 tipos de gays
+                    </SelectItem>
+                  </Select>
+                </div>
+                <div className='flex flex-row gap-x-4'>
                   <Input
                     className='mb-2'
                     label='Dirección'

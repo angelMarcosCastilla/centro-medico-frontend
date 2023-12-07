@@ -41,12 +41,14 @@ import { capitalize } from '../../../utils'
 import { toast } from 'sonner'
 import ModalFormPerson from './components/ModalFormPerson'
 import { formatDate } from '../../../utils/date'
+import { genders } from '../../../constants/genders'
 
 const columns = [
   { name: 'APELLIDOS Y NOMBRES', uid: 'nombres_completos', sortable: true },
   { name: 'TIPO DOCUMENTO', uid: 'tipo_documento', sortable: true },
   { name: 'NÚMERO DOCUMENTO', uid: 'num_documento', sortable: true },
   { name: 'FECHA NACIMIENTO', uid: 'fecha_nacimiento', sortable: true },
+  { name: 'GÉNERO', uid: 'genero', sortable: true },
   { name: 'DIRECCIÓN', uid: 'direccion', sortable: true },
   { name: 'CORREO', uid: 'correo', sortable: true },
   { name: 'CELULAR', uid: 'celular', sortable: true },
@@ -184,6 +186,8 @@ export default function Personas() {
           month: '2-digit',
           year: 'numeric'
         })
+      case 'genero':
+        return genders[cellValue]
       case 'direccion':
         return cellValue || '---'
       case 'correo':
