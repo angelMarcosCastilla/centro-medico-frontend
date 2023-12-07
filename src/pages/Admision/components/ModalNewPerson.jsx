@@ -163,9 +163,6 @@ export default function ModalNewPerson({
                     <SelectItem value='F' key='F'>
                       Femenino
                     </SelectItem>
-                    <SelectItem value='I' key='I'>
-                      39 tipos de gays
-                    </SelectItem>
                   </Select>
                 </div>
                 <div className='flex flex-row gap-x-4'>
