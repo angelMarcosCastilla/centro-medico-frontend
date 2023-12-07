@@ -7,6 +7,7 @@ import {
   CardHeader,
   Checkbox,
   Input,
+  Spinner,
   Tab,
   Tabs,
   useDisclosure
@@ -25,7 +26,8 @@ export default function FormTriaje() {
   const { state: personData } = useLocation()
   const navigate = useNavigate()
   const {
-    data: [complicacionesMedicas, detalleComplicacionMedica]
+    data: [complicacionesMedicas, detalleComplicacionMedica],
+    loading: loadingMedicalComplications
   } = useFetcher(() => getTriageFromPatient(personData.idpersona))
 
   const [triageData, setTriageData] = useState({
@@ -293,82 +295,88 @@ export default function FormTriaje() {
                       title='Factores de riesgo o comorbilidad'
                     >
                       <div className='grid grid-cols-2 gap-6 px-4 items-start'>
-                        {complicacionesMedicas?.map((el) => {
-                          const isComplicacionPresent =
-                            isComplicacionMedicaPresent(el.idcomplicacionmed)
+                        {loadingMedicalComplications ? (
+                          <Spinner label='Cargando...' labelColor='primary' />
+                        ) : (
+                          complicacionesMedicas?.map((el) => {
+                            const isComplicacionPresent =
+                              isComplicacionMedicaPresent(el.idcomplicacionmed)
 
-                          if (el.idcomplicacionmed === 3) {
+                            if (el.idcomplicacionmed === 3) {
+                              return (
+                                <div
+                                  className='flex gap-1'
+                                  key={el.idcomplicacionmed}
+                                >
+                                  <Checkbox
+                                    isDisabled={isComplicacionPresent}
+                                    isSelected={
+                                      isComplicacionPresent ||
+                                      newAllergies.length > 0
+                                    }
+                                    onValueChange={() => {
+                                      if (!newAllergies.length) onOpen()
+                                      else setNewAllergies([])
+                                    }}
+                                  >
+                                    {el.nombre_complicacion}
+                                  </Checkbox>
+                                  <Button
+                                    tabIndex={-1}
+                                    isIconOnly
+                                    size='sm'
+                                    variant='light'
+                                    color='primary'
+                                    onPress={onOpen}
+                                  >
+                                    <ArrowUpRight size={20} />
+                                  </Button>
+                                </div>
+                              )
+                            }
+
                             return (
-                              <div
-                                className='flex gap-1'
+                              <Checkbox
+                                isDisabled={isComplicacionPresent}
+                                isSelected={calculateIsSelected(
+                                  isComplicacionPresent,
+                                  triageData.complicacionesMedicas,
+                                  el
+                                )}
+                                onValueChange={() => {
+                                  setTriageData((prev) =>
+                                    handleComplicacionMedicaChange(
+                                      prev,
+                                      el,
+                                      isComplicacionPresent
+                                    )
+                                  )
+                                }}
                                 key={el.idcomplicacionmed}
                               >
-                                <Checkbox
-                                  isDisabled={isComplicacionPresent}
-                                  isSelected={
-                                    isComplicacionPresent ||
-                                    newAllergies.length > 0
-                                  }
-                                  onValueChange={() => {
-                                    if (!newAllergies.length) onOpen()
-                                    else setNewAllergies([])
-                                  }}
-                                >
-                                  {el.nombre_complicacion}
-                                </Checkbox>
-                                <Button
-                                  tabIndex={-1}
-                                  isIconOnly
-                                  size='sm'
-                                  variant='light'
-                                  color='primary'
-                                  onPress={onOpen}
-                                >
-                                  <ArrowUpRight size={20} />
-                                </Button>
-                              </div>
+                                {el.nombre_complicacion}
+                              </Checkbox>
                             )
-                          }
-
-                          return (
-                            <Checkbox
-                              isDisabled={isComplicacionPresent}
-                              isSelected={calculateIsSelected(
-                                isComplicacionPresent,
-                                triageData.complicacionesMedicas,
-                                el
-                              )}
-                              onValueChange={() => {
-                                setTriageData((prev) =>
-                                  handleComplicacionMedicaChange(
-                                    prev,
-                                    el,
-                                    isComplicacionPresent
-                                  )
-                                )
-                              }}
-                              key={el.idcomplicacionmed}
-                            >
-                              {el.nombre_complicacion}
-                            </Checkbox>
-                          )
-                        })}
-                        <Checkbox
-                          isSelected={triageData.triajeAtencion.embarazo}
-                          onValueChange={() => {
-                            setTriageData((prev) => {
-                              return {
-                                ...prev,
-                                triajeAtencion: {
-                                  ...prev.triajeAtencion,
-                                  embarazo: !prev.triajeAtencion.embarazo
+                          })
+                        )}
+                        {personData.genero === 'F' && (
+                          <Checkbox
+                            isSelected={triageData.triajeAtencion.embarazo}
+                            onValueChange={() => {
+                              setTriageData((prev) => {
+                                return {
+                                  ...prev,
+                                  triajeAtencion: {
+                                    ...prev.triajeAtencion,
+                                    embarazo: !prev.triajeAtencion.embarazo
+                                  }
                                 }
-                              }
-                            })
-                          }}
-                        >
-                          Embarazo
-                        </Checkbox>
+                              })
+                            }}
+                          >
+                            Embarazo
+                          </Checkbox>
+                        )}
                         <Checkbox
                           isSelected={triageData.triajeAtencion.danio_hepatico}
                           onValueChange={() => {
