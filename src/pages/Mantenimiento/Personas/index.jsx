@@ -181,11 +181,7 @@ export default function Personas() {
       case 'tipo_documento':
         return cellValue === 'D' ? 'DNI' : 'Carnet de Extranjería'
       case 'fecha_nacimiento':
-        return new Date(cellValue).toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        })
+        return formatDate(cellValue)
       case 'genero':
         return genders[cellValue]
       case 'direccion':

@@ -48,5 +48,8 @@ export const formatDate = (dateString, includeTime = false, hour12 = true) => {
     options.hour12 = hour12
   }
 
-  return new Date(dateString).toLocaleDateString('es-ES', options)
+  return new Date(dateString.replace('Z', '')).toLocaleDateString(
+    'es-ES',
+    options
+  )
 }
