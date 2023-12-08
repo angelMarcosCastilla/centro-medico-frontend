@@ -58,6 +58,13 @@ export default function ModalFormPerson({
     }
   }
 
+  const renderProps = () => {
+    if (personToEdit) {
+      return { defaultSelectedKeys: [personToEdit.genero] }
+    }
+    return {}
+  }
+
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='2xl'>
       <ModalContent>
@@ -134,11 +141,9 @@ export default function ModalFormPerson({
                 />
                 <Select
                   label='Género'
-                  defaultSelectedKeys={[
-                    personToEdit && personToEdit.genero
-                  ]}
                   name='genero'
                   isRequired
+                  {...renderProps()}
                 >
                   <SelectItem value='M' key='M'>
                     Masculino

@@ -74,7 +74,7 @@ export default function FormTriaje() {
 
   const validateInput = (value, max) => {
     const parsedValue = parseFloat(value)
-    if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > max) {
+    if (isNaN(parsedValue) || parsedValue <= 0 || parsedValue > max) {
       return ''
     }
 
